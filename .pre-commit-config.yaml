@@ -1,0 +1,81 @@
+# Pre-commit configuration for porto-features
+#
+# Benefits:
+# - Automatic staging of modified files (fixes the uncommitted files bug!)
+# - Only processes changed files (faster)
+# - Better caching and parallel execution
+# - Standard tool used industry-wide
+#
+# Run manually: pre-commit run --all-files
+# Update hooks: pre-commit autoupdate
+
+repos:
+    # ==========================================
+    # Feature Validation (MUST RUN FIRST)
+    # ==========================================
+    - repo: local
+      hooks:
+          - id: validate-features
+            name: Validate feature files
+            entry: make validate-features
+            language: system
+            files: \.feature$
+            pass_filenames: false
+            always_run: true
+
+          - id: validate-fixtures
+            name: Validate fixture files
+            entry: make validate-fixtures
+            language: system
+            files: ^porto_features/fixtures/.*\.json$
+            pass_filenames: false
+            always_run: true
+
+          - id: lint-json
+            name: Lint Gherkin files
+            entry: bash -c 'if [ -f venv/bin/activate ]; then . venv/bin/activate; fi && make lint-json'
+            language: system
+            files: \.feature$
+            pass_filenames: false
+            always_run: false
+
+    # ==========================================
+    # Standard Pre-commit Hooks
+    # ==========================================
+    - repo: https://github.com/pre-commit/pre-commit-hooks
+      rev: v4.5.0
+      hooks:
+          - id: trailing-whitespace
+          - id: end-of-file-fixer
+          - id: check-yaml
+          - id: check-json
+          - id: check-added-large-files
+            args: ['--maxkb=300']
+            exclude: ^venv/
+          - id: check-merge-conflict
+          - id: detect-private-key
+
+    # ==========================================
+    # Python Code Quality
+    # ==========================================
+
+    # Ruff formatter (matches pyproject.toml: line-length=100)
+    - repo: https://github.com/astral-sh/ruff-pre-commit
+      rev: v0.1.15
+      hooks:
+          - id: ruff-format
+            args: ['--line-length=100']
+            files: ^scripts/.*\.py$
+
+          # Ruff linter with auto-fix
+          - id: ruff
+            args: ['--fix', '--exit-non-zero-on-fix']
+            files: ^scripts/.*\.py$
+
+    # MyPy type checking
+    - repo: https://github.com/pre-commit/mirrors-mypy
+      rev: v1.8.0
+      hooks:
+          - id: mypy
+            args: ['--config-file=pyproject.toml']
+            files: ^scripts/.*\.py$
