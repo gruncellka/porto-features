@@ -33,7 +33,7 @@ jobs:
     # Validate once (Python); both build jobs depend on this.
     # -------------------------------------------------------------------------
     validate:
-        name: Validate (porto-features)
+        name: Validate porto-features and publishability
         runs-on: ubuntu-latest
         steps:
             - name: Checkout

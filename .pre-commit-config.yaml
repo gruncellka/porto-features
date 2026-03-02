@@ -51,8 +51,10 @@ repos:
           - id: check-json
           - id: check-added-large-files
             args: ['--maxkb=300']
-            exclude: ^venv/
           - id: check-merge-conflict
+          - id: check-case-conflict
+          - id: no-commit-to-branch
+            args: ['--branch', 'main']
           - id: detect-private-key
 
     # ==========================================

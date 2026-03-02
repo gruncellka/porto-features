@@ -54,9 +54,9 @@ setup: ## Install dependencies and pre-commit hooks
 
 install-hooks: ## Install pre-commit hooks
 	@if [ -f venv/bin/pre-commit ]; then \
-		venv/bin/pre-commit install; \
+		venv/bin/pre-commit install --hook-type pre-commit --hook-type pre-push; \
 	else \
-		python3.11 -m pre_commit install; \
+		python3.11 -m pre_commit install --hook-type pre-commit --hook-type pre-push; \
 	fi
 
 # ==========================================

@@ -7,7 +7,7 @@ env:
 
 jobs:
     validate-features:
-        name: validate feature files
+        name: Validate feature files
         runs-on: ubuntu-22.04
         steps:
             - uses: actions/checkout@v4
@@ -21,7 +21,7 @@ jobs:
               run: make validate-features
 
     validate-fixtures:
-        name: validate fixture files
+        name: Validate fixture files
         runs-on: ubuntu-22.04
         steps:
             - uses: actions/checkout@v4
@@ -35,7 +35,7 @@ jobs:
               run: make validate-fixtures
 
     lint-features:
-        name: lint feature files
+        name: Lint feature files
         runs-on: ubuntu-22.04
         needs: [validate-features, validate-fixtures]
         steps:
@@ -50,7 +50,7 @@ jobs:
               run: make lint-json
 
     format-code:
-        name: check python formatting
+        name: Check python formatting
         runs-on: ubuntu-22.04
         needs: [validate-features, validate-fixtures]
         steps:
@@ -65,7 +65,7 @@ jobs:
               run: make format-code CHECK=1
 
     format-json:
-        name: check json formatting
+        name: Check json formatting
         runs-on: ubuntu-22.04
         needs: [validate-features, validate-fixtures]
         steps:
@@ -80,7 +80,7 @@ jobs:
               run: make format-json CHECK=1
 
     lint-code:
-        name: lint python code
+        name: Lint python code
         runs-on: ubuntu-22.04
         needs: [validate-features, validate-fixtures]
         steps:
@@ -95,7 +95,7 @@ jobs:
               run: make lint-code
 
     type-check:
-        name: type check python
+        name: Type check python
         runs-on: ubuntu-22.04
         needs: [validate-features, validate-fixtures]
         steps:
@@ -109,8 +109,8 @@ jobs:
             - name: Type check Python code
               run: make type-check
 
-    test-scripts:
-        name: test validator scripts (coverage)
+    test:
+        name: Run Tests with Coverage
         runs-on: ubuntu-22.04
         needs: [validate-features, validate-fixtures]
         steps:
@@ -130,7 +130,7 @@ jobs:
                   token: ${{ secrets.CODECOV_TOKEN }}
 
     validation:
-        name: porto features validation
+        name: Porto features validation
         runs-on: ubuntu-22.04
         needs:
             - validate-features

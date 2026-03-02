@@ -10,6 +10,7 @@ Porto Features is a feature/fixture repository (`.feature` + `.json`) with Pytho
     make setup
     ```
 3. Start making changes. Pre-commit hooks run automatically on every commit.
+4. Pushes are protected locally: direct push to `main`/`master` and force-pushes are blocked by a pre-push hook.
 
 `make setup` creates `venv`, installs dev dependencies, and installs pre-commit hooks.
 
@@ -49,6 +50,7 @@ Porto Features is a feature/fixture repository (`.feature` + `.json`) with Pytho
 On commit, hooks can format files and run validation/lint/type-check.
 
 If hooks modify files, re-stage and commit again.
+On push, if a protected branch or force push is detected, create/update a feature branch and open a PR.
 
 ## Pull requests
 
