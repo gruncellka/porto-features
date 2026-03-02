@@ -140,7 +140,7 @@ jobs:
             - format-json
             - lint-code
             - type-check
-            - test-scripts
+            - test
         steps:
             - name: All validation checks passed
               run: echo "✅ All validation checks passed successfully!"
