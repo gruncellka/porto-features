@@ -1,0 +1,60 @@
+# Porto Features - Cursor Rules
+
+## Project Purpose
+
+BDD test features (Gherkin) for Porto SDKs.
+Shared test scenarios used by both Python and TypeScript SDKs.
+
+## Structure
+
+```
+porto_features/                     # Published package content
+├── features/                       # Gherkin feature files
+│   ├── validation.feature
+│   ├── pricing.feature
+│   ├── stamp_generation.feature
+│   ├── resolution.feature
+│   ├── restrictions.feature
+│   ├── services.feature
+│   ├── data_access.feature
+│   ├── cli.feature
+│   └── api_comprehensive_testing.feature
+└── fixtures/                       # Test data
+    └── addresses/                  # Sample addresses by country
+        ├── valid_DE.json
+        ├── valid_FR.json
+        └── ...
+```
+
+## Gherkin Format
+
+```gherkin
+Feature: Letter validation
+  As a user
+  I want to validate letter parameters
+  So that I can ensure correct postage
+
+  Scenario: Valid domestic standard letter
+    Given a letter with weight 20g
+    And destination country "DE"
+    When I validate the letter
+    Then the validation should pass
+```
+
+## Key Principles
+
+- **SDK-agnostic**: Features describe behavior, not implementation
+- **Data-driven**: Use fixtures for test data
+- **BDD**: Business-readable scenarios
+- **Package-first**: Keep data under `porto_features/` so npm and PyPI ship identical files
+
+## How SDKs Use This
+
+- Python: pytest-bdd reads features, steps in `tests/steps/`
+- TypeScript: Cucumber reads features, steps in `tests/steps/`
+
+## Do NOT
+
+- Add language-specific step definitions here - those belong in SDKs
+- Reference SDK internals in feature files
+- Duplicate fixtures that exist in porto-data
