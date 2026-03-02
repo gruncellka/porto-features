@@ -1,0 +1,10 @@
+{
+    "id": "addr_ua_mariupol_restricted",
+    "name": "Тест Отримувач",
+    "street": "Проспект Миру",
+    "house_number": "10",
+    "postal_code": "87500",
+    "city": "Маріуполь",
+    "region_code": "UA-14",
+    "country_code": "UA"
+}

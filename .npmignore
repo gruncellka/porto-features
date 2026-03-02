@@ -1,0 +1,12 @@
+# NPM: features + fixtures + index only; no Python in published package.
+# "files" in package.json is the whitelist; .npmignore excludes extra files when packing.
+*.py
+*.pyc
+porto_features/__init__.py
+porto_features/py.typed
+**/__pycache__/
+*.pyi
+pyproject.toml
+scripts/
+tests/
+.cursorrules

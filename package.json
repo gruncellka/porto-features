@@ -1,0 +1,37 @@
+{
+    "name": "@gruncellka/porto-features",
+    "version": "0.1.0",
+    "description": "Shared BDD feature files for Porto SDKs",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/gruncellka/porto-features.git"
+    },
+    "keywords": [
+        "bdd",
+        "gherkin",
+        "cucumber",
+        "features",
+        "porto"
+    ],
+    "files": [
+        "porto_features/features",
+        "porto_features/fixtures",
+        "README.md",
+        "LICENSE",
+        "index.js",
+        "index.d.ts"
+    ],
+    "main": "index.js",
+    "types": "index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./index.d.ts",
+            "require": "./index.js",
+            "default": "./index.js"
+        }
+    },
+    "devDependencies": {
+        "typescript": "^5.9.3"
+    }
+}

@@ -1,0 +1,10 @@
+{
+    "id": "addr_de_berlin",
+    "name": "Test Empf\u00e4nger",
+    "street": "Friedrichstra\u00dfe",
+    "house_number": "123",
+    "postal_code": "10117",
+    "city": "Berlin",
+    "region_code": "DE-BE",
+    "country_code": "DE"
+}

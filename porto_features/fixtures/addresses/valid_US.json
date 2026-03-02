@@ -1,0 +1,10 @@
+{
+    "id": "addr_us_nyc",
+    "name": "Test Recipient",
+    "street": "5th Avenue",
+    "house_number": "350",
+    "postal_code": "10118",
+    "city": "New York",
+    "region_code": "US-NY",
+    "country_code": "US"
+}

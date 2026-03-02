@@ -1,0 +1,10 @@
+{
+    "id": "addr_fr_paris",
+    "name": "Test Destinataire",
+    "street": "Rue de Rivoli",
+    "house_number": "45",
+    "postal_code": "75001",
+    "city": "Paris",
+    "region_code": "FR-75",
+    "country_code": "FR"
+}

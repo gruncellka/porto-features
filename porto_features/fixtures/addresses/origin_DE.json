@@ -1,0 +1,10 @@
+{
+    "id": "origin_de_munich",
+    "name": "Test Absender",
+    "street": "Hauptstra\u00dfe",
+    "house_number": "1",
+    "postal_code": "80331",
+    "city": "M\u00fcnchen",
+    "region_code": "DE-BY",
+    "country_code": "DE"
+}

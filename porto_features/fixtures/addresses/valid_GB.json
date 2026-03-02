@@ -1,0 +1,10 @@
+{
+    "id": "addr_gb_london",
+    "name": "Test Recipient",
+    "street": "Baker Street",
+    "house_number": "221B",
+    "postal_code": "NW1 6XE",
+    "city": "London",
+    "region_code": "GB-LND",
+    "country_code": "GB"
+}

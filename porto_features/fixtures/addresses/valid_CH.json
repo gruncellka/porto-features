@@ -1,0 +1,10 @@
+{
+    "id": "addr_ch_zurich",
+    "name": "Test Empf\u00e4nger",
+    "street": "Bahnhofstrasse",
+    "house_number": "10",
+    "postal_code": "8001",
+    "city": "Z\u00fcrich",
+    "region_code": "CH-ZH",
+    "country_code": "CH"
+}

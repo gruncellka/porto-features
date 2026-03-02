@@ -1,0 +1,10 @@
+{
+    "id": "addr_no_oslo",
+    "name": "Test Mottaker",
+    "street": "Karl Johans gate",
+    "house_number": "1",
+    "postal_code": "0154",
+    "city": "Oslo",
+    "region_code": "NO-03",
+    "country_code": "NO"
+}
