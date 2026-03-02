@@ -1,0 +1,146 @@
+name: validation
+
+on: [push, pull_request]
+
+env:
+    PYTHON_VERSION: '3.11'
+
+jobs:
+    validate-features:
+        name: validate feature files
+        runs-on: ubuntu-22.04
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-python@v5
+              with:
+                  python-version: ${{ env.PYTHON_VERSION }}
+                  cache: 'pip'
+            - name: Install dependencies
+              run: make setup
+            - name: Validate feature files
+              run: make validate-features
+
+    validate-fixtures:
+        name: validate fixture files
+        runs-on: ubuntu-22.04
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-python@v5
+              with:
+                  python-version: ${{ env.PYTHON_VERSION }}
+                  cache: 'pip'
+            - name: Install dependencies
+              run: make setup
+            - name: Validate fixture files
+              run: make validate-fixtures
+
+    lint-features:
+        name: lint feature files
+        runs-on: ubuntu-22.04
+        needs: [validate-features, validate-fixtures]
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-python@v5
+              with:
+                  python-version: ${{ env.PYTHON_VERSION }}
+                  cache: 'pip'
+            - name: Install dependencies
+              run: make setup
+            - name: Lint feature files
+              run: make lint-json
+
+    format-code:
+        name: check python formatting
+        runs-on: ubuntu-22.04
+        needs: [validate-features, validate-fixtures]
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-python@v5
+              with:
+                  python-version: ${{ env.PYTHON_VERSION }}
+                  cache: 'pip'
+            - name: Install dependencies
+              run: make setup
+            - name: Check Python code formatting
+              run: make format-code CHECK=1
+
+    format-json:
+        name: check json formatting
+        runs-on: ubuntu-22.04
+        needs: [validate-features, validate-fixtures]
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-python@v5
+              with:
+                  python-version: ${{ env.PYTHON_VERSION }}
+                  cache: 'pip'
+            - name: Install dependencies
+              run: make setup
+            - name: Check JSON fixture formatting
+              run: make format-json CHECK=1
+
+    lint-code:
+        name: lint python code
+        runs-on: ubuntu-22.04
+        needs: [validate-features, validate-fixtures]
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-python@v5
+              with:
+                  python-version: ${{ env.PYTHON_VERSION }}
+                  cache: 'pip'
+            - name: Install dependencies
+              run: make setup
+            - name: Lint Python code
+              run: make lint-code
+
+    type-check:
+        name: type check python
+        runs-on: ubuntu-22.04
+        needs: [validate-features, validate-fixtures]
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-python@v5
+              with:
+                  python-version: ${{ env.PYTHON_VERSION }}
+                  cache: 'pip'
+            - name: Install dependencies
+              run: make setup
+            - name: Type check Python code
+              run: make type-check
+
+    test-scripts:
+        name: test validator scripts (coverage)
+        runs-on: ubuntu-22.04
+        needs: [validate-features, validate-fixtures]
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-python@v5
+              with:
+                  python-version: ${{ env.PYTHON_VERSION }}
+                  cache: 'pip'
+            - name: Install dependencies
+              run: make setup
+            - name: Run tests with coverage gate
+              run: make test-coverage
+            - name: Upload coverage reports to Codecov
+              uses: codecov/codecov-action@v5
+              continue-on-error: true
+              with:
+                  token: ${{ secrets.CODECOV_TOKEN }}
+
+    validation:
+        name: porto features validation
+        runs-on: ubuntu-22.04
+        needs:
+            - validate-features
+            - validate-fixtures
+            - lint-features
+            - format-code
+            - format-json
+            - lint-code
+            - type-check
+            - test-scripts
+        steps:
+            - name: All validation checks passed
+              run: echo "✅ All validation checks passed successfully!"
