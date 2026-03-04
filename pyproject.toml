@@ -7,7 +7,7 @@ requires-python = ">=3.11"
 license = "MIT"
 keywords = ["bdd", "gherkin", "cucumber", "features", "porto"]
 authors = [
-    {name = "Porto Team"}
+    {name = "gruncellka"}
 ]
 
 [project.optional-dependencies]
