@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.2.0] - 2026-03-06
+
+### Changed
+
+- **BREAKING**: Python baseline is now **3.13+** (`requires-python >=3.13`).
+- **Tooling**: Ruff/MyPy targets are aligned to Python **3.13**.
+- **npm runtime**: minimum Node.js is now **>=20** via `engines.node`.
+- **TypeScript**: development/build baseline is now pinned to **5.9.x** (`~5.9.3`).
+- **Setup reliability**: `make setup` now detects Git repos/submodules correctly for hook installation.
+
 ## [0.1.0] - 2026-03-02
 
 Initial public release.
