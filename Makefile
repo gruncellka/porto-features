@@ -43,7 +43,7 @@ help: ## Show this help message
 
 setup: ## Install dependencies and pre-commit hooks
 	@echo "Setting up porto-features..."
-	@python3.11 -m venv venv
+	@python3.13 -m venv venv
 	@. venv/bin/activate && pip install -q -e ".[dev]"
 	@if [ -d .git ]; then \
 		$(MAKE) install-hooks || echo "Warning: Could not install pre-commit hooks. Run 'make install-hooks' manually."; \
@@ -56,7 +56,7 @@ install-hooks: ## Install pre-commit hooks
 	@if [ -f venv/bin/pre-commit ]; then \
 		venv/bin/pre-commit install --hook-type pre-commit --hook-type pre-push; \
 	else \
-		python3.11 -m pre_commit install --hook-type pre-commit --hook-type pre-push; \
+		python3.13 -m pre_commit install --hook-type pre-commit --hook-type pre-push; \
 	fi
 
 # ==========================================
@@ -77,7 +77,7 @@ validate-features: ## Validate all feature files
 	@if [ -f venv/bin/python ]; then \
 		venv/bin/python scripts/validate_features.py || (echo "✗ Feature validation failed." && exit 1); \
 	else \
-		python3.11 scripts/validate_features.py || (echo "✗ Feature validation failed." && exit 1); \
+		python3.13 scripts/validate_features.py || (echo "✗ Feature validation failed." && exit 1); \
 	fi
 	@echo "✓ Feature validation complete"
 
@@ -86,7 +86,7 @@ validate-fixtures: ## Validate all fixture files
 	@if [ -f venv/bin/python ]; then \
 		venv/bin/python scripts/validate_fixtures.py || (echo "✗ Fixture validation failed." && exit 1); \
 	else \
-		python3.11 scripts/validate_fixtures.py || (echo "✗ Fixture validation failed." && exit 1); \
+		python3.13 scripts/validate_fixtures.py || (echo "✗ Fixture validation failed." && exit 1); \
 	fi
 	@echo "✓ Fixture validation complete"
 

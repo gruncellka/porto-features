@@ -3,7 +3,7 @@ name = "gruncellka-porto-features"
 version = "0.1.0"
 description = "Shared BDD feature files for Porto SDKs"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.13"
 license = "MIT"
 keywords = ["bdd", "gherkin", "cucumber", "features", "porto"]
 authors = [
@@ -36,7 +36,7 @@ porto_features = ["features/*.feature", "fixtures/**/*.json"]
 
 [tool.ruff]
 line-length = 100
-target-version = "py311"
+target-version = "py313"
 
 # Enable formatting (replaces Black)
 [tool.ruff.format]
@@ -65,7 +65,7 @@ ignore = [
 known-first-party = ["porto_features"]
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.13"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = false
