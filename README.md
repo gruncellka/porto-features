@@ -11,7 +11,7 @@ A validated collection of Gherkin feature files and JSON fixtures that define be
 
 ## Install
 
-**JavaScript (scope: `@gruncellka`)**
+**TypeScript / JavaScript (npm, scope: `@gruncellka`)**
 
 ```bash
 pnpm add -D @gruncellka/porto-features
@@ -19,7 +19,9 @@ yarn add -D @gruncellka/porto-features
 npm install -D @gruncellka/porto-features
 ```
 
-**PyPI (Python)**
+Use this npm package in both TypeScript and JavaScript projects.
+
+**Python (PyPI)**
 
 ```bash
 pip install "gruncellka-porto-features[dev]"
@@ -29,8 +31,8 @@ poetry add --group dev gruncellka-porto-features
 
 The package includes `porto_features/features/*.feature` and `porto_features/fixtures/**/*.json`, so SDK tests can run offline with the same source of truth in both ecosystems.
 
-- **PyPI**: import `porto_features`; use files under `porto_features/features` and `porto_features/fixtures`.
-- **npm**: files live under `porto_features/` in `node_modules/@gruncellka/porto-features/`.
+- **Python (PyPI)**: access files from the installed `porto_features` package directory (`porto_features/features` and `porto_features/fixtures`).
+- **TypeScript / JavaScript (npm)**: access the same files from the package root (`@gruncellka/porto-features/porto_features/...`).
 
 ---
 
