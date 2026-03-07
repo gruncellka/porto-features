@@ -22,7 +22,9 @@ npm install -D @gruncellka/porto-features
 **PyPI (Python)**
 
 ```bash
-pip install gruncellka-porto-features
+pip install "gruncellka-porto-features[dev]"
+uv add --dev gruncellka-porto-features
+poetry add --group dev gruncellka-porto-features
 ```
 
 The package includes `porto_features/features/*.feature` and `porto_features/fixtures/**/*.json`, so SDK tests can run offline with the same source of truth in both ecosystems.
