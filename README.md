@@ -11,10 +11,12 @@ A validated collection of Gherkin feature files and JSON fixtures that define be
 
 ## Install
 
-**npm** (scope: `@gruncellka`)
+**JavaScript (scope: `@gruncellka`)**
 
 ```bash
-npm install @gruncellka/porto-features
+pnpm add -D @gruncellka/porto-features
+yarn add -D @gruncellka/porto-features
+npm install -D @gruncellka/porto-features
 ```
 
 **PyPI (Python)**
@@ -56,18 +58,18 @@ This runs feature/fixture validation, Gherkin linting, Python lint/format checks
 
 ## Feature and fixture overview
 
-| File                                 | Description                                |
-| ------------------------------------ | ------------------------------------------ |
-| `api_comprehensive_testing.feature`  | End-to-end API behavior scenarios          |
-| `cli.feature`                        | CLI usage and output behavior              |
-| `data_access.feature`                | Data loading and access behavior           |
-| `pricing.feature`                    | Pricing logic by type/zone/weight          |
-| `resolution.feature`                 | Resolution workflow behavior               |
-| `restrictions.feature`               | Restrictions and sanctions behavior         |
-| `services.feature`                   | Service catalog behavior                   |
-| `stamp_generation.feature`           | Stamp generation behavior                  |
-| `validation.feature`                 | Validation and error behavior              |
-| `porto_features/fixtures/addresses/*.json` | Test addresses by country/zone       |
+| File                                       | Description                         |
+| ------------------------------------------ | ----------------------------------- |
+| `api_comprehensive_testing.feature`        | End-to-end API behavior scenarios   |
+| `cli.feature`                              | CLI usage and output behavior       |
+| `data_access.feature`                      | Data loading and access behavior    |
+| `pricing.feature`                          | Pricing logic by type/zone/weight   |
+| `resolution.feature`                       | Resolution workflow behavior        |
+| `restrictions.feature`                     | Restrictions and sanctions behavior |
+| `services.feature`                         | Service catalog behavior            |
+| `stamp_generation.feature`                 | Stamp generation behavior           |
+| `validation.feature`                       | Validation and error behavior       |
+| `porto_features/fixtures/addresses/*.json` | Test addresses by country/zone      |
 
 Feature files are validated via `scripts/validate_features.py`, and fixture JSON files are validated via `scripts/validate_fixtures.py`. Fixtures are shipped for deterministic tests.
 
