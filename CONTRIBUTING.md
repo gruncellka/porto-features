@@ -76,12 +76,14 @@ Before a release:
 
 1. Update `CHANGELOG.md`.
 2. Bump version in both `package.json` and `pyproject.toml` (recommended: `bump2version patch` / `minor` / `major`).
+3. `bump2version` creates the version commit but does not create a git tag automatically (`tag = False`).
+4. Create the release tag manually after merge on `main` (recommended), for example: `git tag vX.Y.Z && git push origin vX.Y.Z`.
 
 ### Publishing
 
 Publish workflow: `.github/workflows/publish.yml`
 
-- Trigger by tag push `v*` (normal release), or
+- Trigger by manual tag push `v*` (normal release), or
 - Run manually via GitHub Actions (`workflow_dispatch`)
 
 Manual dispatch supports `publish_target` (`both`, `npm`, `pypi`) for retry scenarios.
@@ -93,6 +95,7 @@ Packages:
 - PyPI: `gruncellka-porto-features`
 
 Before tagging, make sure validation CI is green for the exact commit you will release.
+Recommended flow: release branch -> PR to `main` -> manual tag on `main` -> publish workflow.
 
 ## CI links
 
