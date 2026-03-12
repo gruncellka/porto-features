@@ -1,4 +1,5 @@
 # Features and fixtures are in porto_features/ and included via [tool.setuptools.package-data].
 include README.md
+include CHANGELOG.md
 include LICENSE
 prune tests
