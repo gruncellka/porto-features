@@ -1,6 +1,6 @@
 {
     "name": "@gruncellka/porto-features",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "description": "Shared BDD feature files for Porto SDKs",
     "author": "gruncellka",
     "license": "MIT",
