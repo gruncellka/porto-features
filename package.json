@@ -2,10 +2,15 @@
     "name": "@gruncellka/porto-features",
     "version": "0.2.0",
     "description": "Shared BDD feature files for Porto SDKs",
+    "author": "gruncellka",
     "license": "MIT",
     "repository": {
         "type": "git",
         "url": "https://github.com/gruncellka/porto-features.git"
+    },
+    "homepage": "https://github.com/gruncellka/porto-features",
+    "bugs": {
+        "url": "https://github.com/gruncellka/porto-features/issues"
     },
     "keywords": [
         "bdd",
