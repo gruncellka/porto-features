@@ -19,6 +19,7 @@ authors = [
 Homepage = "https://github.com/gruncellka/porto-features"
 Repository = "https://github.com/gruncellka/porto-features"
 Issues = "https://github.com/gruncellka/porto-features/issues"
+Changelog = "https://github.com/gruncellka/porto-features/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 dev = [

@@ -23,6 +23,7 @@
         "porto_features/features",
         "porto_features/fixtures",
         "README.md",
+        "CHANGELOG.md",
         "LICENSE",
         "index.js",
         "index.d.ts"
