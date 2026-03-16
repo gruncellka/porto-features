@@ -84,6 +84,7 @@ Feature files are validated via `scripts/validate_features.py`, and fixture JSON
 - **Feature format**: Gherkin (`.feature`), Cucumber-compatible
 - **Fixture format**: JSON (`.json`)
 - **Country codes**: ISO 3166-1 alpha-2 (`DE`, `US`, `FR`, `UA`)
+- **Step vocabulary**: canonical step language in `STEP_VOCABULARY.md`
 
 ---
 

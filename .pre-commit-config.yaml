@@ -31,9 +31,9 @@ repos:
             pass_filenames: false
             always_run: true
 
-          - id: lint-json
+          - id: lint-gherlint
             name: Lint Gherkin files
-            entry: bash -c 'if [ -f venv/bin/activate ]; then . venv/bin/activate; fi && make lint-json'
+            entry: bash -c 'if [ -f venv/bin/activate ]; then . venv/bin/activate; fi && make lint-gherlint'
             language: system
             files: \.feature$
             pass_filenames: false

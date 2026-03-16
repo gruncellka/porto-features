@@ -47,7 +47,7 @@ jobs:
             - name: Install dependencies
               run: make setup
             - name: Lint feature files
-              run: make lint-json
+              run: make lint-gherlint
 
     format-code:
         name: Check python formatting

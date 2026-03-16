@@ -1,5 +1,5 @@
 .PHONY: help setup install-hooks
-.PHONY: validate-features validate-fixtures lint-json format-code format-json lint-code type-check
+.PHONY: validate-features validate-fixtures lint-gherlint format-code format-json lint-code type-check
 .PHONY: format lint quality test test-cov test-coverage test-publish
 
 help: ## Show this help message
@@ -15,8 +15,9 @@ help: ## Show this help message
 	@echo "  make validate-features - Validate all feature files"
 	@echo "  make validate-fixtures - Validate all fixture files"
 	@echo ""
-	@echo "JSON commands:"
-	@echo "  make lint-json     - Lint feature files with gherlint"
+	@echo "Feature/Gherkin commands:"
+	@echo "  make lint-gherlint - Lint feature files with gherlint"
+	@echo "JSON fixture commands:"
 	@echo "  make format-json   - Format fixture JSON files (CHECK=1 for check-only)"
 	@echo ""
 	@echo "Code commands:"
@@ -66,7 +67,7 @@ install-hooks: ## Install pre-commit hooks
 quality: ## Run all quality checks (read-only formatting gates)
 	@$(MAKE) validate-features
 	@$(MAKE) validate-fixtures
-	@$(MAKE) lint-json
+	@$(MAKE) lint-gherlint
 	@$(MAKE) format-json CHECK=1
 	@$(MAKE) lint-code
 	@$(MAKE) format-code CHECK=1
@@ -94,7 +95,7 @@ validate-fixtures: ## Validate all fixture files
 # JSON Commands
 # ==========================================
 
-lint-json: ## Lint feature files with gherlint
+lint-gherlint: ## Lint feature files with gherlint
 	@echo "Linting feature files..."
 	@if [ -f venv/bin/gherlint ]; then \
 		venv/bin/gherlint lint porto_features/features/ || (echo "✗ Feature linting failed." && exit 1); \
@@ -171,7 +172,7 @@ format-code: ## Format Python code with ruff (CHECK=1 for check-only)
 # Combined Commands
 # ==========================================
 
-lint: lint-json lint-code ## Lint features and Python code
+lint: lint-gherlint lint-code ## Lint features and Python code
 
 format: format-code format-json ## Format Python and JSON files
 
