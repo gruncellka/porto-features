@@ -234,6 +234,15 @@ def _load_yaml(path: Path) -> dict:
     return doc if isinstance(doc, dict) else {}
 
 
+def _expected_case_id(cell: dict) -> str:
+    """Dot-scoped case_id from structured order cell fields."""
+    parts = [cell["provider"], cell["adapter"], cell["product_id"], cell["zone_id"]]
+    service_ids = cell.get("service_ids") or []
+    if isinstance(service_ids, list):
+        parts.extend(service_ids)
+    return ".".join(parts)
+
+
 def validate_matrix_files(matrix_dir: Path, features_dir: Path) -> tuple[bool, list[str]]:
     """Validate matrix YAML indexes."""
     if yaml is None:
@@ -279,6 +288,13 @@ def validate_matrix_files(matrix_dir: Path, features_dir: Path) -> tuple[bool, l
                 )
 
     for cell in orders_doc.get("order_cells", []):
+        expected_id = _expected_case_id(cell)
+        actual_id = cell.get("case_id")
+        if actual_id != expected_id:
+            errors.append(
+                f"❌ orders.generated.yaml: case_id '{actual_id}' does not match "
+                f"structured fields (expected '{expected_id}')"
+            )
         for ref in cell.get("refs", []):
             rel = _ref_feature_path(ref)
             feature_path = features_dir / rel

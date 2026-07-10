@@ -1,6 +1,8 @@
 # Features layering doctrine (porto-features)
 
-**Hub:** `docs/README.md` · `docs/vocabulary.md` · `docs/scenario-policy.md` · `docs/matrix.md` · [`.cursor/BUGBOT.md`](../BUGBOT.md)
+**Hub:** `docs/README.md` · `docs/vocabulary.md` · `docs/scenario-policy.md` · `docs/matrix.md` · **PR review:** [`.cursor/BUGBOT.md`](../BUGBOT.md)
+
+**Agent siblings:** [karpathy-guidelines.mdc](karpathy-guidelines.mdc) · [git-no-auto-commit.mdc](git-no-auto-commit.mdc)
 
 porto-features is a **shared BDD contract** package — Gherkin scenarios and JSON fixtures only. Step definitions live in **SDK repositories**.
 
@@ -41,6 +43,8 @@ Lab runs               →  evidence for @adapters promotion only
 | Scenario references `data_links.json` | Use `graph.json`, `integration.json`, `metadata.json` |
 
 ## Before merge
+
+PR review blocking rules: see `.cursor/BUGBOT.md` (not duplicated here).
 
 1. `make quality` and `make test-cov`
 2. Update `docs/vocabulary.md` when adding canonical steps

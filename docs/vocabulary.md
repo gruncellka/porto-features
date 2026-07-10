@@ -66,6 +66,19 @@ Do **not** use legacy tokens (`letter_standard`, `STANDARD`, `registered_mail`) 
 
 Normative policy: [porto-data docs/id.md](https://github.com/gruncellka/porto-data/blob/main/docs/id.md)
 
+## Disambiguation (native `id` vs `porto_id` bucket)
+
+`porto_id` is a size/speed **bucket**; native `id` is the operator SKU. When multiple native products share one bucket, scenarios use zone, weight, delivery preference, or explicit product pick — never a second `porto_id`.
+
+| Provider | Shared `porto_id` | Native `id` examples | Disambiguation |
+|----------|-------------------|----------------------|----------------|
+| Deutsche Post | `extra_large` | `maxibrief`, `maxibrief_ausland` | zone + weight tier |
+| La Poste | `small` | `lettre_verte`, `lettre_services_plus` | delivery preference / options |
+| Swiss Post | `small` | `a_post_standardbrief`, `b_post_standardbrief` | delivery speed / options |
+| Ukrposhta | `large` | `dokument` | domestic zone only |
+
+`ausland` and `heavy` are fragments of native product names, not buckets.
+
 ## Review checklist
 
 - Does the scenario use `porto_id` for SDK input?

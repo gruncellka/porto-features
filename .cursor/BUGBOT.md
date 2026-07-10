@@ -2,7 +2,7 @@
 
 **Canonical PR review resource** for this repo. Cursor Bugbot reads this file on PR review; agents should follow it when editing `porto_features/` or validation scripts.
 
-**Agent coding rules:** [`.cursor/rules/features-layering-doctrine.mdc`](.cursor/rules/features-layering-doctrine.mdc) · [`.cursor/rules/bugbot.mdc`](.cursor/rules/bugbot.mdc)
+**Agent rules (Cursor):** [`.cursor/rules/features-layering-doctrine.mdc`](.cursor/rules/features-layering-doctrine.mdc) · [`.cursor/rules/karpathy-guidelines.mdc`](.cursor/rules/karpathy-guidelines.mdc) · [`.cursor/rules/git-no-auto-commit.mdc`](.cursor/rules/git-no-auto-commit.mdc)
 
 ## Scope
 

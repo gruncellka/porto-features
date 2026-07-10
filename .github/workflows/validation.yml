@@ -1,6 +1,7 @@
 name: validation
 
-on: [push, pull_request]
+on:
+  push:
 
 env:
     PYTHON_VERSION: '3.13'

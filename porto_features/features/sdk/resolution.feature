@@ -59,7 +59,7 @@ Feature: Resolution
     And I should get weight tier "W0050"
     And the resolution should be valid
 
-  Scenario: Resolve large letter for heavy weight
+  Scenario: Resolve large letter for upper domestic weight
     Given I want to send a letter to country "DE"
     And the letter weight is 100 grams
     And the letter porto_id is "large"
@@ -77,6 +77,16 @@ Feature: Resolution
     Then I should get product with id "maxibrief"
     And I should get zone with id "domestic"
     And I should get weight tier "W1000"
+    And the resolution should be valid
+
+  Scenario: Resolve extra large international letter
+    Given I want to send a letter to country "FR"
+    And the letter weight is 1700 grams
+    And the letter porto_id is "extra_large"
+    When I resolve the shipping configuration
+    Then I should get product with id "maxibrief_ausland"
+    And I should get zone with id "zone_1_eu"
+    And I should get weight tier "W2000"
     And the resolution should be valid
 
   Scenario: Resolve with invalid country code

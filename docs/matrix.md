@@ -12,7 +12,7 @@ porto-features defines **what** to prove. Lab defines **when** and **how** to ru
 | **`provider`** | Postal operator (`deutschepost`, …) — same as porto-data |
 | **`adapter`** | Integration id (`internetmarke`, …) — same as porto-data |
 | **`concern`** | SDK test domain in `cell_id` (`resolution`, `pricing`, …) |
-| **`case_id`** | Adapter order cell from porto-data wire (`standardbrief_domestic_einschreiben`) |
+| **`case_id`** | Adapter order cell slug from porto-data wire (`deutschepost.internetmarke.standardbrief.domestic.einschreiben`) |
 
 Rejected tags: `@offline`, `@online`, `@api`, `@capabilities`, `@features`.
 
@@ -47,6 +47,27 @@ porto_features/
 ```
 
 Example: `deutschepost.resolution.happy.small.domestic`
+
+## case_id (adapter order cells)
+
+```text
+{provider}.{adapter}.{product_id}.{zone_id}[.{service_id}...]
+```
+
+Examples:
+
+| case_id | Meaning |
+|---------|---------|
+| `deutschepost.internetmarke.standardbrief.domestic` | Base domestic standard letter |
+| `deutschepost.internetmarke.maxibrief_ausland.world` | International maxi (native id with underscore) |
+| `deutschepost.internetmarke.standardbrief.domestic.einschreiben` | Domestic + registered service |
+
+Rules:
+
+- **Dots** separate segments only; `product_id` and `service_id` keep internal underscores as porto-data native ids.
+- **At most one** `service_id` per cell today (wire variants) — if multiple later, append each as its own dot segment (sorted).
+- **Do not hand-edit** `orders.generated.yaml` — regenerate via Lab `make matrix-orders-sync`.
+- **Do not parse** `case_id` in product code — use structured fields on the order cell; `case_id` is a stable slug and artifact path key.
 
 ## Three run lanes
 

@@ -23,7 +23,7 @@ Scenario authoring reference. Live mapping tables: [porto-data docs/porto_id.md]
 | `small` | `standardbrief` | All zones |
 | `medium` | `kompaktbrief` | |
 | `large` | `grossbrief` | |
-| `extra_large` | `maxibrief`, `maxibrief_international_heavy` | Disambiguate by zone/weight |
+| `extra_large` | `maxibrief`, `maxibrief_ausland` | Disambiguate by zone/weight |
 
 | Service porto_id | Native service `id` |
 |------------------|---------------------|

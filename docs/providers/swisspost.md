@@ -5,7 +5,7 @@
 ## Offline coverage
 
 - Resolution: A-Post / B-Post products at `small` and `large` buckets
-- Service `thickness` surcharge (`brief_dicke_zuschlag`) — offline pricing only
+- Service `thickness` surcharge (`zuschlag_dicke`) — offline pricing only
 
 ## Online / lab-gated
 

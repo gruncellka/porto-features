@@ -311,6 +311,35 @@ def test_find_feature_files_finds_nested_features(tmp_path):
     assert [f.name for f in files] == ["nested.feature"]
 
 
+def test_validate_matrix_files_rejects_mismatched_case_id(tmp_path):
+    module = load_module()
+    matrix_dir = tmp_path / "matrix"
+    features_dir = tmp_path / "features"
+    matrix_dir.mkdir()
+    features_dir.mkdir()
+    (matrix_dir / "slices.yaml").write_text("schema_version: 1\n", encoding="utf-8")
+    (matrix_dir / "sdk.yaml").write_text("schema_version: 1\nsdk_cells: []\n", encoding="utf-8")
+    (matrix_dir / "canary.yaml").write_text("schema_version: 1\ncase_ids: []\n", encoding="utf-8")
+    (matrix_dir / "orders.generated.yaml").write_text(
+        """
+schema_version: 1
+order_cells:
+  - case_id: wrong_slug
+    provider: deutschepost
+    adapter: internetmarke
+    product_id: standardbrief
+    zone_id: domestic
+    service_ids: []
+    refs: []
+""".strip(),
+        encoding="utf-8",
+    )
+
+    ok, errors = module.validate_matrix_files(matrix_dir, features_dir)
+    assert not ok
+    assert any("does not match structured fields" in e for e in errors)
+
+
 def test_validate_matrix_files_rejects_canary_not_in_orders(tmp_path):
     module = load_module()
     matrix_dir = tmp_path / "matrix"

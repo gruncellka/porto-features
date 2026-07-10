@@ -25,6 +25,14 @@ Feature: Product options
     When I list product options
     Then product options should include "maxibrief"
 
+  Scenario: Deutsche Post extra large international options
+    Given provider is "deutschepost"
+    And I want to send a letter to country "FR"
+    And the letter weight is 1700 grams
+    And the letter porto_id is "extra_large"
+    When I list product options
+    Then product options should include "maxibrief_ausland"
+
   Scenario: Ukrposhta large is domestic only
     Given provider is "ukrposhta"
     And I want to send a letter to country "UA"
