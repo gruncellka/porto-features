@@ -25,12 +25,81 @@ def test_find_feature_files_returns_sorted_feature_files(tmp_path):
     assert [f.name for f in files] == ["a.feature", "b.feature"]
 
 
+def test_validate_feature_file_rejects_missing_execution_tag(tmp_path, monkeypatch):
+    module = load_module()
+    monkeypatch.chdir(tmp_path)
+    feature_file = tmp_path / "untagged.feature"
+    feature_file.write_text(
+        """
+Feature: Untagged
+  Scenario: No tag
+    Given x
+""".strip(),
+        encoding="utf-8",
+    )
+
+    is_valid, errors = module.validate_feature_file(feature_file)
+    assert not is_valid
+    assert any("@sdk or @adapters" in e for e in errors)
+
+
+def test_validate_feature_file_rejects_legacy_product_id(tmp_path, monkeypatch):
+    module = load_module()
+    monkeypatch.chdir(tmp_path)
+    feature_file = tmp_path / "legacy.feature"
+    feature_file.write_text(
+        """
+@sdk
+Feature: Legacy
+  Scenario: Old id
+    Given product "letter_standard"
+""".strip(),
+        encoding="utf-8",
+    )
+
+    is_valid, errors = module.validate_feature_file(feature_file)
+    assert not is_valid
+    assert any("letter_standard" in e for e in errors)
+
+
+def test_validate_feature_file_rejects_legacy_letter_type_enum(tmp_path, monkeypatch):
+    module = load_module()
+    monkeypatch.chdir(tmp_path)
+    feature_file = tmp_path / "enum.feature"
+    feature_file.write_text(
+        """
+@sdk
+Feature: Enum
+  Scenario: Old enum
+    Given the letter type is "STANDARD"
+""".strip(),
+        encoding="utf-8",
+    )
+
+    is_valid, errors = module.validate_feature_file(feature_file)
+    assert not is_valid
+    assert any("STANDARD" in e for e in errors)
+
+
+def test_collect_vocabulary_errors_flags_data_links_reference():
+    module = load_module()
+    errors = module._collect_vocabulary_errors('When I access "data_links.json"', Path("x.feature"))
+    assert any("data_links.json" in e for e in errors)
+
+
+def test_feature_tags_extracts_sdk_tag():
+    module = load_module()
+    tags = module._feature_tags({"tags": [{"name": "@sdk"}, {"name": "@slow"}]})
+    assert "sdk" in tags
+
+
 def test_validate_feature_file_accepts_valid_feature(tmp_path, monkeypatch):
     module = load_module()
     monkeypatch.chdir(tmp_path)
     feature_file = tmp_path / "ok.feature"
     feature_file.write_text(
         """
+@sdk
 Feature: Validation
   Scenario: Valid scenario
     Given I have input
@@ -62,6 +131,7 @@ def test_validate_feature_file_warns_on_duplicate_scenario_names(tmp_path, monke
     feature_file = tmp_path / "dup.feature"
     feature_file.write_text(
         """
+@sdk
 Feature: Duplicate names
   Scenario: Same name
     Given one
@@ -99,24 +169,14 @@ def test_validate_feature_file_reports_scenario_with_no_steps(tmp_path, monkeypa
     module = load_module()
     monkeypatch.chdir(tmp_path)
     feature_file = tmp_path / "no_steps.feature"
-    feature_file.write_text("Feature: Placeholder", encoding="utf-8")
-
-    class FakeParser:
-        def parse(self, _content):
-            return {
-                "feature": {
-                    "children": [
-                        {
-                            "scenario": {
-                                "name": "No steps",
-                                "steps": [],
-                            }
-                        }
-                    ]
-                }
-            }
-
-    module.Parser = FakeParser
+    feature_file.write_text(
+        """
+@sdk
+Feature: No steps
+  Scenario: No steps
+""".strip(),
+        encoding="utf-8",
+    )
     is_valid, errors = module.validate_feature_file(feature_file)
     assert not is_valid
     assert any("has no steps" in e for e in errors)
@@ -238,6 +298,37 @@ def test_run_gherlint_handles_generic_exception(monkeypatch, tmp_path):
     valid, errors = module.run_gherlint(tmp_path)
     assert valid
     assert any("Error running gherlint" in e for e in errors)
+
+
+def test_find_feature_files_finds_nested_features(tmp_path):
+    module = load_module()
+    features_dir = tmp_path / "features"
+    sdk_dir = features_dir / "sdk"
+    sdk_dir.mkdir(parents=True)
+    (sdk_dir / "nested.feature").write_text("Feature: N\nScenario: S\n Given x\n", encoding="utf-8")
+
+    files = module.find_feature_files(features_dir)
+    assert [f.name for f in files] == ["nested.feature"]
+
+
+def test_validate_matrix_files_rejects_canary_not_in_orders(tmp_path):
+    module = load_module()
+    matrix_dir = tmp_path / "matrix"
+    features_dir = tmp_path / "features"
+    matrix_dir.mkdir()
+    features_dir.mkdir()
+    (matrix_dir / "slices.yaml").write_text("schema_version: 1\n", encoding="utf-8")
+    (matrix_dir / "sdk.yaml").write_text("schema_version: 1\nsdk_cells: []\n", encoding="utf-8")
+    (matrix_dir / "orders.generated.yaml").write_text(
+        "schema_version: 1\norder_cells: []\n", encoding="utf-8"
+    )
+    (matrix_dir / "canary.yaml").write_text(
+        "schema_version: 1\ncase_ids:\n  - missing_case\n", encoding="utf-8"
+    )
+
+    ok, errors = module.validate_matrix_files(matrix_dir, features_dir)
+    assert not ok
+    assert any("missing_case" in e for e in errors)
 
 
 def test_main_exits_1_when_no_feature_files(monkeypatch):

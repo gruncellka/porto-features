@@ -9,6 +9,8 @@
 # Run manually: pre-commit run --all-files
 # Update hooks: pre-commit autoupdate
 
+fail_fast: true
+
 repos:
     # ==========================================
     # Feature Validation (MUST RUN FIRST)

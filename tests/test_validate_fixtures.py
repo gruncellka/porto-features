@@ -5,9 +5,7 @@ import pytest
 
 
 def load_module():
-    script_path = (
-        Path(__file__).resolve().parents[1] / "scripts" / "validate_fixtures.py"
-    )
+    script_path = Path(__file__).resolve().parents[1] / "scripts" / "validate_fixtures.py"
     spec = spec_from_file_location("validate_fixtures_module", script_path)
     module = module_from_spec(spec)
     assert spec is not None and spec.loader is not None
@@ -129,7 +127,7 @@ def test_validate_fixture_file_accepts_valid_address(tmp_path, monkeypatch):
     fixture_file.write_text(
         """
 {
-  "id": "addr_de_berlin",
+  "id": "addr_de_lickofurt",
   "name": "Test Empfaenger",
   "street": "Friedrichstrasse",
   "house_number": "123",

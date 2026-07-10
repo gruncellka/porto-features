@@ -1,15 +1,16 @@
-@offline
+@sdk
 Feature: Validation
   As a developer
   I want to validate letters and addresses
   So that I can ensure shipping requirements are met
 
   Background:
-    Given I have a Porto SDK client initialized
+    Given provider is "deutschepost"
+    And I have a Porto SDK client initialized
     And I have access to porto-data
 
-  Scenario: Validate valid standard letter
-    Given I have a letter with type "STANDARD"
+  Scenario: Validate valid small letter
+    Given I have a letter with porto_id "small"
     And length 210 mm
     And width 148 mm
     And height 5 mm
@@ -19,10 +20,10 @@ Feature: Validation
     When I validate the letter
     Then the validation should pass
     And there should be no errors
-    And the letter type should be confirmed as "letter_standard"
+    And the resolved product id should be "standardbrief"
 
-  Scenario: Validate valid compact letter
-    Given I have a letter with type "COMPACT"
+  Scenario: Validate valid medium letter
+    Given I have a letter with porto_id "medium"
     And length 229 mm
     And width 162 mm
     And height 5 mm
@@ -32,10 +33,10 @@ Feature: Validation
     When I validate the letter
     Then the validation should pass
     And there should be no errors
-    And the letter type should be confirmed as "letter_compact"
+    And the resolved product id should be "kompaktbrief"
 
   Scenario: Validate valid large letter
-    Given I have a letter with type "LARGE"
+    Given I have a letter with porto_id "large"
     And length 324 mm
     And width 229 mm
     And height 5 mm
@@ -45,10 +46,10 @@ Feature: Validation
     When I validate the letter
     Then the validation should pass
     And there should be no errors
-    And the letter type should be confirmed as "letter_large"
+    And the resolved product id should be "grossbrief"
 
-  Scenario: Validate valid maxi letter
-    Given I have a letter with type "MAXI"
+  Scenario: Validate valid extra large letter
+    Given I have a letter with porto_id "extra_large"
     And length 353 mm
     And width 250 mm
     And height 60 mm
@@ -58,23 +59,10 @@ Feature: Validation
     When I validate the letter
     Then the validation should pass
     And there should be no errors
-    And the letter type should be confirmed as "letter_maxi"
-
-  Scenario: Validate valid merchandise letter
-    Given I have a letter with type "MERCHANDISE"
-    And length 353 mm
-    And width 250 mm
-    And height 60 mm
-    And weight 1000 grams
-    And valid destination address
-    And valid origin address
-    When I validate the letter
-    Then the validation should pass
-    And there should be no errors
-    And the letter type should be confirmed as "merchandise"
+    And the resolved product id should be "maxibrief"
 
   Scenario: Reject letter with invalid dimensions
-    Given I have a letter with type "STANDARD"
+    Given I have a letter with porto_id "small"
     And length 50 mm
     And width 50 mm
     And height 5 mm
@@ -86,7 +74,7 @@ Feature: Validation
     And I should get an error about invalid dimensions
 
   Scenario: Reject letter that is too heavy
-    Given I have a letter with type "STANDARD"
+    Given I have a letter with porto_id "small"
     And length 210 mm
     And width 148 mm
     And height 5 mm
@@ -98,7 +86,7 @@ Feature: Validation
     And I should get an error about weight exceeding maximum
 
   Scenario: Reject letter with invalid address
-    Given I have a letter with type "STANDARD"
+    Given I have a letter with porto_id "small"
     And length 210 mm
     And width 148 mm
     And height 5 mm
@@ -141,7 +129,7 @@ Feature: Validation
     And I should get an error about invalid country code
 
   Scenario: Validation returns warnings for edge cases
-    Given I have a letter with type "STANDARD"
+    Given I have a letter with porto_id "small"
     And length 210 mm
     And width 148 mm
     And height 5 mm

@@ -1,0 +1,75 @@
+# SDK layer index — pointers to Gherkin only (no duplicated scenario text).
+# cell_id: {provider}.{concern}.{slice}.{porto_id}.{zone}
+
+schema_version: 1
+
+sdk_cells:
+  - cell_id: deutschepost.resolution.happy.small.domestic
+    provider: deutschepost
+    concern: resolution
+    slice: happy
+    porto_id: small
+    zone: domestic
+    status: required
+    refs:
+      - sdk/resolution.feature:Scenario:Resolve domestic letter
+
+  - cell_id: deutschepost.pricing.happy.small.domestic
+    provider: deutschepost
+    concern: pricing
+    slice: happy
+    porto_id: small
+    zone: domestic
+    status: required
+    refs:
+      - sdk/pricing.feature:Scenario:Calculate price for domestic small letter
+
+  - cell_id: deutschepost.pricing.matrix.small.domestic
+    provider: deutschepost
+    concern: pricing
+    slice: matrix
+    porto_id: small
+    zone: domestic
+    status: required
+    refs:
+      - sdk/api_comprehensive_testing.feature:Scenario Outline:Pre-calculate price for product-zone combinations
+
+  - cell_id: global.restrictions.prohibited.UA-14
+    provider: global
+    concern: restrictions
+    slice: prohibited
+    porto_id: null
+    zone: UA-14
+    status: required
+    refs:
+      - sdk/restrictions.feature
+
+  - cell_id: deutschepost.validation.invalid.bad_country
+    provider: deutschepost
+    concern: validation
+    slice: invalid_input
+    porto_id: small
+    zone: invalid
+    status: required
+    refs:
+      - sdk/validation.feature
+
+  - cell_id: deutschepost.metadata.registry
+    provider: deutschepost
+    concern: metadata
+    slice: metadata
+    porto_id: null
+    zone: null
+    status: required
+    refs:
+      - sdk/metadata.feature
+
+  - cell_id: laposte.resolution.disambiguation.small.domestic
+    provider: laposte
+    concern: resolution
+    slice: disambiguation
+    porto_id: small
+    zone: domestic
+    status: planned
+    refs:
+      - sdk/delivery_resolution.feature

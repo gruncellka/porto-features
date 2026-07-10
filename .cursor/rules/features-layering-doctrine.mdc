@@ -1,0 +1,48 @@
+# Features layering doctrine (porto-features)
+
+**Hub:** `docs/README.md` · `docs/vocabulary.md` · `docs/scenario-policy.md` · `docs/matrix.md` · [`.cursor/BUGBOT.md`](../BUGBOT.md)
+
+porto-features is a **shared BDD contract** package — Gherkin scenarios and JSON fixtures only. Step definitions live in **SDK repositories**.
+
+## The stack (do not collapse)
+
+```text
+porto-data (facts)     →  catalog JSON + schemas
+porto-features (BDD)   →  behavior contracts (this repo)
+Porto SDK (Py/TS)      →  step definitions + resolver implementation
+Lab runs               →  evidence for @adapters promotion only
+```
+
+## Core principles
+
+1. **SDK-agnostic Gherkin.** No Python class names, TypeScript modules, or framework internals in `.feature` files.
+
+2. **Input vs assertion identifiers.**
+   - **Given / When input:** `porto_id` size buckets (`small`, `medium`, `large`, `extra_large`) and service `porto_id` (`registered`, …).
+   - **Then assertions:** native catalog `id` (`standardbrief`, `einschreiben`, …) when verifying resolution output.
+
+3. **No step definitions here.** Never add `tests/steps/**` or SDK glue in this repo.
+
+4. **Published paths only.** Features under `porto_features/features/` (including `sdk/` and `adapters/`) and fixtures under `porto_features/fixtures/`.
+
+5. **Tag every Feature.** `@sdk` or `@adapters` at Feature level; `@canary` / `@full` on paid adapter scenarios only after lab promotion.
+
+**0.x:** No version pin file — keep porto-data, porto-features, and SDK bumps in sync in the lab; breaking changes are expected until `1.x`.
+
+## Red flags
+
+| Smell | Fix |
+|-------|-----|
+| `letter_standard`, `STANDARD` as product input | Use `porto_id` `small` |
+| `registered_mail` as SDK service pick | Use service `porto_id` `registered` |
+| Step defs in this repo | Move to SDK test suites |
+| `@adapters` without lab artifact link in PR | Gate per `docs/scenario-policy.md` |
+| `@offline` / `@online` / `@api` | Use `@sdk` / `@adapters` per `docs/matrix.md` |
+| Scenario references `data_links.json` | Use `graph.json`, `integration.json`, `metadata.json` |
+
+## Before merge
+
+1. `make quality` and `make test-cov`
+2. Update `docs/vocabulary.md` when adding canonical steps
+3. Update `CHANGELOG.md` for behavior-spec changes
+4. Validator rules in `scripts/validate_features.py` when new patterns are introduced

@@ -1,11 +1,12 @@
-@offline
+@sdk
 Feature: Restrictions
   As a developer
   I want to check shipping restrictions and sanctions
   So that I can ensure compliance with shipping regulations
 
   Background:
-    Given I have a Porto SDK client initialized
+    Given provider is "deutschepost"
+    And I have a Porto SDK client initialized
     And I have access to porto-data
 
   Scenario: Check restrictions for destination country
@@ -27,7 +28,7 @@ Feature: Restrictions
     And shipping should be restricted
     And I should get restriction information
 
-  Scenario: Reject shipment to restricted region in Ukraine (Mariupol)
+  Scenario: Reject shipment to restricted region in Ukraine (UA-14)
     Given I have destination address fixture "restricted_UA"
     And I want to send a letter to country "UA"
     And destination region code is "UA-14"
@@ -59,13 +60,13 @@ Feature: Restrictions
   Scenario: Resolution includes restriction status
     Given I want to send a letter to country "DE"
     And the letter weight is 20 grams
-    And the letter type is "STANDARD"
+    And the letter porto_id is "small"
     When I resolve the shipping configuration
     Then the resolution should include restriction status
     And the restriction status should indicate if shipping is allowed
 
   Scenario: Validation warns about restrictions
-    Given I have a letter with type "STANDARD"
+    Given I have a letter with porto_id "small"
     And the destination country has restrictions
     And valid dimensions and weight
     When I validate the letter

@@ -1,11 +1,12 @@
-@offline
+@sdk
 Feature: CLI Commands
   As a developer or integrator
   I want to use CLI commands for porto SDK
   So that I can inspect data, validate payloads, and calculate prices without writing code
 
   Background:
-    Given I have porto-data available
+    Given provider is "deutschepost"
+    And I have porto-data available
     And I have a Porto SDK client initialized
 
   Scenario: Display configuration
@@ -22,9 +23,9 @@ Feature: CLI Commands
   Scenario: List available products
     When I call CLI data products command
     Then the result should have array "products"
-    And the products array should contain product with id "letter_standard"
-    And the products array should contain product with id "letter_compact"
-    And the products array should contain product with id "letter_large"
+    And the products array should contain product with id "standardbrief"
+    And the products array should contain product with id "kompaktbrief"
+    And the products array should contain product with id "grossbrief"
 
   Scenario: List available zones
     When I call CLI data zones command
@@ -36,36 +37,36 @@ Feature: CLI Commands
   Scenario: List available services
     When I call CLI data services command
     Then the result should have array "services"
-    And the services array should contain service with id "registered_mail"
-    And the services array should contain service with id "registered_mail_mailbox"
+    And the services array should contain service with id "einschreiben"
+    And the services array should contain service with id "einschreiben_einwurf"
 
   Scenario: Get price for product-zone-weight combination
-    When I call CLI data price command with product "letter_standard" zone "zone_1_eu" weight 20
-    Then the result should have field "product" with value "letter_standard"
+    When I call CLI data price command with product "standardbrief" zone "zone_1_eu" weight 20
+    Then the result should have field "product" with value "standardbrief"
     And the result should have field "zone" with value "zone_1_eu"
     And the result should have field "weight" with value 20
     And the result should have field "price" as number
     And the result should have field "currency" with value "EUR"
 
-  Scenario: Calculate price for domestic standard letter
-    When I call CLI price command with type "STANDARD" country "DE" weight 20
-    Then the result should have field "product" with nested "id" "letter_standard"
+  Scenario: Calculate price for domestic small letter
+    When I call CLI price command with porto_id "small" country "DE" weight 20
+    Then the result should have field "product" with nested "id" "standardbrief"
     And the result should have field "zone" with nested "id" "domestic"
     And the result should have field "base_price" as number
     And the result should have field "currency" with value "EUR"
     And the result should have field "is_valid" with value true
 
   Scenario: Calculate price for international letter
-    When I call CLI price command with type "STANDARD" country "US" weight 20
+    When I call CLI price command with porto_id "small" country "US" weight 20
     Then the result should have field "product"
     And the result should have field "zone" with nested "id" "world"
     And the result should have field "base_price" as number
     And the result should have field "currency" with value "EUR"
 
   Scenario: Simulate stamp generation
-    When I call CLI stamp simulate command with type "STANDARD" country "DE" weight 20
+    When I call CLI stamp simulate command with porto_id "small" country "DE" weight 20
     Then the result should have field "simulation" with value true
-    And the result should have field "product" with nested "id" "letter_standard"
+    And the result should have field "product" with nested "id" "standardbrief"
     And the result should have field "price" as number
     And the result should have field "valid" as boolean
 
@@ -94,15 +95,15 @@ Feature: CLI Commands
     And the result should have field "restrictions" as array
 
   Scenario: CLI commands produce identical results for price
-    When I call CLI price command with type "STANDARD" country "DE" weight 20
+    When I call CLI price command with porto_id "small" country "DE" weight 20
     Then the result should be stored for comparison
-    When I call CLI price command with type "STANDARD" country "DE" weight 20
+    When I call CLI price command with porto_id "small" country "DE" weight 20
     Then the results should be identical
 
   Scenario: CLI commands produce identical results for data price
-    When I call CLI data price command with product "letter_standard" zone "zone_1_eu" weight 20
+    When I call CLI data price command with product "standardbrief" zone "zone_1_eu" weight 20
     Then the result should be stored for comparison
-    When I call CLI data price command with product "letter_standard" zone "zone_1_eu" weight 20
+    When I call CLI data price command with product "standardbrief" zone "zone_1_eu" weight 20
     Then the results should be identical
 
   Scenario: CLI commands produce identical results for config

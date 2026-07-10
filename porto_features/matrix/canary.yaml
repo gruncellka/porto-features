@@ -1,0 +1,15 @@
+# Daily paid smoke — curated subset of orders.generated.yaml (adapter @canary).
+# Each case_id must exist in matrix/orders.generated.yaml (porto-data wire).
+
+schema_version: 1
+
+description: >
+  Max breadth at lowest cost: one base domestic, EU, world, service composite,
+  and a second product family. Lab PROFILE=canary runs this list only.
+
+case_ids:
+  - standardbrief_domestic
+  - standardbrief_zone_1_eu
+  - standardbrief_world
+  - standardbrief_domestic_einschreiben
+  - kompaktbrief_domestic
