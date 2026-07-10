@@ -8,7 +8,7 @@ env:
 
 jobs:
     quality:
-        name: Porto features validation
+        name: validation
         runs-on: ubuntu-22.04
         steps:
             - uses: actions/checkout@v4

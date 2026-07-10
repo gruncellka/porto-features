@@ -1,7 +1,10 @@
+import runpy
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
 
 import pytest
+
+FIXTURES_SCRIPT = Path(__file__).resolve().parents[1] / "scripts" / "validate_fixtures.py"
 
 
 def load_module():
@@ -193,4 +196,10 @@ def test_main_exits_0_when_all_fixtures_valid(monkeypatch):
 
     with pytest.raises(SystemExit) as exc_info:
         module.main()
+    assert exc_info.value.code == 0
+
+
+def test_script_main_entrypoint_exits_zero():
+    with pytest.raises(SystemExit) as exc_info:
+        runpy.run_path(str(FIXTURES_SCRIPT), run_name="__main__")
     assert exc_info.value.code == 0

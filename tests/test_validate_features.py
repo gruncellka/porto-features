@@ -1,14 +1,48 @@
+import builtins
+import runpy
+import sys
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
 
 import pytest
 
+SCRIPT_PATH = Path(__file__).resolve().parents[1] / "scripts" / "validate_features.py"
+
 
 def load_module():
-    script_path = Path(__file__).resolve().parents[1] / "scripts" / "validate_features.py"
-    spec = spec_from_file_location("validate_features_module", script_path)
+    spec = spec_from_file_location("validate_features_module", SCRIPT_PATH)
     module = module_from_spec(spec)
     assert spec is not None and spec.loader is not None
+    spec.loader.exec_module(module)
+    return module
+
+
+def load_fresh_module(monkeypatch, *, block: str | None = None):
+    module_name = f"validate_features_fresh_{block or 'full'}"
+    monkeypatch.delitem(sys.modules, module_name, raising=False)
+    real_import = builtins.__import__
+
+    def guarded_import(name, globals=None, locals=None, fromlist=(), level=0):
+        if block == "gherkin" and (name == "gherkin" or name.startswith("gherkin.")):
+            raise ImportError("blocked gherkin")
+        if block == "gherlint" and name == "gherlint":
+            raise ImportError("blocked gherlint")
+        if block == "yaml" and name == "yaml":
+            raise ImportError("blocked yaml")
+        return real_import(name, globals, locals, fromlist, level)
+
+    if block:
+        monkeypatch.setattr(builtins, "__import__", guarded_import)
+
+    spec = spec_from_file_location(module_name, SCRIPT_PATH)
+    module = module_from_spec(spec)
+    assert spec is not None and spec.loader is not None
+    if block == "gherkin":
+        with pytest.raises(SystemExit) as exc_info:
+            spec.loader.exec_module(module)
+        assert exc_info.value.code == 1
+        return None
+
     spec.loader.exec_module(module)
     return module
 
@@ -412,4 +446,213 @@ def test_main_exits_0_when_all_feature_checks_pass(monkeypatch):
 
     with pytest.raises(SystemExit) as exc_info:
         module.main()
+    assert exc_info.value.code == 0
+
+
+def test_main_exits_1_when_matrix_has_errors(monkeypatch):
+    module = load_module()
+    monkeypatch.setattr(module, "find_feature_files", lambda _d: [Path("x.feature")])
+    monkeypatch.setattr(module, "validate_feature_file", lambda _p: (True, []))
+    monkeypatch.setattr(
+        module, "validate_matrix_files", lambda _m, _f: (False, ["❌ matrix bad"])
+    )
+    monkeypatch.setattr(module, "run_gherlint", lambda _d: (True, []))
+
+    with pytest.raises(SystemExit) as exc_info:
+        module.main()
+    assert exc_info.value.code == 1
+
+
+def test_ref_feature_path_appends_extension_for_bare_name():
+    module = load_module()
+    assert module._ref_feature_path("resolution:Scenario:Name") == "resolution.feature"
+
+
+def test_ref_feature_path_keeps_nested_path():
+    module = load_module()
+    assert module._ref_feature_path("sdk/resolution:Scenario:Name") == "sdk/resolution.feature"
+
+
+def test_expected_case_id_includes_service_ids():
+    module = load_module()
+    cell = {
+        "provider": "deutschepost",
+        "adapter": "internetmarke",
+        "product_id": "standardbrief",
+        "zone_id": "domestic",
+        "service_ids": ["einschreiben"],
+    }
+    assert module._expected_case_id(cell) == (
+        "deutschepost.internetmarke.standardbrief.domestic.einschreiben"
+    )
+
+
+def test_collect_vocabulary_errors_flags_deprecated_service_id():
+    module = load_module()
+    errors = module._collect_vocabulary_errors('Given service "registered_mail"', Path("x.feature"))
+    assert any("registered_mail" in e for e in errors)
+
+
+def test_validate_layer_tags_warns_on_deprecated_offline_tag():
+    module = load_module()
+    messages = module._validate_layer_tags({"offline"}, Path("legacy.feature"))
+    assert any("Deprecated tag" in m and "offline" in m for m in messages)
+
+
+def test_validate_layer_tags_rejects_both_sdk_and_adapters():
+    module = load_module()
+    messages = module._validate_layer_tags({"sdk", "adapters"}, Path("both.feature"))
+    assert any("exactly one of @sdk or @adapters" in m for m in messages)
+
+
+def test_validate_layer_tags_rejects_adapters_with_api():
+    module = load_module()
+    messages = module._validate_layer_tags({"adapters", "api"}, Path("api.feature"))
+    assert any("Drop @api" in m for m in messages)
+
+
+def test_validate_layer_tags_warns_on_deprecated_release_tag():
+    module = load_module()
+    messages = module._validate_layer_tags({"adapters", "release"}, Path("release.feature"))
+    assert any("@release is deprecated" in m for m in messages)
+
+
+def test_validate_matrix_files_skips_when_yaml_unavailable(tmp_path, monkeypatch):
+    module = load_module()
+    monkeypatch.setattr(module, "yaml", None)
+    ok, errors = module.validate_matrix_files(tmp_path / "matrix", tmp_path / "features")
+    assert ok
+    assert errors == []
+
+
+def test_validate_matrix_files_rejects_missing_matrix_files(tmp_path):
+    module = load_module()
+    matrix_dir = tmp_path / "matrix"
+    matrix_dir.mkdir()
+
+    ok, errors = module.validate_matrix_files(matrix_dir, tmp_path / "features")
+    assert not ok
+    assert any("Missing matrix file" in e for e in errors)
+
+
+def _write_minimal_matrix_files(matrix_dir: Path) -> None:
+    (matrix_dir / "slices.yaml").write_text("schema_version: 1\n", encoding="utf-8")
+    (matrix_dir / "sdk.yaml").write_text("schema_version: 1\nsdk_cells: []\n", encoding="utf-8")
+    (matrix_dir / "canary.yaml").write_text("schema_version: 1\ncase_ids: []\n", encoding="utf-8")
+    (matrix_dir / "orders.generated.yaml").write_text(
+        "schema_version: 1\norder_cells: []\n", encoding="utf-8"
+    )
+
+
+def test_validate_matrix_files_rejects_missing_sdk_ref(tmp_path):
+    module = load_module()
+    matrix_dir = tmp_path / "matrix"
+    features_dir = tmp_path / "features"
+    matrix_dir.mkdir()
+    features_dir.mkdir()
+    _write_minimal_matrix_files(matrix_dir)
+    (matrix_dir / "sdk.yaml").write_text(
+        """
+schema_version: 1
+sdk_cells:
+  - refs:
+      - sdk/missing.feature:Scenario:Name
+""".strip(),
+        encoding="utf-8",
+    )
+
+    ok, errors = module.validate_matrix_files(matrix_dir, features_dir)
+    assert not ok
+    assert any("sdk.yaml: ref" in e and "feature file not found" in e for e in errors)
+
+
+def test_validate_matrix_files_accepts_sdk_ref_via_sdk_subdir(tmp_path):
+    module = load_module()
+    matrix_dir = tmp_path / "matrix"
+    features_dir = tmp_path / "features"
+    sdk_dir = features_dir / "sdk"
+    matrix_dir.mkdir()
+    sdk_dir.mkdir(parents=True)
+    (sdk_dir / "resolution.feature").write_text(
+        "Feature: R\nScenario: S\n Given x\n", encoding="utf-8"
+    )
+    _write_minimal_matrix_files(matrix_dir)
+    (matrix_dir / "sdk.yaml").write_text(
+        """
+schema_version: 1
+sdk_cells:
+  - refs:
+      - resolution:Scenario:Name
+""".strip(),
+        encoding="utf-8",
+    )
+
+    ok, errors = module.validate_matrix_files(matrix_dir, features_dir)
+    assert ok
+    assert errors == []
+
+
+def test_validate_matrix_files_rejects_missing_order_ref(tmp_path):
+    module = load_module()
+    matrix_dir = tmp_path / "matrix"
+    features_dir = tmp_path / "features"
+    matrix_dir.mkdir()
+    features_dir.mkdir()
+    _write_minimal_matrix_files(matrix_dir)
+    (matrix_dir / "orders.generated.yaml").write_text(
+        """
+schema_version: 1
+order_cells:
+  - case_id: deutschepost.internetmarke.standardbrief.domestic
+    provider: deutschepost
+    adapter: internetmarke
+    product_id: standardbrief
+    zone_id: domestic
+    service_ids: []
+    refs:
+      - adapters/missing.feature:Scenario:Name
+""".strip(),
+        encoding="utf-8",
+    )
+
+    ok, errors = module.validate_matrix_files(matrix_dir, features_dir)
+    assert not ok
+    assert any("feature file not found" in e for e in errors)
+
+
+def test_validate_matrix_files_reports_success_summary(tmp_path, capsys):
+    module = load_module()
+    matrix_dir = tmp_path / "matrix"
+    features_dir = tmp_path / "features"
+    matrix_dir.mkdir()
+    features_dir.mkdir()
+    _write_minimal_matrix_files(matrix_dir)
+
+    ok, errors = module.validate_matrix_files(matrix_dir, features_dir)
+    captured = capsys.readouterr()
+
+    assert ok
+    assert errors == []
+    assert "order_cells" in captured.out
+
+
+def test_load_module_exits_when_gherkin_missing(monkeypatch):
+    load_fresh_module(monkeypatch, block="gherkin")
+
+
+def test_load_module_continues_when_gherlint_missing(monkeypatch):
+    module = load_fresh_module(monkeypatch, block="gherlint")
+    assert module is not None
+    assert module.gherlint is None
+
+
+def test_load_module_continues_when_yaml_missing(monkeypatch):
+    module = load_fresh_module(monkeypatch, block="yaml")
+    assert module is not None
+    assert module.yaml is None
+
+
+def test_script_main_entrypoint_exits_zero():
+    with pytest.raises(SystemExit) as exc_info:
+        runpy.run_path(str(SCRIPT_PATH), run_name="__main__")
     assert exc_info.value.code == 0
