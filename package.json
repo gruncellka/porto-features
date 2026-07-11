@@ -1,6 +1,6 @@
 {
     "name": "@gruncellka/porto-features",
-    "version": "0.2.1",
+    "version": "0.3.0",
     "description": "Structured BDD contracts for Porto SDK — shared Gherkin scenarios and JSON fixtures",
     "author": "Oleksandr Tsyba",
     "license": "Apache-2.0",
