@@ -18,6 +18,7 @@ import re
 import subprocess
 import sys
 from pathlib import Path
+from types import ModuleType
 
 try:
     from gherkin.parser import Parser
@@ -34,10 +35,13 @@ except ImportError:
     print("   Linting will be skipped")
     gherlint = None
 
+yaml: ModuleType | None
 try:
-    import yaml
+    import yaml as _yaml
 except ImportError:
     yaml = None
+else:
+    yaml = _yaml
 
 LAYER_TAGS = frozenset({"sdk", "adapters"})
 SCOPE_CORE_TAG = "core"
@@ -437,6 +441,7 @@ def _validate_matrix_ref(ref: str, features_dir: Path, context: str) -> list[str
 
 
 def _load_yaml(path: Path) -> dict:
+    assert yaml is not None
     lines = [
         line
         for line in path.read_text(encoding="utf-8").splitlines()

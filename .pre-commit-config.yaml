@@ -83,3 +83,5 @@ repos:
           - id: mypy
             args: ['--config-file=pyproject.toml']
             files: ^scripts/.*\.py$
+            additional_dependencies:
+              - types-PyYAML
