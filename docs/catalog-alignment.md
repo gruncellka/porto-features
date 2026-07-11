@@ -54,6 +54,8 @@ Scenario authoring reference. Live mapping tables: [porto-data docs/porto_id.md]
 
 ## Zones (Deutsche Post reference)
 
+Primary scenario countries: **DE**, **UA**, **FR**, **US** (plus **XX** for invalid-input cases).
+
 | Zone | Example country |
 |------|-----------------|
 | `domestic` | DE |

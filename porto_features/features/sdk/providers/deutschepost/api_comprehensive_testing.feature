@@ -36,8 +36,8 @@ Feature: Comprehensive API Testing
       | extra_large  | US           | 501    | world         |
       | extra_large  | FR           | 1001   | zone_1_eu     |
       | extra_large  | US           | 1001   | world         |
-      | small        | CH           | 1      | zone_2_europe |
-      | medium       | CH           | 21     | zone_2_europe |
-      | large        | CH           | 51     | zone_2_europe |
-      | extra_large  | CH           | 501    | zone_2_europe |
-      | extra_large  | CH           | 1001   | zone_2_europe |
+      | small        | UA           | 1      | zone_2_europe |
+      | medium       | UA           | 21     | zone_2_europe |
+      | large        | UA           | 51     | zone_2_europe |
+      | extra_large  | UA           | 501    | zone_2_europe |
+      | extra_large  | UA           | 1001   | zone_2_europe |

@@ -59,8 +59,8 @@ Reuse canonical address fixtures under `porto_features/fixtures/addresses/`:
 | `origin_DE.json` | Sender | Lickofurt am Internet |
 | `valid_DE.json` | Domestic recipient | Lickofurt am Internet |
 | `valid_FR.json` | EU / La Poste | Licko-sur-Seine |
-| `valid_CH.json` | Swiss Post; Deutsche Post `zone_2_europe` | Licko am Sur-Lago |
-| `valid_UA.json` | Ukrposhta; UA restriction scenarios | Velykyi Lickon |
+| `valid_CH.json` | Swiss Post domestic | Licko am Sur-Lago |
+| `valid_UA.json` | Ukrposhta; Deutsche Post `zone_2_europe`; UA restriction scenarios | Velykyi Lickon |
 | `valid_US.json` | World / Deutsche Post | New Licko |
 | `restricted_UA.json` | Prohibited region (`UA-14` / Donetsk oblast) | Velikyy Lickon |
 

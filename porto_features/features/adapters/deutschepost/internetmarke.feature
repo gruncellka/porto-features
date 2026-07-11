@@ -70,8 +70,8 @@ Feature: Internetmarke adapter purchases
       | grossbrief | world | US | 1 | einschreiben |
       | grossbrief | zone_1_eu | FR | 1 |  |
       | grossbrief | zone_1_eu | FR | 1 | einschreiben |
-      | grossbrief | zone_2_europe | CH | 1 |  |
-      | grossbrief | zone_2_europe | CH | 1 | einschreiben |
+      | grossbrief | zone_2_europe | UA | 1 |  |
+      | grossbrief | zone_2_europe | UA | 1 | einschreiben |
       | kompaktbrief | domestic | DE | 1 |  |
       | kompaktbrief | domestic | DE | 1 | einschreiben |
       | kompaktbrief | domestic | DE | 1 | einschreiben_einwurf |
@@ -80,8 +80,8 @@ Feature: Internetmarke adapter purchases
       | kompaktbrief | world | US | 1 | einschreiben |
       | kompaktbrief | zone_1_eu | FR | 1 |  |
       | kompaktbrief | zone_1_eu | FR | 1 | einschreiben |
-      | kompaktbrief | zone_2_europe | CH | 1 |  |
-      | kompaktbrief | zone_2_europe | CH | 1 | einschreiben |
+      | kompaktbrief | zone_2_europe | UA | 1 |  |
+      | kompaktbrief | zone_2_europe | UA | 1 | einschreiben |
       | maxibrief | domestic | DE | 1 |  |
       | maxibrief | domestic | DE | 1 | einschreiben |
       | maxibrief | domestic | DE | 1 | einschreiben_einwurf |
@@ -90,14 +90,14 @@ Feature: Internetmarke adapter purchases
       | maxibrief | world | US | 1 | einschreiben |
       | maxibrief | zone_1_eu | FR | 1 |  |
       | maxibrief | zone_1_eu | FR | 1 | einschreiben |
-      | maxibrief | zone_2_europe | CH | 1 |  |
-      | maxibrief | zone_2_europe | CH | 1 | einschreiben |
+      | maxibrief | zone_2_europe | UA | 1 |  |
+      | maxibrief | zone_2_europe | UA | 1 | einschreiben |
       | maxibrief_ausland | world | US | 1 |  |
       | maxibrief_ausland | world | US | 1 | einschreiben |
       | maxibrief_ausland | zone_1_eu | FR | 1 |  |
       | maxibrief_ausland | zone_1_eu | FR | 1 | einschreiben |
-      | maxibrief_ausland | zone_2_europe | CH | 1 |  |
-      | maxibrief_ausland | zone_2_europe | CH | 1 | einschreiben |
+      | maxibrief_ausland | zone_2_europe | UA | 1 |  |
+      | maxibrief_ausland | zone_2_europe | UA | 1 | einschreiben |
       | standardbrief | domestic | DE | 1 |  |
       | standardbrief | domestic | DE | 1 | einschreiben |
       | standardbrief | domestic | DE | 1 | einschreiben_einwurf |
@@ -106,5 +106,5 @@ Feature: Internetmarke adapter purchases
       | standardbrief | world | US | 1 | einschreiben |
       | standardbrief | zone_1_eu | FR | 1 |  |
       | standardbrief | zone_1_eu | FR | 1 | einschreiben |
-      | standardbrief | zone_2_europe | CH | 1 |  |
-      | standardbrief | zone_2_europe | CH | 1 | einschreiben |
+      | standardbrief | zone_2_europe | UA | 1 |  |
+      | standardbrief | zone_2_europe | UA | 1 | einschreiben |

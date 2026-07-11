@@ -42,7 +42,7 @@ Feature: Deutsche Post resolution
     And the resolution should be valid
 
   Scenario: Resolve zone 2 europe letter
-    Given I want to send a letter to country "CH"
+    Given I want to send a letter to country "UA"
     And the letter weight is 20 grams
     And the letter porto_id is "small"
     When I resolve the shipping configuration

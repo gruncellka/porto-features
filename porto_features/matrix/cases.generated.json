@@ -82,7 +82,7 @@
       "product_id": "grossbrief",
       "zone_id": "zone_2_europe",
       "service_ids": [],
-      "country_code": "CH",
+      "country_code": "UA",
       "weight": 1
     },
     {
@@ -92,7 +92,7 @@
       "service_ids": [
         "einschreiben"
       ],
-      "country_code": "CH",
+      "country_code": "UA",
       "weight": 1
     },
     {
@@ -174,7 +174,7 @@
       "product_id": "kompaktbrief",
       "zone_id": "zone_2_europe",
       "service_ids": [],
-      "country_code": "CH",
+      "country_code": "UA",
       "weight": 1
     },
     {
@@ -184,7 +184,7 @@
       "service_ids": [
         "einschreiben"
       ],
-      "country_code": "CH",
+      "country_code": "UA",
       "weight": 1
     },
     {
@@ -266,7 +266,7 @@
       "product_id": "maxibrief",
       "zone_id": "zone_2_europe",
       "service_ids": [],
-      "country_code": "CH",
+      "country_code": "UA",
       "weight": 1
     },
     {
@@ -276,7 +276,7 @@
       "service_ids": [
         "einschreiben"
       ],
-      "country_code": "CH",
+      "country_code": "UA",
       "weight": 1
     },
     {
@@ -320,7 +320,7 @@
       "product_id": "maxibrief_ausland",
       "zone_id": "zone_2_europe",
       "service_ids": [],
-      "country_code": "CH",
+      "country_code": "UA",
       "weight": 1
     },
     {
@@ -330,7 +330,7 @@
       "service_ids": [
         "einschreiben"
       ],
-      "country_code": "CH",
+      "country_code": "UA",
       "weight": 1
     },
     {
@@ -412,7 +412,7 @@
       "product_id": "standardbrief",
       "zone_id": "zone_2_europe",
       "service_ids": [],
-      "country_code": "CH",
+      "country_code": "UA",
       "weight": 1
     },
     {
@@ -422,7 +422,7 @@
       "service_ids": [
         "einschreiben"
       ],
-      "country_code": "CH",
+      "country_code": "UA",
       "weight": 1
     }
   ]

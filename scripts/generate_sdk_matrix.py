@@ -19,10 +19,10 @@ CONCERN_ALIASES = {
     "api_comprehensive_testing": "pricing",
 }
 
-COUNTRY_ZONE_DEUTSCHEPOST = {
+PRIMARY_COUNTRY_ZONES = {
     "DE": "domestic",
     "FR": "zone_1_eu",
-    "CH": "zone_2_europe",
+    "UA": "zone_2_europe",
     "US": "world",
     "XX": "invalid",
 }
@@ -123,8 +123,8 @@ def _extract_zone(text: str, provider: str, country: str | None) -> str | None:
         return zone_match.group(1)
 
     if country:
-        if provider in {"deutschepost", "global"} and country in COUNTRY_ZONE_DEUTSCHEPOST:
-            return COUNTRY_ZONE_DEUTSCHEPOST[country]
+        if provider in {"deutschepost", "global"} and country in PRIMARY_COUNTRY_ZONES:
+            return PRIMARY_COUNTRY_ZONES[country]
         if provider == "laposte" and country == "FR":
             return "domestic"
         if provider == "swisspost" and country == "CH":
