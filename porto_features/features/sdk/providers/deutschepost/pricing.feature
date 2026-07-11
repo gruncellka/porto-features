@@ -12,8 +12,8 @@ Feature: Pricing
 
   Scenario: Calculate price for domestic small letter
     Given I have a letter with porto_id "small"
-    And the destination country is "DE"
-    And the weight is 20 grams
+    And I want to send a letter to country "DE"
+    And the letter weight is 20 grams
     When I calculate the price
     Then I should get a price in cents
     And the currency should be "EUR"
@@ -21,8 +21,8 @@ Feature: Pricing
 
   Scenario: Calculate price for EU zone small letter
     Given I have a letter with porto_id "small"
-    And the destination country is "FR"
-    And the weight is 20 grams
+    And I want to send a letter to country "FR"
+    And the letter weight is 20 grams
     When I calculate the price
     Then I should get a price in cents
     And the currency should be "EUR"
@@ -30,8 +30,8 @@ Feature: Pricing
 
   Scenario: Calculate price for world zone small letter
     Given I have a letter with porto_id "small"
-    And the destination country is "US"
-    And the weight is 20 grams
+    And I want to send a letter to country "US"
+    And the letter weight is 20 grams
     When I calculate the price
     Then I should get a price in cents
     And the currency should be "EUR"
@@ -39,8 +39,8 @@ Feature: Pricing
 
   Scenario: Calculate price for medium letter
     Given I have a letter with porto_id "medium"
-    And the destination country is "DE"
-    And the weight is 30 grams
+    And I want to send a letter to country "DE"
+    And the letter weight is 30 grams
     When I calculate the price
     Then I should get a price in cents
     And the currency should be "EUR"
@@ -48,8 +48,8 @@ Feature: Pricing
 
   Scenario: Calculate price for large letter
     Given I have a letter with porto_id "large"
-    And the destination country is "DE"
-    And the weight is 100 grams
+    And I want to send a letter to country "DE"
+    And the letter weight is 100 grams
     When I calculate the price
     Then I should get a price in cents
     And the currency should be "EUR"
@@ -57,8 +57,8 @@ Feature: Pricing
 
   Scenario: Calculate price for extra large letter
     Given I have a letter with porto_id "extra_large"
-    And the destination country is "DE"
-    And the weight is 501 grams
+    And I want to send a letter to country "DE"
+    And the letter weight is 501 grams
     When I calculate the price
     Then I should get a price in cents
     And the currency should be "EUR"
@@ -78,8 +78,8 @@ Feature: Pricing
 
   Scenario: Price calculation is consistent
     Given I have a letter with porto_id "small"
-    And the destination country is "DE"
-    And the weight is 20 grams
+    And I want to send a letter to country "DE"
+    And the letter weight is 20 grams
     When I calculate the price
     Then I should store the result
     When I calculate the price again with the same parameters

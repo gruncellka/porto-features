@@ -92,7 +92,12 @@ CLASS_NAME_IN_STEP = re.compile(
 )
 
 NON_CANONICAL_COUNTRY_STEP = re.compile(
-    r'(?:destination country|the destination country is)\s+"[A-Z]{2}"',
+    r'(?:destination country|the destination country is)\s+"',
+    re.IGNORECASE,
+)
+
+NON_CANONICAL_WEIGHT_STEP = re.compile(
+    r"\bthe weight is \d+ grams|(?<!I have )\bweight \d+ grams|(?<!I have )\bweight <weight> grams",
     re.IGNORECASE,
 )
 
@@ -100,6 +105,15 @@ NON_CANONICAL_COUNTRY_STEP = re.compile(
 def _feature_tags(feature: dict) -> set[str]:
     tags: set[str] = set()
     for tag in feature.get("tags", []):
+        name = tag.get("name", "")
+        if name.startswith("@"):
+            tags.add(name[1:])
+    return tags
+
+
+def _node_tags(node: dict) -> set[str]:
+    tags: set[str] = set()
+    for tag in node.get("tags", []):
         name = tag.get("name", "")
         if name.startswith("@"):
             tags.add(name[1:])
@@ -132,6 +146,16 @@ def _collect_vocabulary_errors(content: str, relative_path: Path) -> list[str]:
                 f"❌ {relative_path}: Stale catalog reference '{stale}' — "
                 "align with porto-data bundle layout (graph.json, envelope_ids, zones)"
             )
+    if NON_CANONICAL_COUNTRY_STEP.search(content):
+        errors.append(
+            f"❌ {relative_path}: Non-canonical destination country phrasing — "
+            'use `I want to send a letter to country "<country_code>"` (docs/vocabulary.md)'
+        )
+    if NON_CANONICAL_WEIGHT_STEP.search(content):
+        errors.append(
+            f"❌ {relative_path}: Non-canonical weight phrasing — "
+            "use `the letter weight is <weight> grams` (docs/vocabulary.md)"
+        )
     return errors
 
 
@@ -151,12 +175,6 @@ def _collect_style_warnings(content: str, relative_path: Path) -> list[str]:
         warnings.append(
             f"⚠️  {relative_path}: Class-like token '{class_name}' in steps — "
             "Gherkin must stay implementation-agnostic"
-        )
-
-    if NON_CANONICAL_COUNTRY_STEP.search(content):
-        warnings.append(
-            f"⚠️  {relative_path}: Non-canonical destination country phrasing — "
-            'use `I want to send a letter to country "<country_code>"` (docs/vocabulary.md)'
         )
 
     return warnings
@@ -193,6 +211,28 @@ def _validate_layer_tags(feature_tags: set[str], relative_path: Path) -> list[st
         )
 
     return errors + warnings
+
+
+def _validate_adapter_scenario_tags(
+    feature_tags: set[str], scenarios: list[dict], relative_path: Path
+) -> list[str]:
+    """@adapters features must tag at least one scenario @canary or @full."""
+    if "adapters" not in feature_tags:
+        return []
+
+    has_lane_tag = False
+    for scenario in scenarios:
+        scenario_tags = _node_tags(scenario["scenario"])
+        if scenario_tags & ADAPTER_SUB_TAGS:
+            has_lane_tag = True
+            break
+
+    if not has_lane_tag:
+        return [
+            f"❌ {relative_path}: @adapters feature must tag at least one scenario "
+            f"@canary or @full (see docs/scenario-policy.md)"
+        ]
+    return []
 
 
 def _scope_tags(feature_tags: set[str]) -> tuple[str | None, str | None]:
@@ -325,6 +365,7 @@ def validate_feature_file(file_path: Path) -> tuple[bool, list[str]]:
             if not steps:
                 errors.append(f'❌ {relative_path}: Scenario "{scenario_name}" has no steps')
 
+        errors.extend(_validate_adapter_scenario_tags(feature_tags, scenarios, relative_path))
         errors.extend(_collect_vocabulary_errors(content, relative_path))
         errors.extend(_collect_style_warnings(content, relative_path))
 
@@ -373,13 +414,12 @@ def _parse_matrix_ref(ref: str) -> tuple[str, str | None, str | None]:
 
 
 def _resolve_feature_path(features_dir: Path, rel: str) -> Path | None:
+    """Resolve matrix ref to a feature file. Refs must use nested paths (sdk/… or adapters/…)."""
+    if "/" not in rel:
+        return None
     feature_path = features_dir / rel
     if feature_path.is_file():
         return feature_path
-    basename = Path(rel).name
-    for candidate in features_dir.rglob(basename):
-        if candidate.is_file():
-            return candidate
     return None
 
 
@@ -410,10 +450,12 @@ def _validate_matrix_ref(ref: str, features_dir: Path, context: str) -> list[str
     feature_path = _resolve_feature_path(features_dir, rel)
     if feature_path is None:
         expected = features_dir / rel
-        alt = features_dir / "sdk" / Path(rel).name
-        return [
-            f"❌ {context}: ref '{ref}' — feature file not found (expected {expected} or {alt})"
-        ]
+        if "/" not in rel:
+            return [
+                f"❌ {context}: ref '{ref}' — matrix refs must use nested paths "
+                f"(e.g. sdk/core/cli.feature), not bare '{rel}'"
+            ]
+        return [f"❌ {context}: ref '{ref}' — feature file not found (expected {expected})"]
 
     if kind is None or name is None:
         return []

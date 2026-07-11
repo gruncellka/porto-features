@@ -14,8 +14,8 @@ Feature: Internetmarke adapter purchases
   @canary
   Scenario: Generate stamp with pre-calculation
     Given I have a letter with porto_id "small"
-    And destination country "DE"
-    And weight 20 grams
+    And I want to send a letter to country "DE"
+    And the letter weight is 20 grams
     And valid destination address
     And valid origin address
     And Internetmarke credentials are configured
@@ -30,8 +30,8 @@ Feature: Internetmarke adapter purchases
   @full
   Scenario: Compare pre-calculated and API prices
     Given I have a letter with porto_id "small"
-    And destination country "DE"
-    And weight 20 grams
+    And I want to send a letter to country "DE"
+    And the letter weight is 20 grams
     And Internetmarke credentials are configured
     When I generate a digital stamp
     Then the system should compare pre-calculated and API prices
@@ -42,8 +42,9 @@ Feature: Internetmarke adapter purchases
   @full
   Scenario Outline: stamp_order
     Given product id is "<product_id>"
-    And destination country "<country_code>"
-    And weight <weight> grams
+    And zone id is "<zone_id>"
+    And I want to send a letter to country "<country_code>"
+    And the letter weight is <weight> grams
     And service ids are "<service_ids>"
     And valid destination address for country "<country_code>"
     And valid origin address

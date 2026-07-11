@@ -15,7 +15,7 @@ Feature: Deutsche Post letter validation
     And length 210 mm
     And width 148 mm
     And height 5 mm
-    And weight 20 grams
+    And the letter weight is 20 grams
     And valid destination address
     And valid origin address
     When I validate the letter
@@ -28,7 +28,7 @@ Feature: Deutsche Post letter validation
     And length 229 mm
     And width 162 mm
     And height 5 mm
-    And weight 30 grams
+    And the letter weight is 30 grams
     And valid destination address
     And valid origin address
     When I validate the letter
@@ -41,7 +41,7 @@ Feature: Deutsche Post letter validation
     And length 324 mm
     And width 229 mm
     And height 5 mm
-    And weight 100 grams
+    And the letter weight is 100 grams
     And valid destination address
     And valid origin address
     When I validate the letter
@@ -54,7 +54,7 @@ Feature: Deutsche Post letter validation
     And length 353 mm
     And width 250 mm
     And height 60 mm
-    And weight 501 grams
+    And the letter weight is 501 grams
     And valid destination address
     And valid origin address
     When I validate the letter
@@ -67,7 +67,7 @@ Feature: Deutsche Post letter validation
     And length 50 mm
     And width 50 mm
     And height 5 mm
-    And weight 10 grams
+    And the letter weight is 10 grams
     And valid destination address
     And valid origin address
     When I validate the letter
@@ -79,7 +79,7 @@ Feature: Deutsche Post letter validation
     And length 210 mm
     And width 148 mm
     And height 5 mm
-    And weight 2500 grams
+    And the letter weight is 2500 grams
     And valid destination address
     And valid origin address
     When I validate the letter
@@ -91,7 +91,7 @@ Feature: Deutsche Post letter validation
     And length 210 mm
     And width 148 mm
     And height 5 mm
-    And weight 20 grams
+    And the letter weight is 20 grams
     And invalid destination address
     And valid origin address
     When I validate the letter
@@ -103,7 +103,7 @@ Feature: Deutsche Post letter validation
     And length 210 mm
     And width 148 mm
     And height 5 mm
-    And weight 20 grams
+    And the letter weight is 20 grams
     And valid destination address
     And valid origin address
     And the destination country has restrictions

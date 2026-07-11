@@ -123,10 +123,25 @@ def test_collect_vocabulary_errors_flags_data_links_reference():
 
 def test_collect_style_warnings_flags_implementation_tokens():
     module = load_module()
-    content = 'Given I have a Porto SDK client initialized\nAnd destination country "DE"'
+    content = "Given I have a Porto SDK client initialized"
     warnings = module._collect_style_warnings(content, Path("x.feature"))
     assert any("Porto SDK client" in w for w in warnings)
-    assert any("Non-canonical destination country" in w for w in warnings)
+    assert not any("Non-canonical destination country" in w for w in warnings)
+
+
+def test_collect_vocabulary_errors_flags_non_canonical_country():
+    module = load_module()
+    errors = module._collect_vocabulary_errors(
+        'And destination country "DE"',
+        Path("x.feature"),
+    )
+    assert any("Non-canonical destination country" in e for e in errors)
+
+
+def test_collect_vocabulary_errors_flags_non_canonical_weight():
+    module = load_module()
+    errors = module._collect_vocabulary_errors("And weight 20 grams", Path("x.feature"))
+    assert any("Non-canonical weight phrasing" in e for e in errors)
 
 
 def test_collect_style_warnings_flags_class_names():
@@ -581,7 +596,7 @@ sdk_cells:
     assert any("sdk.yaml: ref" in e and "feature file not found" in e for e in errors)
 
 
-def test_validate_matrix_files_accepts_sdk_ref_via_sdk_subdir(tmp_path):
+def test_validate_matrix_files_accepts_sdk_ref_via_nested_path(tmp_path):
     module = load_module()
     matrix_dir = tmp_path / "matrix"
     features_dir = tmp_path / "features"
@@ -597,7 +612,7 @@ def test_validate_matrix_files_accepts_sdk_ref_via_sdk_subdir(tmp_path):
 schema_version: 1
 sdk_cells:
   - refs:
-      - resolution.feature
+      - sdk/resolution.feature
 """.strip(),
         encoding="utf-8",
     )
@@ -605,6 +620,18 @@ sdk_cells:
     ok, errors = module.validate_matrix_files(matrix_dir, features_dir)
     assert ok
     assert errors == []
+
+
+def test_validate_matrix_ref_rejects_bare_filename(tmp_path):
+    module = load_module()
+    features_dir = tmp_path / "features"
+    sdk_dir = features_dir / "sdk"
+    sdk_dir.mkdir(parents=True)
+    (sdk_dir / "resolution.feature").write_text(
+        "Feature: R\nScenario: S\n Given x\n", encoding="utf-8"
+    )
+    errors = module._validate_matrix_ref("resolution.feature", features_dir, "sdk.yaml")
+    assert any("must use nested paths" in e for e in errors)
 
 
 def test_validate_matrix_files_rejects_unknown_scenario_ref(tmp_path):
@@ -816,6 +843,93 @@ def test_validate_scope_tags_requires_wire_on_adapters():
     path = Path("porto_features/features/adapters/deutschepost/internetmarke.feature")
     errors = module._validate_scope_tags({"adapters", "operator:deutschepost"}, path)
     assert any("@wire:" in e for e in errors)
+
+
+def test_validate_scope_tags_skips_when_no_layer_tag_on_published_path():
+    module = load_module()
+    path = Path("porto_features/features/sdk/providers/deutschepost/pricing.feature")
+    errors = module._validate_scope_tags({"core"}, path)
+    assert errors == []
+
+
+def test_validate_scope_tags_rejects_multiple_operator_tags_on_sdk():
+    module = load_module()
+    path = Path("porto_features/features/sdk/providers/deutschepost/pricing.feature")
+    errors = module._validate_scope_tags(
+        {"sdk", "operator:deutschepost", "operator:laposte"},
+        path,
+    )
+    assert any("at most one @operator" in e for e in errors)
+
+
+def test_validate_scope_tags_rejects_sdk_operator_path_mismatch():
+    module = load_module()
+    path = Path("porto_features/features/sdk/providers/laposte/pricing.feature")
+    errors = module._validate_scope_tags({"sdk", "operator:deutschepost"}, path)
+    assert any("must live under sdk/providers/deutschepost/" in e for e in errors)
+
+
+def test_validate_scope_tags_rejects_core_outside_sdk_core():
+    module = load_module()
+    path = Path("porto_features/features/sdk/providers/deutschepost/pricing.feature")
+    errors = module._validate_scope_tags({"sdk", "core"}, path)
+    assert any("must live under sdk/core/" in e for e in errors)
+
+
+def test_validate_scope_tags_rejects_adapters_without_operator():
+    module = load_module()
+    path = Path("porto_features/features/adapters/deutschepost/internetmarke.feature")
+    errors = module._validate_scope_tags({"adapters", "wire:internetmarke"}, path)
+    assert any("exactly one @operator" in e for e in errors)
+
+
+def test_validate_scope_tags_rejects_adapters_operator_path_mismatch():
+    module = load_module()
+    path = Path("porto_features/features/adapters/laposte/internetmarke.feature")
+    errors = module._validate_scope_tags(
+        {"adapters", "operator:deutschepost", "wire:internetmarke"},
+        path,
+    )
+    assert any("must live under adapters/deutschepost/" in e for e in errors)
+
+
+def test_validate_adapter_scenario_tags_requires_canary_or_full():
+    module = load_module()
+    path = Path("porto_features/features/adapters/deutschepost/internetmarke.feature")
+    scenarios = [{"scenario": {"name": "No lane", "tags": [], "steps": [{"text": "x"}]}}]
+    errors = module._validate_adapter_scenario_tags({"adapters"}, scenarios, path)
+    assert any("@canary or @full" in e for e in errors)
+
+
+def test_validate_adapter_scenario_tags_accepts_canary():
+    module = load_module()
+    path = Path("porto_features/features/adapters/deutschepost/internetmarke.feature")
+    scenarios = [{"scenario": {"name": "Smoke", "tags": [{"name": "@canary"}], "steps": []}}]
+    errors = module._validate_adapter_scenario_tags({"adapters"}, scenarios, path)
+    assert errors == []
+
+
+def test_validate_feature_file_rejects_adapters_without_lane_tags(tmp_path, monkeypatch):
+    module = load_module()
+    monkeypatch.chdir(tmp_path)
+    adapters_dir = tmp_path / "porto_features" / "features" / "adapters" / "deutschepost"
+    adapters_dir.mkdir(parents=True)
+    feature_file = adapters_dir / "internetmarke.feature"
+    feature_file.write_text(
+        """
+@adapters
+@operator:deutschepost
+@wire:internetmarke
+Feature: Adapter
+  Scenario: Untagged paid scenario
+    Given x
+""".strip(),
+        encoding="utf-8",
+    )
+
+    is_valid, errors = module.validate_feature_file(feature_file)
+    assert not is_valid
+    assert any("@canary or @full" in e for e in errors)
 
 
 def test_iter_scenario_nodes_collects_rule_scenarios():

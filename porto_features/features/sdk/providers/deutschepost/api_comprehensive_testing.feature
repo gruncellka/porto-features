@@ -12,8 +12,9 @@ Feature: Comprehensive API Testing
 
   Scenario Outline: Pre-calculate price for product-zone combinations
     Given I have a letter with porto_id "<porto_id>"
-    And destination country "<country_code>"
-    And weight <weight> grams
+    And zone id is "<zone_id>"
+    And I want to send a letter to country "<country_code>"
+    And the letter weight is <weight> grams
     When I pre-calculate the price
     Then I should get a pre-calculated price in cents
     And the currency should be "EUR"

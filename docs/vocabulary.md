@@ -46,6 +46,7 @@ Do **not** use legacy tokens (`letter_standard`, `STANDARD`, `registered_mail`) 
 
 - `Given I have a letter with porto_id "<porto_id>"`
 - `Given I have product "<native_id>"`
+- `Given zone id is "<zone_id>"` (adapter wire / product-zone setups)
 - `When I calculate the price`
 - `Then I should get a price in cents`
 
@@ -61,6 +62,8 @@ Do **not** use legacy tokens (`letter_standard`, `STANDARD`, `registered_mail`) 
 | `the letter porto_id is "small"` | `the letter type is "STANDARD"` |
 | `I have a letter with porto_id "medium"` | `I have a letter with type "COMPACT"` |
 | `service porto_id is "registered"` | `I want to add service "registered_mail"` |
+| `I want to send a letter to country "DE"` | `destination country "DE"`, `the destination country is "DE"` |
+| `the letter weight is 20 grams` | `weight 20 grams`, `the weight is 20 grams` |
 
 ## Review checklist
 
