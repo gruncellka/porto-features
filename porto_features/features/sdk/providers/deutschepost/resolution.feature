@@ -1,19 +1,22 @@
-@offline
-Feature: Resolution
+@sdk
+@operator:deutschepost
+Feature: Deutsche Post resolution
   As a developer
-  I want to resolve product, zone, and weight tier from country code and weight
+  I want to resolve product, zone, and weight tier from country code and porto_id
   So that I can determine the correct shipping configuration for a letter
 
-  Background:
-    Given I have a Porto SDK client initialized
-    And I have access to porto-data
+  Rule: Happy-path resolution by zone and porto_id
+    Background:
+      Given provider is "deutschepost"
+      And I have a Porto SDK client initialized
+      And I have access to porto-data
 
   Scenario: Resolve domestic letter
     Given I want to send a letter to country "DE"
     And the letter weight is 20 grams
-    And the letter type is "STANDARD"
+    And the letter porto_id is "small"
     When I resolve the shipping configuration
-    Then I should get product with id "letter_standard"
+    Then I should get product with id "standardbrief"
     And I should get zone with id "domestic"
     And I should get weight tier "W0020"
     And the resolution should be valid
@@ -21,9 +24,9 @@ Feature: Resolution
   Scenario: Resolve EU zone letter
     Given I want to send a letter to country "FR"
     And the letter weight is 20 grams
-    And the letter type is "STANDARD"
+    And the letter porto_id is "small"
     When I resolve the shipping configuration
-    Then I should get product with id "letter_standard"
+    Then I should get product with id "standardbrief"
     And I should get zone with id "zone_1_eu"
     And I should get weight tier "W0020"
     And the resolution should be valid
@@ -31,67 +34,73 @@ Feature: Resolution
   Scenario: Resolve world zone letter
     Given I want to send a letter to country "US"
     And the letter weight is 20 grams
-    And the letter type is "STANDARD"
+    And the letter porto_id is "small"
     When I resolve the shipping configuration
-    Then I should get product with id "letter_standard"
+    Then I should get product with id "standardbrief"
     And I should get zone with id "world"
     And I should get weight tier "W0020"
     And the resolution should be valid
 
   Scenario: Resolve zone 2 europe letter
-    Given I want to send a letter to country "CH"
+    Given I want to send a letter to country "UA"
     And the letter weight is 20 grams
-    And the letter type is "STANDARD"
+    And the letter porto_id is "small"
     When I resolve the shipping configuration
-    Then I should get product with id "letter_standard"
+    Then I should get product with id "standardbrief"
     And I should get zone with id "zone_2_europe"
     And I should get weight tier "W0020"
     And the resolution should be valid
 
-  Scenario: Resolve compact letter for medium weight
+  Scenario: Resolve medium letter for mid weight
     Given I want to send a letter to country "DE"
     And the letter weight is 30 grams
-    And the letter type is "COMPACT"
+    And the letter porto_id is "medium"
     When I resolve the shipping configuration
-    Then I should get product with id "letter_compact"
+    Then I should get product with id "kompaktbrief"
     And I should get zone with id "domestic"
     And I should get weight tier "W0050"
     And the resolution should be valid
 
-  Scenario: Resolve large letter for heavy weight
+  Scenario: Resolve large letter for upper domestic weight
     Given I want to send a letter to country "DE"
     And the letter weight is 100 grams
-    And the letter type is "LARGE"
+    And the letter porto_id is "large"
     When I resolve the shipping configuration
-    Then I should get product with id "letter_large"
+    Then I should get product with id "grossbrief"
     And I should get zone with id "domestic"
     And I should get weight tier "W0500"
     And the resolution should be valid
 
-  Scenario: Resolve maxi letter for very heavy weight
+  Scenario: Resolve extra large letter
     Given I want to send a letter to country "DE"
-    And the letter weight is 500 grams
-    And the letter type is "MAXI"
+    And the letter weight is 501 grams
+    And the letter porto_id is "extra_large"
     When I resolve the shipping configuration
-    Then I should get product with id "letter_maxi"
+    Then I should get product with id "maxibrief"
     And I should get zone with id "domestic"
     And I should get weight tier "W1000"
     And the resolution should be valid
 
-  Scenario: Resolve merchandise letter
-    Given I want to send a letter to country "DE"
-    And the letter weight is 1000 grams
-    And the letter type is "MERCHANDISE"
+  Scenario: Resolve extra large international letter
+    Given I want to send a letter to country "FR"
+    And the letter weight is 1700 grams
+    And the letter porto_id is "extra_large"
     When I resolve the shipping configuration
-    Then I should get product with id "merchandise"
-    And I should get zone with id "domestic"
+    Then I should get product with id "maxibrief_ausland"
+    And I should get zone with id "zone_1_eu"
     And I should get weight tier "W2000"
     And the resolution should be valid
+
+  Rule: Resolution error handling
+    Background:
+      Given provider is "deutschepost"
+      And I have a Porto SDK client initialized
+      And I have access to porto-data
 
   Scenario: Resolve with invalid country code
     Given I want to send a letter to country "XX"
     And the letter weight is 20 grams
-    And the letter type is "STANDARD"
+    And the letter porto_id is "small"
     When I resolve the shipping configuration
     Then the resolution should be invalid
     And I should get an error about invalid country code
@@ -99,15 +108,21 @@ Feature: Resolution
   Scenario: Resolve with weight exceeding maximum
     Given I want to send a letter to country "DE"
     And the letter weight is 2500 grams
-    And the letter type is "STANDARD"
+    And the letter porto_id is "small"
     When I resolve the shipping configuration
     Then the resolution should be invalid
     And I should get an error about weight exceeding maximum
 
+  Rule: Resolution pricing metadata
+    Background:
+      Given provider is "deutschepost"
+      And I have a Porto SDK client initialized
+      And I have access to porto-data
+
   Scenario: Resolve returns base price
     Given I want to send a letter to country "DE"
     And the letter weight is 20 grams
-    And the letter type is "STANDARD"
+    And the letter porto_id is "small"
     When I resolve the shipping configuration
     Then the resolution should include base price
     And the base price should be a positive number

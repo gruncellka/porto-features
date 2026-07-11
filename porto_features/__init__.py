@@ -1,1 +1,1 @@
-"""Porto features package: shared BDD feature files and fixtures for Porto SDKs."""
+"""Porto features package: shared BDD feature files and fixtures for postal SDK implementors."""

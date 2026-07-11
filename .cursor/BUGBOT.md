@@ -1,4 +1,8 @@
-# Porto Features Bugbot Rules
+# Porto Features — Bugbot PR review rules
+
+**Canonical PR review resource** for this repo. Cursor Bugbot reads this file on PR review; agents should follow it when editing `porto_features/` or validation scripts.
+
+**Agent rules (Cursor):** [`.cursor/rules/features-layering-doctrine.mdc`](.cursor/rules/features-layering-doctrine.mdc) · [`.cursor/rules/karpathy-guidelines.mdc`](.cursor/rules/karpathy-guidelines.mdc) · [`.cursor/rules/git-no-auto-commit.mdc`](.cursor/rules/git-no-auto-commit.mdc)
 
 ## Scope
 
@@ -80,3 +84,27 @@ If changed files include `TODO` or `FIXME` without an issue reference like `#123
 - Add a non-blocking Bug titled `Untracked TODO/FIXME comment`.
 - Body: `Link TODO/FIXME to a tracked issue (for example TODO(#123): ...) or remove it.`
 - Apply label `maintainability`.
+
+### 9) Feature files must declare layer tags (blocking)
+
+If a PR adds or changes `.feature` files and the Feature lacks `@sdk` or `@adapters`, then:
+
+- Add a blocking Bug titled `Feature missing @sdk or @adapters tag`.
+- Body: `Every Feature must declare exactly one of @sdk or @adapters at Feature level. Paid adapter Examples must align with generated wire rows. See docs/scenario-policy.md and docs/matrix.md.`
+- Apply labels `bdd`, `quality`.
+
+### 10) SDK input must use porto_id vocabulary (blocking)
+
+If a PR uses legacy product tokens as SDK input — for example `letter_standard`, `letter_compact`, `STANDARD`, `COMPACT`, `MERCHANDISE`, or `the letter type is` with enum names instead of `porto_id` buckets (`small`, `medium`, `large`, `extra_large`) — then:
+
+- Add a blocking Bug titled `Legacy product vocabulary in feature scenario`.
+- Body: `SDK input uses porto_id size buckets. Native product id belongs in Then assertions only. See docs/vocabulary.md.`
+- Apply labels `compatibility`, `bdd`.
+
+### 11) Feature files must not reference SDK implementation (blocking)
+
+If a PR names SDK classes (`LetterType`, `PortoClient`, module paths), internal resolver methods, or language-specific types in `.feature` files, then:
+
+- Add a blocking Bug titled `SDK implementation detail in Gherkin`.
+- Body: `Scenarios describe behavior only. Step definitions in SDK repos map vocabulary to implementation.`
+- Apply labels `compatibility`, `bdd`.

@@ -1,5 +1,12 @@
-# Features and fixtures are in porto_features/ and included via [tool.setuptools.package-data].
+# sdist includes porto_features/ via setuptools packages + package-data only.
 include README.md
 include CHANGELOG.md
 include LICENSE
 prune tests
+prune docs
+prune scripts
+prune .cursor
+prune .github
+prune build
+prune dist
+global-exclude gherlint.toml

@@ -1,10 +1,10 @@
 {
-    "id": "addr_us_nyc",
-    "name": "Test Recipient",
-    "street": "5th Avenue",
-    "house_number": "350",
-    "postal_code": "10118",
-    "city": "New York",
+    "id": "addr_us_new_licko",
+    "name": "PortoClient",
+    "street": "Python-TypeScript",
+    "house_number": "1",
+    "postal_code": "01001",
+    "city": "New Licko",
     "region_code": "US-NY",
     "country_code": "US"
 }

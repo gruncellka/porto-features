@@ -1,10 +1,10 @@
 {
-    "id": "addr_fr_paris",
-    "name": "Test Destinataire",
-    "street": "Rue de Rivoli",
-    "house_number": "45",
-    "postal_code": "75001",
-    "city": "Paris",
-    "region_code": "FR-75",
+    "id": "addr_fr_licko_sur_seine",
+    "name": "PortoClient",
+    "street": "Python-TypeScript",
+    "house_number": "1",
+    "postal_code": "01001",
+    "city": "Licko-sur-Seine",
+    "region_code": "FR-IDF",
     "country_code": "FR"
 }

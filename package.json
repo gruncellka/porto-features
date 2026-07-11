@@ -1,9 +1,9 @@
 {
     "name": "@gruncellka/porto-features",
     "version": "0.2.1",
-    "description": "Shared BDD feature files for Porto SDKs",
-    "author": "gruncellka",
-    "license": "MIT",
+    "description": "Multi-provider postal BDD: shared Gherkin scenarios and JSON fixtures for Porto SDK contract tests",
+    "author": "Oleksandr Tsyba",
+    "license": "Apache-2.0",
     "repository": {
         "type": "git",
         "url": "https://github.com/gruncellka/porto-features.git"
@@ -13,15 +13,34 @@
         "url": "https://github.com/gruncellka/porto-features/issues"
     },
     "keywords": [
+        "postal",
+        "post",
+        "shipping",
+        "logistics",
+        "deutsche post",
+        "ukrposhta",
+        "la poste",
+        "swiss post",
+        "pricing",
+        "postage",
+        "tariffs",
+        "zones",
+        "restrictions",
+        "validation",
         "bdd",
         "gherkin",
         "cucumber",
         "features",
-        "porto"
+        "fixtures",
+        "contract tests",
+        "sdk",
+        "porto-features",
+        "porto-sdk"
     ],
     "files": [
         "porto_features/features",
         "porto_features/fixtures",
+        "porto_features/matrix",
         "README.md",
         "CHANGELOG.md",
         "LICENSE",

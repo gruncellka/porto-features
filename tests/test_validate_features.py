@@ -1,14 +1,48 @@
+import builtins
+import runpy
+import sys
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
 
 import pytest
 
+SCRIPT_PATH = Path(__file__).resolve().parents[1] / "scripts" / "validate_features.py"
+
 
 def load_module():
-    script_path = Path(__file__).resolve().parents[1] / "scripts" / "validate_features.py"
-    spec = spec_from_file_location("validate_features_module", script_path)
+    spec = spec_from_file_location("validate_features_module", SCRIPT_PATH)
     module = module_from_spec(spec)
     assert spec is not None and spec.loader is not None
+    spec.loader.exec_module(module)
+    return module
+
+
+def load_fresh_module(monkeypatch, *, block: str | None = None):
+    module_name = f"validate_features_fresh_{block or 'full'}"
+    monkeypatch.delitem(sys.modules, module_name, raising=False)
+    real_import = builtins.__import__
+
+    def guarded_import(name, globals=None, locals=None, fromlist=(), level=0):
+        if block == "gherkin" and (name == "gherkin" or name.startswith("gherkin.")):
+            raise ImportError("blocked gherkin")
+        if block == "gherlint" and name == "gherlint":
+            raise ImportError("blocked gherlint")
+        if block == "yaml" and name == "yaml":
+            raise ImportError("blocked yaml")
+        return real_import(name, globals, locals, fromlist, level)
+
+    if block:
+        monkeypatch.setattr(builtins, "__import__", guarded_import)
+
+    spec = spec_from_file_location(module_name, SCRIPT_PATH)
+    module = module_from_spec(spec)
+    assert spec is not None and spec.loader is not None
+    if block == "gherkin":
+        with pytest.raises(SystemExit) as exc_info:
+            spec.loader.exec_module(module)
+        assert exc_info.value.code == 1
+        return None
+
     spec.loader.exec_module(module)
     return module
 
@@ -25,12 +59,172 @@ def test_find_feature_files_returns_sorted_feature_files(tmp_path):
     assert [f.name for f in files] == ["a.feature", "b.feature"]
 
 
+def test_validate_feature_file_rejects_missing_execution_tag(tmp_path, monkeypatch):
+    module = load_module()
+    monkeypatch.chdir(tmp_path)
+    feature_file = tmp_path / "untagged.feature"
+    feature_file.write_text(
+        """
+Feature: Untagged
+  Scenario: No tag
+    Given x
+""".strip(),
+        encoding="utf-8",
+    )
+
+    is_valid, errors = module.validate_feature_file(feature_file)
+    assert not is_valid
+    assert any("@sdk or @adapters" in e for e in errors)
+
+
+def test_validate_feature_file_rejects_legacy_product_id(tmp_path, monkeypatch):
+    module = load_module()
+    monkeypatch.chdir(tmp_path)
+    feature_file = tmp_path / "legacy.feature"
+    feature_file.write_text(
+        """
+@sdk
+Feature: Legacy
+  Scenario: Old id
+    Given product "letter_standard"
+""".strip(),
+        encoding="utf-8",
+    )
+
+    is_valid, errors = module.validate_feature_file(feature_file)
+    assert not is_valid
+    assert any("letter_standard" in e for e in errors)
+
+
+def test_validate_feature_file_rejects_legacy_letter_type_enum(tmp_path, monkeypatch):
+    module = load_module()
+    monkeypatch.chdir(tmp_path)
+    feature_file = tmp_path / "enum.feature"
+    feature_file.write_text(
+        """
+@sdk
+Feature: Enum
+  Scenario: Old enum
+    Given the letter type is "STANDARD"
+""".strip(),
+        encoding="utf-8",
+    )
+
+    is_valid, errors = module.validate_feature_file(feature_file)
+    assert not is_valid
+    assert any("STANDARD" in e for e in errors)
+
+
+def test_collect_vocabulary_errors_flags_data_links_reference():
+    module = load_module()
+    errors = module._collect_vocabulary_errors('When I access "data_links.json"', Path("x.feature"))
+    assert any("data_links.json" in e for e in errors)
+
+
+def test_collect_tag_casing_errors_ignores_non_at_tags():
+    module = load_module()
+    feature = {
+        "tags": [{"name": "not-a-tag"}],
+        "children": [],
+    }
+    assert module._collect_tag_casing_errors(feature, Path("ok.feature")) == []
+
+
+def test_collect_tag_casing_errors_rejects_uppercase_feature_tag():
+    module = load_module()
+    feature = {
+        "tags": [{"name": "@SDK"}],
+        "children": [{"scenario": {"name": "S", "tags": [], "steps": [{"text": "x"}]}}],
+    }
+    errors = module._collect_tag_casing_errors(feature, Path("bad.feature"))
+    assert any("must be lowercase" in e and "@sdk" in e for e in errors)
+
+
+def test_collect_tag_casing_errors_rejects_uppercase_scenario_tag():
+    module = load_module()
+    feature = {
+        "tags": [{"name": "@adapters"}],
+        "children": [
+            {
+                "scenario": {
+                    "name": "Paid",
+                    "tags": [{"name": "@Full"}],
+                    "steps": [{"text": "x"}],
+                }
+            }
+        ],
+    }
+    errors = module._collect_tag_casing_errors(feature, Path("bad.feature"))
+    assert any("Scenario 'Paid'" in e and "@full" in e for e in errors)
+
+
+def test_validate_layer_tags_warns_on_uppercase_deprecated_release_tag():
+    module = load_module()
+    messages = module._validate_layer_tags({"adapters", "Release"}, Path("release.feature"))
+    assert any("@release is deprecated" in m for m in messages)
+
+
+def test_validate_feature_file_rejects_uppercase_sdk_tag(tmp_path, monkeypatch):
+    module = load_module()
+    monkeypatch.chdir(tmp_path)
+    feature_file = tmp_path / "upper.feature"
+    feature_file.write_text(
+        """
+@SDK
+Feature: Uppercase tag
+  Scenario: One
+    Given x
+""".strip(),
+        encoding="utf-8",
+    )
+
+    is_valid, errors = module.validate_feature_file(feature_file)
+    assert not is_valid
+    assert any("must be lowercase" in e for e in errors)
+
+
+def test_collect_style_warnings_flags_implementation_tokens():
+    module = load_module()
+    content = "Given I have a Porto SDK client initialized"
+    warnings = module._collect_style_warnings(content, Path("x.feature"))
+    assert any("Porto SDK client" in w for w in warnings)
+    assert not any("Non-canonical destination country" in w for w in warnings)
+
+
+def test_collect_vocabulary_errors_flags_non_canonical_country():
+    module = load_module()
+    errors = module._collect_vocabulary_errors(
+        'And destination country "DE"',
+        Path("x.feature"),
+    )
+    assert any("Non-canonical destination country" in e for e in errors)
+
+
+def test_collect_vocabulary_errors_flags_non_canonical_weight():
+    module = load_module()
+    errors = module._collect_vocabulary_errors("And weight 20 grams", Path("x.feature"))
+    assert any("Non-canonical weight phrasing" in e for e in errors)
+
+
+def test_collect_style_warnings_flags_class_names():
+    module = load_module()
+    warnings = module._collect_style_warnings("When PortoClient resolves", Path("x.feature"))
+    assert any("PortoClient" in w for w in warnings)
+
+
+def test_feature_tags_extracts_sdk_tag():
+    module = load_module()
+    tags = module._feature_tags({"tags": [{"name": "@sdk"}, {"name": "@slow"}]})
+    assert "sdk" in tags
+
+
 def test_validate_feature_file_accepts_valid_feature(tmp_path, monkeypatch):
     module = load_module()
     monkeypatch.chdir(tmp_path)
     feature_file = tmp_path / "ok.feature"
     feature_file.write_text(
         """
+@sdk
 Feature: Validation
   Scenario: Valid scenario
     Given I have input
@@ -62,6 +256,7 @@ def test_validate_feature_file_warns_on_duplicate_scenario_names(tmp_path, monke
     feature_file = tmp_path / "dup.feature"
     feature_file.write_text(
         """
+@sdk
 Feature: Duplicate names
   Scenario: Same name
     Given one
@@ -99,24 +294,14 @@ def test_validate_feature_file_reports_scenario_with_no_steps(tmp_path, monkeypa
     module = load_module()
     monkeypatch.chdir(tmp_path)
     feature_file = tmp_path / "no_steps.feature"
-    feature_file.write_text("Feature: Placeholder", encoding="utf-8")
-
-    class FakeParser:
-        def parse(self, _content):
-            return {
-                "feature": {
-                    "children": [
-                        {
-                            "scenario": {
-                                "name": "No steps",
-                                "steps": [],
-                            }
-                        }
-                    ]
-                }
-            }
-
-    module.Parser = FakeParser
+    feature_file.write_text(
+        """
+@sdk
+Feature: No steps
+  Scenario: No steps
+""".strip(),
+        encoding="utf-8",
+    )
     is_valid, errors = module.validate_feature_file(feature_file)
     assert not is_valid
     assert any("has no steps" in e for e in errors)
@@ -240,6 +425,66 @@ def test_run_gherlint_handles_generic_exception(monkeypatch, tmp_path):
     assert any("Error running gherlint" in e for e in errors)
 
 
+def test_find_feature_files_finds_nested_features(tmp_path):
+    module = load_module()
+    features_dir = tmp_path / "features"
+    sdk_dir = features_dir / "sdk"
+    sdk_dir.mkdir(parents=True)
+    (sdk_dir / "nested.feature").write_text("Feature: N\nScenario: S\n Given x\n", encoding="utf-8")
+
+    files = module.find_feature_files(features_dir)
+    assert [f.name for f in files] == ["nested.feature"]
+
+
+def test_validate_matrix_files_rejects_mismatched_case_id(tmp_path):
+    module = load_module()
+    matrix_dir = tmp_path / "matrix"
+    features_dir = tmp_path / "features"
+    matrix_dir.mkdir()
+    features_dir.mkdir()
+    (matrix_dir / "slices.yaml").write_text("schema_version: 1\n", encoding="utf-8")
+    (matrix_dir / "sdk.yaml").write_text("schema_version: 1\nsdk_cells: []\n", encoding="utf-8")
+    (matrix_dir / "canary.yaml").write_text("schema_version: 1\ncase_ids: []\n", encoding="utf-8")
+    (matrix_dir / "orders.generated.yaml").write_text(
+        """
+schema_version: 1
+order_cells:
+  - case_id: wrong_slug
+    provider: deutschepost
+    adapter: internetmarke
+    product_id: standardbrief
+    zone_id: domestic
+    service_ids: []
+    refs: []
+""".strip(),
+        encoding="utf-8",
+    )
+
+    ok, errors = module.validate_matrix_files(matrix_dir, features_dir)
+    assert not ok
+    assert any("does not match structured fields" in e for e in errors)
+
+
+def test_validate_matrix_files_rejects_canary_not_in_orders(tmp_path):
+    module = load_module()
+    matrix_dir = tmp_path / "matrix"
+    features_dir = tmp_path / "features"
+    matrix_dir.mkdir()
+    features_dir.mkdir()
+    (matrix_dir / "slices.yaml").write_text("schema_version: 1\n", encoding="utf-8")
+    (matrix_dir / "sdk.yaml").write_text("schema_version: 1\nsdk_cells: []\n", encoding="utf-8")
+    (matrix_dir / "orders.generated.yaml").write_text(
+        "schema_version: 1\norder_cells: []\n", encoding="utf-8"
+    )
+    (matrix_dir / "canary.yaml").write_text(
+        "schema_version: 1\ncase_ids:\n  - missing_case\n", encoding="utf-8"
+    )
+
+    ok, errors = module.validate_matrix_files(matrix_dir, features_dir)
+    assert not ok
+    assert any("missing_case" in e for e in errors)
+
+
 def test_main_exits_1_when_no_feature_files(monkeypatch):
     module = load_module()
     monkeypatch.setattr(module, "find_feature_files", lambda _d: [])
@@ -292,4 +537,480 @@ def test_main_exits_0_when_all_feature_checks_pass(monkeypatch):
 
     with pytest.raises(SystemExit) as exc_info:
         module.main()
+    assert exc_info.value.code == 0
+
+
+def test_main_exits_1_when_matrix_has_errors(monkeypatch):
+    module = load_module()
+    monkeypatch.setattr(module, "find_feature_files", lambda _d: [Path("x.feature")])
+    monkeypatch.setattr(module, "validate_feature_file", lambda _p: (True, []))
+    monkeypatch.setattr(module, "validate_matrix_files", lambda _m, _f: (False, ["❌ matrix bad"]))
+    monkeypatch.setattr(module, "run_gherlint", lambda _d: (True, []))
+
+    with pytest.raises(SystemExit) as exc_info:
+        module.main()
+    assert exc_info.value.code == 1
+
+
+def test_ref_feature_path_appends_extension_for_bare_name():
+    module = load_module()
+    assert module._ref_feature_path("resolution:Scenario:Name") == "resolution.feature"
+
+
+def test_ref_feature_path_keeps_nested_path():
+    module = load_module()
+    assert module._ref_feature_path("sdk/resolution:Scenario:Name") == "sdk/resolution.feature"
+
+
+def test_expected_case_id_includes_service_ids():
+    module = load_module()
+    cell = {
+        "provider": "deutschepost",
+        "adapter": "internetmarke",
+        "product_id": "standardbrief",
+        "zone_id": "domestic",
+        "service_ids": ["einschreiben"],
+    }
+    assert module._expected_case_id(cell) == (
+        "deutschepost.internetmarke.standardbrief.domestic.einschreiben"
+    )
+
+
+def test_collect_vocabulary_errors_flags_deprecated_service_id():
+    module = load_module()
+    errors = module._collect_vocabulary_errors('Given service "registered_mail"', Path("x.feature"))
+    assert any("registered_mail" in e for e in errors)
+
+
+def test_validate_layer_tags_warns_on_deprecated_offline_tag():
+    module = load_module()
+    messages = module._validate_layer_tags({"offline"}, Path("legacy.feature"))
+    assert any("Deprecated tag" in m and "offline" in m for m in messages)
+
+
+def test_validate_layer_tags_rejects_both_sdk_and_adapters():
+    module = load_module()
+    messages = module._validate_layer_tags({"sdk", "adapters"}, Path("both.feature"))
+    assert any("exactly one of @sdk or @adapters" in m for m in messages)
+
+
+def test_validate_layer_tags_rejects_adapters_with_api():
+    module = load_module()
+    messages = module._validate_layer_tags({"adapters", "api"}, Path("api.feature"))
+    assert any("Drop @api" in m for m in messages)
+
+
+def test_validate_layer_tags_warns_on_deprecated_release_tag():
+    module = load_module()
+    messages = module._validate_layer_tags({"adapters", "release"}, Path("release.feature"))
+    assert any("@release is deprecated" in m for m in messages)
+
+
+def test_validate_matrix_files_skips_when_yaml_unavailable(tmp_path, monkeypatch):
+    module = load_module()
+    monkeypatch.setattr(module, "yaml", None)
+    ok, errors = module.validate_matrix_files(tmp_path / "matrix", tmp_path / "features")
+    assert ok
+    assert errors == []
+
+
+def test_validate_matrix_files_rejects_missing_matrix_files(tmp_path):
+    module = load_module()
+    matrix_dir = tmp_path / "matrix"
+    matrix_dir.mkdir()
+
+    ok, errors = module.validate_matrix_files(matrix_dir, tmp_path / "features")
+    assert not ok
+    assert any("Missing matrix file" in e for e in errors)
+
+
+def _write_minimal_matrix_files(matrix_dir: Path) -> None:
+    (matrix_dir / "slices.yaml").write_text(
+        "schema_version: 1\nslices:\n  happy:\n    description: test\n",
+        encoding="utf-8",
+    )
+    (matrix_dir / "sdk.yaml").write_text("schema_version: 1\nsdk_cells: []\n", encoding="utf-8")
+    (matrix_dir / "canary.yaml").write_text("schema_version: 1\ncase_ids: []\n", encoding="utf-8")
+    (matrix_dir / "orders.generated.yaml").write_text(
+        "schema_version: 1\norder_cells: []\n", encoding="utf-8"
+    )
+
+
+def test_validate_matrix_files_rejects_missing_sdk_ref(tmp_path):
+    module = load_module()
+    matrix_dir = tmp_path / "matrix"
+    features_dir = tmp_path / "features"
+    matrix_dir.mkdir()
+    features_dir.mkdir()
+    _write_minimal_matrix_files(matrix_dir)
+    (matrix_dir / "sdk.yaml").write_text(
+        """
+schema_version: 1
+sdk_cells:
+  - refs:
+      - sdk/missing.feature:Scenario:Name
+""".strip(),
+        encoding="utf-8",
+    )
+
+    ok, errors = module.validate_matrix_files(matrix_dir, features_dir)
+    assert not ok
+    assert any("sdk.yaml: ref" in e and "feature file not found" in e for e in errors)
+
+
+def test_validate_matrix_files_accepts_sdk_ref_via_nested_path(tmp_path):
+    module = load_module()
+    matrix_dir = tmp_path / "matrix"
+    features_dir = tmp_path / "features"
+    sdk_dir = features_dir / "sdk"
+    matrix_dir.mkdir()
+    sdk_dir.mkdir(parents=True)
+    (sdk_dir / "resolution.feature").write_text(
+        "Feature: R\nScenario: S\n Given x\n", encoding="utf-8"
+    )
+    _write_minimal_matrix_files(matrix_dir)
+    (matrix_dir / "sdk.yaml").write_text(
+        """
+schema_version: 1
+sdk_cells:
+  - refs:
+      - sdk/resolution.feature
+""".strip(),
+        encoding="utf-8",
+    )
+
+    ok, errors = module.validate_matrix_files(matrix_dir, features_dir)
+    assert ok
+    assert errors == []
+
+
+def test_validate_matrix_ref_rejects_bare_filename(tmp_path):
+    module = load_module()
+    features_dir = tmp_path / "features"
+    sdk_dir = features_dir / "sdk"
+    sdk_dir.mkdir(parents=True)
+    (sdk_dir / "resolution.feature").write_text(
+        "Feature: R\nScenario: S\n Given x\n", encoding="utf-8"
+    )
+    errors = module._validate_matrix_ref("resolution.feature", features_dir, "sdk.yaml")
+    assert any("must use nested paths" in e for e in errors)
+
+
+def test_validate_matrix_files_rejects_unknown_scenario_ref(tmp_path):
+    module = load_module()
+    matrix_dir = tmp_path / "matrix"
+    features_dir = tmp_path / "features"
+    sdk_dir = features_dir / "sdk"
+    matrix_dir.mkdir()
+    sdk_dir.mkdir(parents=True)
+    (sdk_dir / "resolution.feature").write_text(
+        "Feature: R\nScenario: S\n Given x\n", encoding="utf-8"
+    )
+    _write_minimal_matrix_files(matrix_dir)
+    (matrix_dir / "sdk.yaml").write_text(
+        """
+schema_version: 1
+sdk_cells:
+  - refs:
+      - sdk/resolution.feature:Scenario:Missing
+""".strip(),
+        encoding="utf-8",
+    )
+
+    ok, errors = module.validate_matrix_files(matrix_dir, features_dir)
+    assert not ok
+    assert any("scenario 'Missing' not found" in e for e in errors)
+
+
+def test_validate_matrix_files_rejects_unknown_outline_ref(tmp_path):
+    module = load_module()
+    matrix_dir = tmp_path / "matrix"
+    features_dir = tmp_path / "features"
+    adapters_dir = features_dir / "adapters"
+    matrix_dir.mkdir()
+    adapters_dir.mkdir(parents=True)
+    (adapters_dir / "internetmarke.feature").write_text(
+        """
+@adapters
+Feature: Adapter
+  Scenario Outline: stamp_order
+    Given x
+    Examples:
+      | a |
+      | 1 |
+""".strip(),
+        encoding="utf-8",
+    )
+    _write_minimal_matrix_files(matrix_dir)
+    (matrix_dir / "orders.generated.yaml").write_text(
+        """
+schema_version: 1
+order_cells:
+  - case_id: deutschepost.internetmarke.standardbrief.domestic
+    provider: deutschepost
+    adapter: internetmarke
+    product_id: standardbrief
+    zone_id: domestic
+    service_ids: []
+    refs:
+      - adapters/internetmarke.feature:Outline:wrong_outline
+""".strip(),
+        encoding="utf-8",
+    )
+
+    ok, errors = module.validate_matrix_files(matrix_dir, features_dir)
+    assert not ok
+    assert any("outline 'wrong_outline' not found" in e for e in errors)
+
+
+def test_validate_matrix_files_rejects_unknown_slice(tmp_path):
+    module = load_module()
+    matrix_dir = tmp_path / "matrix"
+    features_dir = tmp_path / "features"
+    matrix_dir.mkdir()
+    features_dir.mkdir()
+    _write_minimal_matrix_files(matrix_dir)
+    (matrix_dir / "sdk.yaml").write_text(
+        """
+schema_version: 1
+sdk_cells:
+  - cell_id: test.cell
+    slice: not_a_slice
+    refs:
+      - sdk/resolution.feature
+""".strip(),
+        encoding="utf-8",
+    )
+
+    ok, errors = module.validate_matrix_files(matrix_dir, features_dir)
+    assert not ok
+    assert any("unknown slice 'not_a_slice'" in e for e in errors)
+
+
+def test_validate_matrix_files_rejects_missing_order_ref(tmp_path):
+    module = load_module()
+    matrix_dir = tmp_path / "matrix"
+    features_dir = tmp_path / "features"
+    matrix_dir.mkdir()
+    features_dir.mkdir()
+    _write_minimal_matrix_files(matrix_dir)
+    (matrix_dir / "orders.generated.yaml").write_text(
+        """
+schema_version: 1
+order_cells:
+  - case_id: deutschepost.internetmarke.standardbrief.domestic
+    provider: deutschepost
+    adapter: internetmarke
+    product_id: standardbrief
+    zone_id: domestic
+    service_ids: []
+    refs:
+      - adapters/missing.feature:Scenario:Name
+""".strip(),
+        encoding="utf-8",
+    )
+
+    ok, errors = module.validate_matrix_files(matrix_dir, features_dir)
+    assert not ok
+    assert any("feature file not found" in e for e in errors)
+
+
+def test_validate_matrix_files_reports_success_summary(tmp_path, capsys):
+    module = load_module()
+    matrix_dir = tmp_path / "matrix"
+    features_dir = tmp_path / "features"
+    matrix_dir.mkdir()
+    features_dir.mkdir()
+    _write_minimal_matrix_files(matrix_dir)
+
+    ok, errors = module.validate_matrix_files(matrix_dir, features_dir)
+    captured = capsys.readouterr()
+
+    assert ok
+    assert errors == []
+    assert "order_cells" in captured.out
+
+
+def test_load_module_exits_when_gherkin_missing(monkeypatch):
+    load_fresh_module(monkeypatch, block="gherkin")
+
+
+def test_load_module_continues_when_gherlint_missing(monkeypatch):
+    module = load_fresh_module(monkeypatch, block="gherlint")
+    assert module is not None
+    assert module.gherlint is None
+
+
+def test_load_module_continues_when_yaml_missing(monkeypatch):
+    module = load_fresh_module(monkeypatch, block="yaml")
+    assert module is not None
+    assert module.yaml is None
+
+
+def test_parse_matrix_ref_handles_kind_without_name():
+    module = load_module()
+    rel, kind, name = module._parse_matrix_ref("sdk/foo.feature:Scenario")
+    assert rel == "sdk/foo.feature"
+    assert kind == "Scenario"
+    assert name is None
+
+
+def test_validate_matrix_ref_rejects_unknown_ref_kind(tmp_path):
+    module = load_module()
+    features_dir = tmp_path / "features"
+    sdk_dir = features_dir / "sdk"
+    sdk_dir.mkdir(parents=True)
+    (sdk_dir / "resolution.feature").write_text(
+        "Feature: R\nScenario: S\n Given x\n", encoding="utf-8"
+    )
+    errors = module._validate_matrix_ref(
+        "sdk/resolution.feature:Foo:Bar",
+        features_dir,
+        "sdk.yaml",
+    )
+    assert any("unknown ref kind 'Foo'" in e for e in errors)
+
+
+def test_collect_feature_scenario_names_returns_empty_for_missing_feature(tmp_path):
+    module = load_module()
+    feature_file = tmp_path / "empty.feature"
+    feature_file.write_text("", encoding="utf-8")
+
+    class FakeParser:
+        def parse(self, _content):
+            return {}
+
+    module.Parser = FakeParser
+    scenarios, outlines = module._collect_feature_scenario_names(feature_file)
+    assert scenarios == set()
+    assert outlines == set()
+
+
+def test_validate_scope_tags_requires_operator_on_sdk_provider_path():
+    module = load_module()
+    path = Path("porto_features/features/sdk/providers/deutschepost/pricing.feature")
+    errors = module._validate_scope_tags({"sdk"}, path)
+    assert any("@core or exactly one @operator" in e for e in errors)
+
+
+def test_validate_scope_tags_rejects_core_and_operator_together():
+    module = load_module()
+    path = Path("porto_features/features/sdk/core/restrictions.feature")
+    errors = module._validate_scope_tags({"sdk", "core", "operator:deutschepost"}, path)
+    assert any("mutually exclusive" in e for e in errors)
+
+
+def test_validate_scope_tags_requires_wire_on_adapters():
+    module = load_module()
+    path = Path("porto_features/features/adapters/deutschepost/internetmarke.feature")
+    errors = module._validate_scope_tags({"adapters", "operator:deutschepost"}, path)
+    assert any("@wire:" in e for e in errors)
+
+
+def test_validate_scope_tags_skips_when_no_layer_tag_on_published_path():
+    module = load_module()
+    path = Path("porto_features/features/sdk/providers/deutschepost/pricing.feature")
+    errors = module._validate_scope_tags({"core"}, path)
+    assert errors == []
+
+
+def test_validate_scope_tags_rejects_multiple_operator_tags_on_sdk():
+    module = load_module()
+    path = Path("porto_features/features/sdk/providers/deutschepost/pricing.feature")
+    errors = module._validate_scope_tags(
+        {"sdk", "operator:deutschepost", "operator:laposte"},
+        path,
+    )
+    assert any("at most one @operator" in e for e in errors)
+
+
+def test_validate_scope_tags_rejects_sdk_operator_path_mismatch():
+    module = load_module()
+    path = Path("porto_features/features/sdk/providers/laposte/pricing.feature")
+    errors = module._validate_scope_tags({"sdk", "operator:deutschepost"}, path)
+    assert any("must live under sdk/providers/deutschepost/" in e for e in errors)
+
+
+def test_validate_scope_tags_rejects_core_outside_sdk_core():
+    module = load_module()
+    path = Path("porto_features/features/sdk/providers/deutschepost/pricing.feature")
+    errors = module._validate_scope_tags({"sdk", "core"}, path)
+    assert any("must live under sdk/core/" in e for e in errors)
+
+
+def test_validate_scope_tags_rejects_adapters_without_operator():
+    module = load_module()
+    path = Path("porto_features/features/adapters/deutschepost/internetmarke.feature")
+    errors = module._validate_scope_tags({"adapters", "wire:internetmarke"}, path)
+    assert any("exactly one @operator" in e for e in errors)
+
+
+def test_validate_scope_tags_rejects_adapters_operator_path_mismatch():
+    module = load_module()
+    path = Path("porto_features/features/adapters/laposte/internetmarke.feature")
+    errors = module._validate_scope_tags(
+        {"adapters", "operator:deutschepost", "wire:internetmarke"},
+        path,
+    )
+    assert any("must live under adapters/deutschepost/" in e for e in errors)
+
+
+def test_validate_adapter_scenario_tags_requires_canary_or_full():
+    module = load_module()
+    path = Path("porto_features/features/adapters/deutschepost/internetmarke.feature")
+    scenarios = [{"scenario": {"name": "No lane", "tags": [], "steps": [{"text": "x"}]}}]
+    errors = module._validate_adapter_scenario_tags({"adapters"}, scenarios, path)
+    assert any("@canary or @full" in e for e in errors)
+
+
+def test_validate_adapter_scenario_tags_accepts_canary():
+    module = load_module()
+    path = Path("porto_features/features/adapters/deutschepost/internetmarke.feature")
+    scenarios = [{"scenario": {"name": "Smoke", "tags": [{"name": "@canary"}], "steps": []}}]
+    errors = module._validate_adapter_scenario_tags({"adapters"}, scenarios, path)
+    assert errors == []
+
+
+def test_validate_feature_file_rejects_adapters_without_lane_tags(tmp_path, monkeypatch):
+    module = load_module()
+    monkeypatch.chdir(tmp_path)
+    adapters_dir = tmp_path / "porto_features" / "features" / "adapters" / "deutschepost"
+    adapters_dir.mkdir(parents=True)
+    feature_file = adapters_dir / "internetmarke.feature"
+    feature_file.write_text(
+        """
+@adapters
+@operator:deutschepost
+@wire:internetmarke
+Feature: Adapter
+  Scenario: Untagged paid scenario
+    Given x
+""".strip(),
+        encoding="utf-8",
+    )
+
+    is_valid, errors = module.validate_feature_file(feature_file)
+    assert not is_valid
+    assert any("@canary or @full" in e for e in errors)
+
+
+def test_iter_scenario_nodes_collects_rule_scenarios():
+    module = load_module()
+    content = """
+Feature: R
+  Rule: group
+    Scenario: inside rule
+      Given x
+  Scenario: outside rule
+    Given y
+"""
+    doc = module.Parser().parse(content)
+    nodes = module._iter_scenario_nodes(doc["feature"])
+    names = {n["scenario"]["name"] for n in nodes}
+    assert names == {"inside rule", "outside rule"}
+
+
+def test_script_main_entrypoint_exits_zero():
+    with pytest.raises(SystemExit) as exc_info:
+        runpy.run_path(str(SCRIPT_PATH), run_name="__main__")
     assert exc_info.value.code == 0

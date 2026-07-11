@@ -1,108 +1,57 @@
 # Contributing to Porto Features
 
-Porto Features is a feature/fixture repository (`.feature` + `.json`) with Python tooling for validation and packaging.
+Porto Features is a shared BDD contract package (`.feature` + `.json`) with Python tooling for validation and packaging. Step definitions live in **SDK repositories** — not here.
 
 ## Quick start
 
-1. Clone the repository and enter the project directory.
-2. Run:
-    ```bash
-    make setup
-    ```
-3. Start making changes. Pre-commit hooks run automatically on every commit.
-4. Pushes are protected locally: direct push to `main`/`master` and force-pushes are blocked by a pre-push hook.
+```bash
+make
+```
 
-`make setup` creates `venv`, installs dev dependencies, and installs pre-commit hooks.
+First run creates `venv`, installs dev dependencies, and installs pre-commit hooks. Targets use the venv automatically — no `source` needed.
 
 ## What to edit
 
-- Feature files: `porto_features/features/*.feature`
+- Feature files: `porto_features/features/**/*.feature` (`sdk/core/`, `sdk/providers/{id}/`, `adapters/{id}/`)
+- Matrix index: `porto_features/matrix/*.{yaml,json}` — regenerate via Porto SDK Lab `make matrix-sync` (not in this package)
 - Fixtures: `porto_features/fixtures/**/*.json`
+- Docs: `docs/` (`vocabulary.md`, `scenario-policy.md`, `matrix.md`)
+
+Read first: [docs/vocabulary.md](docs/vocabulary.md) · [docs/scenario-policy.md](docs/scenario-policy.md) · [docs/matrix.md](docs/matrix.md)
+
+**0.x coordination:** Ship breaking catalog and scenario changes together with aligned porto-data and implementor releases — no version pin file in this repo.
 
 ## Daily workflow
 
 1. Edit feature and/or fixture files.
-2. Run `make validate-features`.
-3. Run `make validate-fixtures`.
-4. Run `make quality`.
-5. Commit changes.
+2. After `@sdk` or wire changes, run `make matrix-sync` from [Porto SDK Lab](https://github.com/gruncellka/porto-sdk-lab) and commit regenerated matrix files here. Matrix drift is gated in Lab CI (`make matrix-sync-check`), not in this repo.
+3. Run `make quality` and `make test-cov`.
+4. Update `CHANGELOG.md` under `[Unreleased]` for behavior-spec changes.
+5. Commit (pre-commit runs automatically).
 
 ## Most useful commands
 
-### Make
-
-| Command                  | Description                                          |
-| ------------------------ | ---------------------------------------------------- |
-| `make help`              | Show all commands                                    |
-| `make validate-features` | Validate all `.feature` files (syntax + structure)   |
-| `make validate-fixtures` | Validate all `.json` fixtures (syntax + structure)   |
-| `make lint-json`         | Lint features with gherlint                          |
-| `make format`            | Format Python + fixture JSON                         |
-| `make format-code`       | Format Python (`CHECK=1` for check-only)             |
-| `make format-json`       | Format fixture JSON (`CHECK=1` for check-only)       |
-| `make lint`              | Lint features and Python                             |
-| `make type-check`        | Run MyPy                                             |
-| `make quality`           | validate + lint + format checks (`CHECK=1`) + type-check |
-| `make test-publish`      | Build and verify npm + PyPI artifacts locally        |
-
-## Pre-commit behavior
-
-On commit, hooks can format files and run validation/lint/type-check.
-
-If hooks modify files, re-stage and commit again.
-On push, if a protected branch or force push is detected, create/update a feature branch and open a PR.
+| Command | Description |
+| ------- | ----------- |
+| `make` | venv + hooks (default) |
+| `make help` | Show all commands |
+| `make quality` | validate + lint + format + type-check |
+| `make validate` | Feature + fixture validation |
+| `make test-cov` | Tests with >=90% coverage gate |
+| `make test-publish` | npm + PyPI smoke test |
 
 ## Pull requests
 
-1. Create a branch.
-2. Run `make setup` once.
-3. Ensure commits pass pre-commit checks.
-4. Open a PR.
-
-CI runs:
-
-- Feature validation
-- Fixture validation
-- Gherkin linting
-- Python format check (`make format-code CHECK=1`)
-- JSON format check (`make format-json CHECK=1`)
-- Python lint + type-check
+CI runs `make quality` and `make test-cov` only — no clones of porto-data or Porto SDK Lab. Matrix generator drift is checked in [Porto SDK Lab CI](https://github.com/gruncellka/porto-sdk-lab) when submodules are present.
 
 ## Releases
 
-### Version bump
-
-Before a release:
-
 1. Update `CHANGELOG.md`.
-2. Bump version in both `package.json` and `pyproject.toml` (recommended: `bump2version patch` / `minor` / `major`).
-3. `bump2version` creates the version commit but does not create a git tag automatically (`tag = False`).
-4. Create the release tag manually after merge on `main` (recommended), for example: `git tag vX.Y.Z && git push origin vX.Y.Z`.
+2. Bump version in `package.json` and `pyproject.toml` (`bump2version patch` / `minor` / `major`).
+3. Tag manually on `main`: `git tag vX.Y.Z && git push origin vX.Y.Z`.
 
-### Publishing
-
-Publish workflow: `.github/workflows/publish.yml`
-
-- Trigger by manual tag push `v*` (normal release), or
-- Run manually via GitHub Actions (`workflow_dispatch`)
-
-Manual dispatch supports `publish_target` (`both`, `npm`, `pypi`) for retry scenarios.
-
-Packages:
-
-- GitHub repo: `gruncellka/porto-features`
-- npm: `@gruncellka/porto-features`
-- PyPI: `gruncellka-porto-features`
-
-Before tagging, make sure validation CI is green for the exact commit you will release.
-Recommended flow: release branch -> PR to `main` -> manual tag on `main` -> publish workflow.
-
-## CI links
-
-- Validation workflow: [validation](https://github.com/gruncellka/porto-features/actions/workflows/validation.yml)
-- Publish workflow: [publish](https://github.com/gruncellka/porto-features/actions/workflows/publish.yml)
+Packages: npm `@gruncellka/porto-features` · PyPI `gruncellka-porto-features`
 
 ## Contact
 
 - **Issues**: [GitHub Issues](https://github.com/gruncellka/porto-features/issues)
-- **E-mail**: build@gruncellka.dev

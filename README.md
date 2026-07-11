@@ -3,103 +3,51 @@
 [![validation](https://github.com/gruncellka/porto-features/actions/workflows/validation.yml/badge.svg)](https://github.com/gruncellka/porto-features/actions/workflows/validation.yml)
 [![codecov](https://codecov.io/gh/gruncellka/porto-features/branch/main/graph/badge.svg)](https://codecov.io/gh/gruncellka/porto-features)
 
-**Structured feature specifications for Porto SDKs**
-
-A validated collection of Gherkin feature files and JSON fixtures that define behavioral contracts for Python and TypeScript SDKs. Files are checked in CI and packaged for distribution on **npm** and **PyPI**.
+**Structured BDD contracts for postal SDKs** — Gherkin scenarios and JSON fixtures aligned with [porto-data](https://github.com/gruncellka/porto-data).
 
 ---
 
 ## Install
 
-**TypeScript / JavaScript (npm, scope: `@gruncellka`)**
-
 ```bash
-pnpm add -D @gruncellka/porto-features
-yarn add -D @gruncellka/porto-features
 npm install -D @gruncellka/porto-features
-```
-
-Use this npm package in both TypeScript and JavaScript projects.
-
-**Python (PyPI)**
-
-```bash
 pip install "gruncellka-porto-features[dev]"
-uv add --dev gruncellka-porto-features
-poetry add --group dev gruncellka-porto-features
 ```
 
-The package includes `porto_features/features/*.feature` and `porto_features/fixtures/**/*.json`, so SDK tests can run offline with the same source of truth in both ecosystems.
-
-- **Python (PyPI)**: access files from the installed `porto_features` package directory (`porto_features/features` and `porto_features/fixtures`).
-- **TypeScript / JavaScript (npm)**: access the same files from the package root (`@gruncellka/porto-features/porto_features/...`).
-
----
-
-## Use cases
-
-SDK contract tests (Python/TypeScript parity), BDD documentation, regression safety during SDK releases.
+Shipped paths: `porto_features/features/**/*.feature` · `porto_features/matrix/*.yaml` · `porto_features/fixtures/**/*.json`
 
 ---
 
 ## Validate locally
 
 ```bash
-make setup
+make
 make quality
-make test-coverage
+make test-cov
 ```
 
-This runs feature/fixture validation, Gherkin linting, Python lint/format checks, type checks, and test coverage gates used by CI.
+---
+
+## Documentation
+
+- **[docs/vocabulary.md](docs/vocabulary.md)** — canonical Gherkin steps (`porto_id` input)
+- **[docs/scenario-policy.md](docs/scenario-policy.md)** — tag policy, paid adapter rules, fixtures
+- **[docs/matrix.md](docs/matrix.md)** — coverage index, `cell_id` / `case_id`, Lab sync
+
+Catalog facts and mapping tables live in **porto-data** — not duplicated here.
 
 ---
 
-## Feature statistics
+## Feature layout
 
-9 feature files; 80+ scenarios across API, CLI, pricing, restrictions, validation, services, and stamp generation. Address fixtures include DE, FR, CH, GB, NO, UA, US, and DE sender origin.
+```text
+porto_features/features/
+├── sdk/
+│   ├── core/                    # @sdk @core — cross-operator policy, CLI, metadata
+│   └── providers/{operator}/    # @sdk @operator:{id} — operator catalog scenarios
+└── adapters/{operator}/         # @adapters @operator:{id} @wire:{adapter}
+```
 
----
-
-## Feature and fixture overview
-
-| File                                       | Description                         |
-| ------------------------------------------ | ----------------------------------- |
-| `api_comprehensive_testing.feature`        | End-to-end API behavior scenarios   |
-| `cli.feature`                              | CLI usage and output behavior       |
-| `data_access.feature`                      | Data loading and access behavior    |
-| `pricing.feature`                          | Pricing logic by type/zone/weight   |
-| `resolution.feature`                       | Resolution workflow behavior        |
-| `restrictions.feature`                     | Restrictions and sanctions behavior |
-| `services.feature`                         | Service catalog behavior            |
-| `stamp_generation.feature`                 | Stamp generation behavior           |
-| `validation.feature`                       | Validation and error behavior       |
-| `porto_features/fixtures/addresses/*.json` | Test addresses by country/zone      |
-
-Feature files are validated via `scripts/validate_features.py`, and fixture JSON files are validated via `scripts/validate_fixtures.py`. Fixtures are shipped for deterministic tests.
-
----
-
-## Standards
-
-- **Feature format**: Gherkin (`.feature`), Cucumber-compatible
-- **Fixture format**: JSON (`.json`)
-- **Country codes**: ISO 3166-1 alpha-2 (`DE`, `US`, `FR`, `UA`)
-- **Step vocabulary**: canonical step language in `STEP_VOCABULARY.md`
-
----
-
-## Disclaimer
-
-This is **reference feature specification data** for Porto SDKs. Always verify that SDK implementations and runtime behavior match these specifications before shipping to production.
-
----
-
-## Related resources
-
-- [Gherkin syntax](https://cucumber.io/docs/gherkin/)
-- [Cucumber docs](https://cucumber.io/docs/)
-- [BDD](https://cucumber.io/docs/bdd/)
-
----
+See [docs/scenario-policy.md](docs/scenario-policy.md) for tag and path rules.
 
 🔳 gruncellka

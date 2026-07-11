@@ -15,6 +15,18 @@ echo "=== Testing NPM package ==="
 npm pack --silent
 TARBALL="$(ls -t gruncellka-porto-features-*.tgz 2>/dev/null | head -1)"
 test -n "$TARBALL" || { echo "No tarball produced"; exit 1; }
+for forbidden in "docs/" "scripts/" ".cursor/" "catalog_baseline" "valid_GB.json" "valid_NO.json"; do
+  if tar -tzf "$TARBALL" | grep -qF "$forbidden"; then
+    echo "FAIL: npm package contains forbidden path: $forbidden"
+    tar -tzf "$TARBALL" | grep -F "$forbidden" || true
+    exit 1
+  fi
+done
+if tar -tzf "$TARBALL" | grep -qE 'porto_features/features/[^/]+\.feature'; then
+  echo "FAIL: npm package contains legacy flat features/*.feature paths"
+  tar -tzf "$TARBALL" | grep -E 'porto_features/features/[^/]+\.feature' || true
+  exit 1
+fi
 TESTDIR="${ROOT}/test-publish-npm"
 rm -rf "$TESTDIR"
 mkdir -p "$TESTDIR"
@@ -27,6 +39,8 @@ const pkg = require('@gruncellka/porto-features');
 const fs = require('fs');
 const path = require('path');
 const pdir = path.join(process.cwd(), 'node_modules/@gruncellka/porto-features/porto_features');
+const matrixDir = path.join(pdir, 'matrix');
+const sdkFeatures = path.join(pdir, 'features/sdk');
 const hasPy = (dir) => {
   const entries = fs.readdirSync(dir, { withFileTypes: true });
   for (const e of entries) {
@@ -36,7 +50,11 @@ const hasPy = (dir) => {
   return false;
 };
 if (hasPy(pdir)) { console.error('FAIL: .py file in npm package under porto_features/'); process.exit(1); }
+if (!fs.existsSync(matrixDir)) { console.error('FAIL: matrix/ missing from npm package'); process.exit(1); }
+if (!fs.existsSync(path.join(matrixDir, 'orders.generated.yaml'))) { console.error('FAIL: matrix/orders.generated.yaml missing'); process.exit(1); }
+if (!fs.existsSync(sdkFeatures)) { console.error('FAIL: features/sdk/ missing from npm package'); process.exit(1); }
 console.log('✓ require() OK, version:', pkg.version);
+console.log('✓ matrix/ and features/sdk/ present');
 console.log('✓ No Python files in porto_features/');
 "
 cat > smoke.ts <<'TS'
@@ -45,7 +63,7 @@ import { version } from '@gruncellka/porto-features';
 const v: string = version;
 console.log(v);
 TS
-npx tsc --noEmit --strict --target ES2020 --module commonjs --moduleResolution node smoke.ts
+npx tsc --ignoreConfig --noEmit --strict --target ES2020 --module commonjs smoke.ts
 echo "✓ TypeScript import and types OK"
 cd "$ROOT"
 rm -rf "$TESTDIR" "$TARBALL"
@@ -54,8 +72,22 @@ echo "✓ NPM package test passed"
 echo ""
 echo "=== Testing PyPI wheel ==="
 python3 -m pip install -q build 2>/dev/null || true
-rm -rf dist-test && mkdir -p dist-test
+rm -rf build dist gruncellka_porto_features.egg-info dist-test
+mkdir -p dist-test
 python3 -m build --wheel --outdir dist-test 2>/dev/null
+WHEEL_LIST="$(python3 -m zipfile -l dist-test/gruncellka_porto_features-*.whl)"
+for forbidden in "docs/" "scripts/" ".cursor/" "gherlint.toml" "catalog_baseline" "valid_GB.json" "valid_NO.json"; do
+  if echo "$WHEEL_LIST" | grep -qF "$forbidden"; then
+    echo "FAIL: PyPI wheel contains forbidden path: $forbidden"
+    echo "$WHEEL_LIST" | grep "$forbidden" || true
+    exit 1
+  fi
+done
+if echo "$WHEEL_LIST" | grep -qE 'porto_features/features/[^/]+\.feature'; then
+  echo "FAIL: PyPI wheel contains legacy flat features/*.feature paths"
+  echo "$WHEEL_LIST" | grep -E 'porto_features/features/[^/]+\.feature' || true
+  exit 1
+fi
 python3 -m pip install -q --force-reinstall dist-test/gruncellka_porto_features-*.whl
 PYDIR="${ROOT}/test-publish-pypi"
 rm -rf "$PYDIR" && mkdir -p "$PYDIR"
@@ -66,12 +98,15 @@ import porto_features
 root = Path(porto_features.__file__).parent
 features = root / 'features'
 fixtures = root / 'fixtures'
+matrix = root / 'matrix'
 assert features.exists(), 'features/ missing'
 assert fixtures.exists(), 'fixtures/ missing'
-assert list(features.glob('*.feature')), 'no .feature files'
+assert matrix.exists(), 'matrix/ missing'
+assert list(features.rglob('*.feature')), 'no .feature files'
 assert list(fixtures.rglob('*.json')), 'no .json in fixtures/'
+assert (matrix / 'orders.generated.yaml').is_file(), 'orders.generated.yaml missing'
 print('✓ porto_features import OK')
-print('✓ features/ and fixtures/ present with .feature and .json')
+print('✓ features/, fixtures/, and matrix/ present')
 "
 cd "$ROOT"
 rm -rf dist-test "$PYDIR"

@@ -1,10 +1,10 @@
 {
-    "id": "origin_de_munich",
-    "name": "Test Absender",
-    "street": "Hauptstra\u00dfe",
+    "id": "origin_de_lickofurt",
+    "name": "Porto SDK",
+    "street": "Python-TypeScript",
     "house_number": "1",
-    "postal_code": "80331",
-    "city": "M\u00fcnchen",
-    "region_code": "DE-BY",
+    "postal_code": "01001",
+    "city": "Lickofurt am Internet",
+    "region_code": "DE-BE",
     "country_code": "DE"
 }

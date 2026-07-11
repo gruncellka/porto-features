@@ -1,13 +1,14 @@
+import runpy
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
 
 import pytest
 
+FIXTURES_SCRIPT = Path(__file__).resolve().parents[1] / "scripts" / "validate_fixtures.py"
+
 
 def load_module():
-    script_path = (
-        Path(__file__).resolve().parents[1] / "scripts" / "validate_fixtures.py"
-    )
+    script_path = Path(__file__).resolve().parents[1] / "scripts" / "validate_fixtures.py"
     spec = spec_from_file_location("validate_fixtures_module", script_path)
     module = module_from_spec(spec)
     assert spec is not None and spec.loader is not None
@@ -129,7 +130,7 @@ def test_validate_fixture_file_accepts_valid_address(tmp_path, monkeypatch):
     fixture_file.write_text(
         """
 {
-  "id": "addr_de_berlin",
+  "id": "addr_de_lickofurt",
   "name": "Test Empfaenger",
   "street": "Friedrichstrasse",
   "house_number": "123",
@@ -195,4 +196,10 @@ def test_main_exits_0_when_all_fixtures_valid(monkeypatch):
 
     with pytest.raises(SystemExit) as exc_info:
         module.main()
+    assert exc_info.value.code == 0
+
+
+def test_script_main_entrypoint_exits_zero():
+    with pytest.raises(SystemExit) as exc_info:
+        runpy.run_path(str(FIXTURES_SCRIPT), run_name="__main__")
     assert exc_info.value.code == 0
