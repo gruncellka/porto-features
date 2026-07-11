@@ -15,6 +15,18 @@ echo "=== Testing NPM package ==="
 npm pack --silent
 TARBALL="$(ls -t gruncellka-porto-features-*.tgz 2>/dev/null | head -1)"
 test -n "$TARBALL" || { echo "No tarball produced"; exit 1; }
+for forbidden in "docs/" "scripts/" ".cursor/" "catalog_baseline" "valid_GB.json" "valid_NO.json"; do
+  if tar -tzf "$TARBALL" | grep -qF "$forbidden"; then
+    echo "FAIL: npm package contains forbidden path: $forbidden"
+    tar -tzf "$TARBALL" | grep -F "$forbidden" || true
+    exit 1
+  fi
+done
+if tar -tzf "$TARBALL" | grep -qE 'porto_features/features/[^/]+\.feature'; then
+  echo "FAIL: npm package contains legacy flat features/*.feature paths"
+  tar -tzf "$TARBALL" | grep -E 'porto_features/features/[^/]+\.feature' || true
+  exit 1
+fi
 TESTDIR="${ROOT}/test-publish-npm"
 rm -rf "$TESTDIR"
 mkdir -p "$TESTDIR"
@@ -51,7 +63,7 @@ import { version } from '@gruncellka/porto-features';
 const v: string = version;
 console.log(v);
 TS
-npx tsc --noEmit --strict --target ES2020 --module commonjs --moduleResolution node smoke.ts
+npx tsc --ignoreConfig --noEmit --strict --target ES2020 --module commonjs smoke.ts
 echo "✓ TypeScript import and types OK"
 cd "$ROOT"
 rm -rf "$TESTDIR" "$TARBALL"
@@ -60,8 +72,22 @@ echo "✓ NPM package test passed"
 echo ""
 echo "=== Testing PyPI wheel ==="
 python3 -m pip install -q build 2>/dev/null || true
-rm -rf dist-test && mkdir -p dist-test
+rm -rf build dist gruncellka_porto_features.egg-info dist-test
+mkdir -p dist-test
 python3 -m build --wheel --outdir dist-test 2>/dev/null
+WHEEL_LIST="$(python3 -m zipfile -l dist-test/gruncellka_porto_features-*.whl)"
+for forbidden in "docs/" "scripts/" ".cursor/" "gherlint.toml" "catalog_baseline" "valid_GB.json" "valid_NO.json"; do
+  if echo "$WHEEL_LIST" | grep -qF "$forbidden"; then
+    echo "FAIL: PyPI wheel contains forbidden path: $forbidden"
+    echo "$WHEEL_LIST" | grep "$forbidden" || true
+    exit 1
+  fi
+done
+if echo "$WHEEL_LIST" | grep -qE 'porto_features/features/[^/]+\.feature'; then
+  echo "FAIL: PyPI wheel contains legacy flat features/*.feature paths"
+  echo "$WHEEL_LIST" | grep -E 'porto_features/features/[^/]+\.feature' || true
+  exit 1
+fi
 python3 -m pip install -q --force-reinstall dist-test/gruncellka_porto_features-*.whl
 PYDIR="${ROOT}/test-publish-pypi"
 rm -rf "$PYDIR" && mkdir -p "$PYDIR"

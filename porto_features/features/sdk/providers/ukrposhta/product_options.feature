@@ -12,7 +12,7 @@ Feature: Ukrposhta product options
 
   Scenario: Large is domestic only
     Given I want to send a letter to country "UA"
-    And the letter weight is 100 grams
+    And the letter weight is 500 grams
     And the letter porto_id is "large"
     When I list product options
     Then product options should include "dokument"

@@ -34,7 +34,7 @@ make test-cov
 - **[docs/vocabulary.md](docs/vocabulary.md)** — canonical Gherkin steps (`porto_id` input)
 - **[docs/matrix.md](docs/matrix.md)** — SDK + adapter coverage index, `@sdk` / `@adapters` tags
 - **[docs/scenario-policy.md](docs/scenario-policy.md)** — tag policy, paid adapter rules
-- **[docs/catalog-alignment.md](docs/catalog-alignment.md)** — porto-data mapping for scenario authors
+- **[docs/alignment.md](docs/alignment.md)** — porto-data mapping for scenario authors
 
 ---
 

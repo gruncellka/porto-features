@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "source": "porto-data graph.edges.wire.internetmarke",
-  "generated_at": "2026-07-10T19:41:37Z",
+  "source": "porto-data graph.edges.wire",
+  "generated_at": "2026-07-11T09:22:07Z",
   "cases": [
     {
       "case_id": "deutschepost.internetmarke.grossbrief.domestic",

@@ -42,7 +42,7 @@ build-backend = "setuptools.build_meta"
 packages = ["porto_features"]
 package-dir = {"" = "."}
 
-# Ship only *.feature and *.json from fixtures (no Python in features/fixtures)
+# Ship only contract assets under porto_features/ (see package.json "files" for npm parity).
 [tool.setuptools.package-data]
 porto_features = ["features/**/*.feature", "fixtures/**/*.json", "matrix/*.yaml", "matrix/*.json"]
 

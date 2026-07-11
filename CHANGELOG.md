@@ -10,17 +10,28 @@ Internetmarke-first launch: SDK catalog depth for Deutsche Post, paid wire matri
 - **BREAKING**: Provider-explicit paths: `sdk/core/`, `sdk/providers/{operator}/`, `adapters/{operator}/`. Matrix refs use nested paths (e.g. `sdk/providers/deutschepost/resolution.feature`, `adapters/deutschepost/internetmarke.feature`).
 - **BREAKING**: Scope tags on every Feature: `@core` (cross-operator SDK) or `@operator:{id}` (operator catalog); adapters also require `@wire:{adapter}` (e.g. `@wire:internetmarke`).
 - Tags renamed: `@offline` → `@sdk`, `@online`/`@api` → `@adapters`, `@release` → `@full`.
+- **BREAKING**: Matrix generators moved to Porto SDK Lab (`scripts/matrix-sdk-sync.py`, `scripts/matrix-orders-sync.py`). Regenerate via `make matrix-sync` from Lab — not from this package.
 - npm and PyPI packages ship `porto_features/matrix/*.{yaml,json}` (including `cases.generated.json` for TypeScript matrix parity).
 - Gherkin **Rules** group related Backgrounds in `restrictions.feature`, `resolution.feature`, and multi-provider `cli.feature`.
 - Letter validation split: address checks in `sdk/core/validation.feature`; Deutsche Post letter tiers in `sdk/providers/deutschepost/validation.feature`.
-- `sdk/core/cli.feature`: provider-neutral core scenarios plus per-operator Rules (`deutschepost`, `laposte`, `swisspost`, `ukrposhta`); SDK runners should batch CLI BDD by provider for faster feedback.
+- `sdk/core/cli.feature`: `Rule: Core commands` plus per-operator Rules (`deutschepost`, `ukrposhta`, `laposte`, `swisspost`); SDK runners batch CLI BDD in bundle order.
+- Ukrposhta `product_options.feature`: weight 500g for `large` / `dokument` domestic cell.
+- `validate_features.py`: run gherlint from repo root so `gherlint.toml` config loads.
+- CI: self-contained validation only (`make quality`, `make test-cov`) — no porto-data or Porto SDK Lab clones. Matrix generator drift gated in Lab CI.
+- Publish packaging: `gherlint.toml` dev-only; hardened `MANIFEST.in` and `test_publish.sh` (clean wheel, forbidden-path guards).
 
 ### Added
 
 - Matrix coverage index: `slices.yaml`, `sdk.yaml`, `canary.yaml`, `orders.generated.yaml` (Deutsche Post Internetmarke wire cells; synced from Lab), `cases.generated.json` (Lab-generated SDK case list for TS runners).
-- `scripts/generate_sdk_matrix.py` — regenerate `sdk.yaml` from `@sdk` scenarios; `make generate-sdk-matrix` and `make generate-sdk-matrix-check` (CI drift gate).
-- Docs hub: `matrix.md`, `scenario-policy.md`, `vocabulary.md`.
+- Docs hub: `matrix.md`, `scenario-policy.md`, `vocabulary.md`, `alignment.md` (renamed from `catalog-alignment.md`).
+- Doc naming rule: `.cursor/rules/doc-naming.mdc` (lowercase, no redirect stubs).
 - Validator: matrix ref scenario/outline names, `sdk.yaml` slice taxonomy, scope-tag ↔ folder alignment.
+- gherlint tag conventions in `pyproject.toml` (`@sdk`, `@operator:*`, `@wire:*`, `@canary`, `@full`).
+
+### Removed
+
+- `scripts/generate_sdk_matrix.py` — superseded by Porto SDK Lab `scripts/matrix-sdk-sync.py` and `labs/lib/matrix/`.
+- Legacy doc redirect stubs: `docs/FEATURE_ANALYSIS.md`, `docs/STEP_VOCABULARY.md`, `docs/catalog-alignment.md`.
 
 ## [0.2.1]
 

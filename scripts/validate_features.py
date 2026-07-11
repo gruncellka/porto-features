@@ -534,7 +534,7 @@ def run_gherlint(features_dir: Path) -> tuple[bool, list[str]]:
             [gherlint_cmd, "lint", str(features_dir)],
             capture_output=True,
             text=True,
-            cwd=features_dir.parent,
+            cwd=project_root,
         )
 
         lint_output = (result.stdout + result.stderr).strip()

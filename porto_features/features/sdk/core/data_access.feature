@@ -87,8 +87,8 @@ Feature: Data Access
   Scenario: Access features data
     When I access features data
     Then I should get an array of features
-    And the features array should contain feature with id "tracking_number"
-    And the features array should contain feature with id "proof_of_mailing"
+    And the features array should contain feature with id "sendungsnummer"
+    And the features array should contain feature with id "einliefernachweis"
     And each feature should have field "id"
     And each feature should have field "porto_id"
     And each feature should have field "name"
@@ -98,9 +98,9 @@ Feature: Data Access
     When I access provider registry
     Then I should get providers information
     And providers should include provider "deutschepost"
+    And providers should include provider "ukrposhta"
     And providers should include provider "laposte"
     And providers should include provider "swisspost"
-    And providers should include provider "ukrposhta"
 
   Scenario: Access integrations manifest
     When I access integrations manifest

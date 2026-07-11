@@ -13,7 +13,7 @@ First run creates `venv`, installs dev dependencies, and installs pre-commit hoo
 ## What to edit
 
 - Feature files: `porto_features/features/**/*.feature` (`sdk/core/`, `sdk/providers/{id}/`, `adapters/{id}/`)
-- Matrix index: `porto_features/matrix/*.yaml` + `cases.generated.json` (orders sync via Lab `make matrix-orders-sync`; SDK index via `make generate-sdk-matrix`)
+- Matrix index: `porto_features/matrix/*.{yaml,json}` — regenerate via Porto SDK Lab `make matrix-sync` (not in this package)
 - Fixtures: `porto_features/fixtures/**/*.json`
 - Docs hub: `docs/` (vocabulary, matrix, scenario policy, catalog alignment)
 
@@ -22,7 +22,7 @@ Read first: [docs/README.md](docs/README.md) · [docs/matrix.md](docs/matrix.md)
 ## Daily workflow
 
 1. Edit feature and/or fixture files.
-2. After `@sdk` scenario changes, run `make generate-sdk-matrix` (CI runs `make generate-sdk-matrix-check`).
+2. After `@sdk` or wire changes, run `make matrix-sync` from [Porto SDK Lab](https://github.com/gruncellka/porto-sdk-lab) and commit regenerated matrix files here. Matrix drift is gated in Lab CI (`make matrix-sync-check`), not in this repo.
 3. Run `make quality` and `make test-cov`.
 4. Update `CHANGELOG.md` under `[Unreleased]` for behavior-spec changes.
 5. Commit (pre-commit runs automatically).
@@ -35,14 +35,12 @@ Read first: [docs/README.md](docs/README.md) · [docs/matrix.md](docs/matrix.md)
 | `make help` | Show all commands |
 | `make quality` | validate + lint + format + type-check |
 | `make validate` | Feature + fixture validation |
-| `make generate-sdk-matrix` | Regenerate `sdk.yaml` from `@sdk` scenarios |
-| `make generate-sdk-matrix-check` | Fail if `sdk.yaml` is stale (CI) |
 | `make test-cov` | Tests with >=90% coverage gate |
 | `make test-publish` | npm + PyPI smoke test |
 
 ## Pull requests
 
-CI runs a single `make quality` + `make test-cov` chain (see `.github/workflows/validation.yml`).
+CI runs `make quality` and `make test-cov` only — no clones of porto-data or Porto SDK Lab. Matrix generator drift is checked in [Porto SDK Lab CI](https://github.com/gruncellka/porto-sdk-lab) when submodules are present.
 
 ## Releases
 

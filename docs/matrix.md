@@ -22,7 +22,7 @@ Rejected tags: `@offline`, `@online`, `@api`, `@capabilities`, `@features`.
 porto_features/
 ├── matrix/
 │   slices.yaml              # slice taxonomy
-│   sdk.yaml                 # layer A index (hand)
+│   sdk.yaml                 # layer A index (Lab-generated)
 │   canary.yaml              # daily paid case_ids (hand, ⊆ orders)
 │   orders.generated.yaml    # layer B — from porto-data wire only
 ├── features/
@@ -81,31 +81,39 @@ Rules:
 
 Implementor runners (Python, TypeScript, or other) load the same `.feature` files and filter by tag.
 
-## Sync orders from porto-data
+## Regenerate matrix artifacts (Lab)
 
-Wire-derived adapter index is regenerated in [Porto SDK Lab](https://github.com/gruncellka/porto-sdk-lab):
+All matrix generators live in [Porto SDK Lab](https://github.com/gruncellka/porto-sdk-lab). Committed outputs stay in this package. **Drift checks** (`matrix-sync-check`) run in Lab CI — this repo validates committed matrix files locally via `make validate` (refs, slices, case_ids).
+
+After `@sdk` scenario changes:
 
 ```bash
+# From Porto SDK Lab root
+make matrix-sdk-sync
+make matrix-sdk-sync-check   # Lab CI gate — fails on drift
+```
+
+After porto-data wire graph changes:
+
+```bash
+make matrix-orders-sync
+make matrix-orders-sync-check
+```
+
+Both at once:
+
+```bash
+make matrix-sync
+make matrix-sync-check
+```
+
+Direct scripts:
+
+```bash
+python scripts/matrix-sdk-sync.py
+python scripts/matrix-sdk-sync.py --check
 python scripts/matrix-orders-sync.py
 python scripts/matrix-orders-sync.py --check
-```
-
-No `porto-features → porto-data` package dependency — sync is a separate tooling step at the Lab boundary.
-
-## Regenerate SDK matrix (`sdk.yaml`)
-
-After adding or renaming `@sdk` scenarios, regenerate the SDK coverage index:
-
-```bash
-make generate-sdk-matrix
-make generate-sdk-matrix-check   # CI gate — fails on drift
-```
-
-Direct script:
-
-```bash
-python scripts/generate_sdk_matrix.py
-python scripts/generate_sdk_matrix.py --check
 ```
 
 SDK implementors with large CLI suites should batch BDD by `@operator:{id}` (not one monolithic run) — see `sdk/core/cli.feature` per-provider Rules.
