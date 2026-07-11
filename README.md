@@ -9,8 +9,15 @@
 
 ## Install
 
+**TypeScript / JavaScript (npm)**
+
 ```bash
 npm install -D @gruncellka/porto-features
+```
+
+**Python (PyPI)**
+
+```bash
 pip install "gruncellka-porto-features[dev]"
 ```
 
