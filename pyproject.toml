@@ -1,7 +1,7 @@
 [project]
 name = "gruncellka-porto-features"
 version = "0.2.1"
-description = "Multi-provider postal BDD: shared Gherkin scenarios and JSON fixtures for Porto SDK contract tests"
+description = "Structured BDD contracts for Porto SDK — shared Gherkin scenarios and JSON fixtures"
 readme = "README.md"
 license = "Apache-2.0"
 license-files = ["LICENSE"]

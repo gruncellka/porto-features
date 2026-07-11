@@ -3,7 +3,7 @@
 [![validation](https://github.com/gruncellka/porto-features/actions/workflows/validation.yml/badge.svg)](https://github.com/gruncellka/porto-features/actions/workflows/validation.yml)
 [![codecov](https://codecov.io/gh/gruncellka/porto-features/branch/main/graph/badge.svg)](https://codecov.io/gh/gruncellka/porto-features)
 
-**Structured BDD contracts for postal SDKs** — Gherkin scenarios and JSON fixtures aligned with [porto-data](https://github.com/gruncellka/porto-data).
+**Structured BDD contracts for Porto SDK** — shared Gherkin scenarios and JSON fixtures.
 
 ---
 
