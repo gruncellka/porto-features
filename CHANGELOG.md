@@ -19,6 +19,7 @@ Internetmarke-first launch: SDK catalog depth for Deutsche Post, paid wire matri
 - `validate_features.py`: run gherlint from repo root so `gherlint.toml` config loads.
 - CI: self-contained validation only (`make quality`, `make test-cov`) — no porto-data or Porto SDK Lab clones. Matrix generator drift gated in Lab CI.
 - Publish packaging: `gherlint.toml` dev-only; hardened `MANIFEST.in` and `test_publish.sh` (clean wheel, forbidden-path guards).
+- **License:** Apache-2.0 — PEP 639 `license = "Apache-2.0"` + `license-files` (removed `License :: OSI Approved :: MIT License` classifier); npm `Apache-2.0`.
 
 ### Added
 

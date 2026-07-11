@@ -3,17 +3,17 @@ name = "gruncellka-porto-features"
 version = "0.2.1"
 description = "Multi-provider postal BDD: shared Gherkin scenarios and JSON fixtures for Porto SDK contract tests"
 readme = "README.md"
-requires-python = ">=3.13"
-license = {file = "LICENSE"}
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 keywords = ["postal", "post", "shipping", "logistics", "deutsche post", "ukrposhta", "la poste", "swiss post", "pricing", "postage", "tariffs", "zones", "restrictions", "validation", "bdd", "gherkin", "cucumber", "features", "fixtures", "contract tests", "sdk", "porto-features", "porto-sdk"]
 classifiers = [
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
 ]
 authors = [
     {name = "Oleksandr Tsyba"},
 ]
+requires-python = ">=3.13"
 
 [project.urls]
 Homepage = "https://github.com/gruncellka/porto-features"
