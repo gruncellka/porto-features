@@ -20,8 +20,23 @@ jobs:
               run: make venv
             - name: Run quality checks
               run: make quality
+            - name: Check sdk.yaml drift
+              run: make generate-sdk-matrix-check
             - name: Run tests with coverage gate
               run: make test-cov
+            - name: Matrix orders sync check
+              continue-on-error: false
+              run: |
+                  if [ ! -f porto_features/matrix/orders.generated.yaml ]; then
+                    echo "Skipping matrix drift check — orders.generated.yaml not present."
+                    exit 0
+                  fi
+                  pip install -q pyyaml
+                  git clone --depth 1 https://github.com/gruncellka/porto-data.git /tmp/porto-data
+                  git clone --depth 1 https://github.com/gruncellka/porto-sdk-lab.git /tmp/porto-sdk-lab
+                  PORTO_DATA_PATH=/tmp/porto-data/porto_data \
+                    python3 /tmp/porto-sdk-lab/scripts/matrix-orders-sync.py --check \
+                      --output "${GITHUB_WORKSPACE}/porto_features/matrix/orders.generated.yaml"
             - name: Upload coverage reports to Codecov
               uses: codecov/codecov-action@v5
               continue-on-error: true

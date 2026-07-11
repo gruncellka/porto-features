@@ -2,7 +2,7 @@
 
 Scenario authoring reference. Live mapping tables: [porto-data docs/porto_id.md](https://github.com/gruncellka/porto-data/blob/main/docs/porto_id.md).
 
-**0.x coordination:** While packages are `0.x`, ship breaking catalog and scenario changes together in the lab — no separate version pin file in this repo. At `1.x`, expect same-minor compatibility across porto-data, porto-features, and SDKs.
+**0.x coordination:** While packages are `0.x`, ship breaking catalog and scenario changes together with aligned porto-data and implementor releases — no separate version pin file in this repo. At `1.x`, expect same-minor compatibility across porto-data, porto-features, and conforming SDK packages.
 
 ## Bundle layout (current)
 
@@ -23,7 +23,7 @@ Scenario authoring reference. Live mapping tables: [porto-data docs/porto_id.md]
 | `small` | `standardbrief` | All zones |
 | `medium` | `kompaktbrief` | |
 | `large` | `grossbrief` | |
-| `extra_large` | `maxibrief`, `maxibrief_ausland` | Disambiguate by zone/weight |
+| `extra_large` | `maxibrief`, `maxibrief_ausland` | W1000 (501–1000 g) → `maxibrief`; W2000 (1001–2000 g) abroad → `maxibrief_ausland` |
 
 | Service porto_id | Native service `id` |
 |------------------|---------------------|
@@ -58,7 +58,7 @@ Scenario authoring reference. Live mapping tables: [porto-data docs/porto_id.md]
 |------|-----------------|
 | `domestic` | DE |
 | `zone_1_eu` | FR |
-| `zone_2_europe` | CH |
+| `zone_2_europe` | UA |
 | `world` | US |
 
 ## Feature coverage map
@@ -73,7 +73,7 @@ Scenario authoring reference. Live mapping tables: [porto-data docs/porto_id.md]
 | `metadata.feature` | metadata.json, providers.json |
 | `product_options.feature` | ambiguous porto_id → native id picks |
 | `restrictions.feature` | policy/restrictions.json |
-| `stamp_generation.feature` | marks, integrations capabilities, wire (online) |
+| `stamp_generation.feature` | marks, integrations capabilities, SDK simulate/pre-calc paths (`@sdk`) |
 
 ## Disambiguation
 

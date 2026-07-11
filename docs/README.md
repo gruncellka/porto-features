@@ -7,7 +7,7 @@ Hub for shared BDD contracts aligned with [porto-data](https://github.com/grunce
 | [vocabulary.md](vocabulary.md) | Canonical Gherkin steps — `porto_id` input, native `id` assertions |
 | [STEP_VOCABULARY.md](STEP_VOCABULARY.md) | Legacy name → [vocabulary.md](vocabulary.md) |
 | [matrix.md](matrix.md) | SDK + adapter coverage index, `@sdk` / `@adapters` tags |
-| [scenario-policy.md](scenario-policy.md) | Tag policy, lab promotion, paid API budget |
+| [scenario-policy.md](scenario-policy.md) | Tag policy, paid adapter rules, generated matrix |
 | [catalog-alignment.md](catalog-alignment.md) | porto-data mapping for scenario authors |
 | [FEATURE_ANALYSIS.md](FEATURE_ANALYSIS.md) | Legacy name → [catalog-alignment.md](catalog-alignment.md) |
 | [providers/](providers/) | Per-operator scenario coverage notes |

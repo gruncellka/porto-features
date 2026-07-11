@@ -1,4 +1,5 @@
 @sdk
+@core
 Feature: Data Access
   As a developer
   I want to access porto-data entities

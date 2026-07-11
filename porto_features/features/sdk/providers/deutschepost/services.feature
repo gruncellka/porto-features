@@ -1,4 +1,5 @@
 @sdk
+@operator:deutschepost
 Feature: Services
   As a developer
   I want to work with shipping services

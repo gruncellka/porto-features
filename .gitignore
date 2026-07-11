@@ -1,3 +1,9 @@
+# Publish smoke (tests/test_publish.sh)
+test-publish-npm/
+test-publish-pypi/
+gruncellka-porto-features-*.tgz
+dist-test/
+
 # Dependencies
 node_modules/
 package-lock.json
@@ -32,6 +38,7 @@ wheels/
 .mypy_cache/
 .pytest_cache/
 .coverage
+coverage.xml
 htmlcov/
 .tox/
 .hypothesis/

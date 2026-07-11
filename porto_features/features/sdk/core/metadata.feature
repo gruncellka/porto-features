@@ -1,4 +1,5 @@
 @sdk
+@core
 Feature: Metadata access
   As a developer
   I want to read bundle metadata and provider registry

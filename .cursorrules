@@ -2,59 +2,39 @@
 
 ## Project Purpose
 
-BDD test features (Gherkin) for Porto SDKs.
-Shared test scenarios used by both Python and TypeScript SDKs.
+Shared BDD contracts (Gherkin) and fixtures aligned with [porto-data](https://github.com/gruncellka/porto-data). Step definitions and execution live outside this repo.
 
 ## Structure
 
 ```
 porto_features/                     # Published package content
-├── features/                       # Gherkin feature files
-│   ├── validation.feature
-│   ├── pricing.feature
-│   ├── stamp_generation.feature
-│   ├── resolution.feature
-│   ├── restrictions.feature
-│   ├── services.feature
-│   ├── data_access.feature
-│   ├── cli.feature
-│   └── api_comprehensive_testing.feature
+├── matrix/                         # Coverage index (sdk, canary, orders)
+├── features/
+│   ├── sdk/
+│   │   ├── core/                   # @sdk @core
+│   │   └── providers/{operator}/   # @sdk @operator:{id}
+│   └── adapters/{operator}/        # @adapters @operator:{id} @wire:{adapter}
 └── fixtures/                       # Test data
-    └── addresses/                  # Sample addresses by country
-        ├── valid_DE.json
-        ├── valid_FR.json
-        └── ...
+    └── addresses/
 ```
 
 ## Gherkin Format
 
-```gherkin
-Feature: Letter validation
-  As a user
-  I want to validate letter parameters
-  So that I can ensure correct postage
-
-  Scenario: Valid domestic standard letter
-    Given a letter with weight 20g
-    And destination country "DE"
-    When I validate the letter
-    Then the validation should pass
-```
+Every Feature declares exactly one of `@sdk` or `@adapters`. See `docs/vocabulary.md` for canonical steps.
 
 ## Key Principles
 
-- **SDK-agnostic**: Features describe behavior, not implementation
+- **Implementation-agnostic**: Features describe behavior, not runner internals
 - **Data-driven**: Use fixtures for test data
 - **BDD**: Business-readable scenarios
 - **Package-first**: Keep data under `porto_features/` so npm and PyPI ship identical files
 
-## How SDKs Use This
+## Generated adapter matrix
 
-- Python: pytest-bdd reads features, steps in `tests/steps/`
-- TypeScript: Cucumber reads features, steps in `tests/steps/`
+`orders.generated.yaml` and adapter `stamp_order` Examples are produced from porto-data wire by Porto SDK Lab `matrix-orders-sync.py` — do not hand-edit.
 
 ## Do NOT
 
-- Add language-specific step definitions here - those belong in SDKs
-- Reference SDK internals in feature files
+- Add step definitions here — those belong in implementor test suites
+- Reference runner internals in feature files
 - Duplicate fixtures that exist in porto-data

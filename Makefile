@@ -1,6 +1,6 @@
 .PHONY: . help venv install-hooks
 .PHONY: validate-features validate-fixtures lint-gherlint format-json format-code lint-code type-check
-.PHONY: validate format lint quality test test-cov test-coverage test-publish
+.PHONY: validate format lint quality test test-cov test-coverage test-publish generate-sdk-matrix
 
 # Prefer Python 3.13+ (project requires >=3.13). Override in CI: PYTHON3=python
 PYTHON3 ?= $(shell command -v python3.13 2>/dev/null || command -v python3 2>/dev/null || echo python3)
@@ -76,7 +76,16 @@ install-hooks: venv
 # ==========================================
 # Most Common Commands
 # ==========================================
-validate: venv validate-features validate-fixtures
+validate: venv validate-features validate-fixtures generate-sdk-matrix-check
+
+generate-sdk-matrix:
+	@echo "Generating sdk.yaml from @sdk scenarios..."
+	@. $(VENV)/bin/activate && python scripts/generate_sdk_matrix.py
+	@echo "✓ sdk.yaml regenerated"
+
+generate-sdk-matrix-check: venv
+	@echo "Checking sdk.yaml drift..."
+	@. $(VENV)/bin/activate && python scripts/generate_sdk_matrix.py --check
 
 format: venv format-code format-json
 

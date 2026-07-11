@@ -27,6 +27,8 @@ const pkg = require('@gruncellka/porto-features');
 const fs = require('fs');
 const path = require('path');
 const pdir = path.join(process.cwd(), 'node_modules/@gruncellka/porto-features/porto_features');
+const matrixDir = path.join(pdir, 'matrix');
+const sdkFeatures = path.join(pdir, 'features/sdk');
 const hasPy = (dir) => {
   const entries = fs.readdirSync(dir, { withFileTypes: true });
   for (const e of entries) {
@@ -36,7 +38,11 @@ const hasPy = (dir) => {
   return false;
 };
 if (hasPy(pdir)) { console.error('FAIL: .py file in npm package under porto_features/'); process.exit(1); }
+if (!fs.existsSync(matrixDir)) { console.error('FAIL: matrix/ missing from npm package'); process.exit(1); }
+if (!fs.existsSync(path.join(matrixDir, 'orders.generated.yaml'))) { console.error('FAIL: matrix/orders.generated.yaml missing'); process.exit(1); }
+if (!fs.existsSync(sdkFeatures)) { console.error('FAIL: features/sdk/ missing from npm package'); process.exit(1); }
 console.log('✓ require() OK, version:', pkg.version);
+console.log('✓ matrix/ and features/sdk/ present');
 console.log('✓ No Python files in porto_features/');
 "
 cat > smoke.ts <<'TS'
@@ -66,12 +72,15 @@ import porto_features
 root = Path(porto_features.__file__).parent
 features = root / 'features'
 fixtures = root / 'fixtures'
+matrix = root / 'matrix'
 assert features.exists(), 'features/ missing'
 assert fixtures.exists(), 'fixtures/ missing'
-assert list(features.glob('*.feature')), 'no .feature files'
+assert matrix.exists(), 'matrix/ missing'
+assert list(features.rglob('*.feature')), 'no .feature files'
 assert list(fixtures.rglob('*.json')), 'no .json in fixtures/'
+assert (matrix / 'orders.generated.yaml').is_file(), 'orders.generated.yaml missing'
 print('✓ porto_features import OK')
-print('✓ features/ and fixtures/ present with .feature and .json')
+print('✓ features/, fixtures/, and matrix/ present')
 "
 cd "$ROOT"
 rm -rf dist-test "$PYDIR"

@@ -90,7 +90,7 @@ If changed files include `TODO` or `FIXME` without an issue reference like `#123
 If a PR adds or changes `.feature` files and the Feature lacks `@sdk` or `@adapters`, then:
 
 - Add a blocking Bug titled `Feature missing @sdk or @adapters tag`.
-- Body: `Every Feature must declare exactly one of @sdk or @adapters at Feature level. Paid adapter scenarios add @canary/@full only after lab promotion. See docs/scenario-policy.md and docs/matrix.md.`
+- Body: `Every Feature must declare exactly one of @sdk or @adapters at Feature level. Paid adapter Examples must align with generated wire rows. See docs/scenario-policy.md and docs/matrix.md.`
 - Apply labels `bdd`, `quality`.
 
 ### 10) SDK input must use porto_id vocabulary (blocking)
@@ -98,7 +98,7 @@ If a PR adds or changes `.feature` files and the Feature lacks `@sdk` or `@adapt
 If a PR uses legacy product tokens as SDK input — for example `letter_standard`, `letter_compact`, `STANDARD`, `COMPACT`, `MERCHANDISE`, or `the letter type is` with enum names instead of `porto_id` buckets (`small`, `medium`, `large`, `extra_large`) — then:
 
 - Add a blocking Bug titled `Legacy product vocabulary in feature scenario`.
-- Body: `SDK input uses porto_id size buckets. Native product id belongs in Then assertions only. See docs/vocabulary.md and porto-data docs/id.md.`
+- Body: `SDK input uses porto_id size buckets. Native product id belongs in Then assertions only. See docs/vocabulary.md.`
 - Apply labels `compatibility`, `bdd`.
 
 ### 11) Feature files must not reference SDK implementation (blocking)
@@ -107,12 +107,4 @@ If a PR names SDK classes (`LetterType`, `PortoClient`, module paths), internal 
 
 - Add a blocking Bug titled `SDK implementation detail in Gherkin`.
 - Body: `Scenarios describe behavior only. Step definitions in SDK repos map vocabulary to implementation.`
-- Apply labels `compatibility`, `bdd`.
-
-### 12) Stale catalog references (blocking)
-
-If a PR references removed porto-data paths or entities — `data_links.json`, `letter_standard` product ids, `dimension_ids`, `merchandise` product — without updating to current bundle layout (`graph.json`, `envelope_ids`, native `id`), then:
-
-- Add a blocking Bug titled `Stale porto-data reference in feature scenario`.
-- Body: `Align with porto-data bundle layout: providers/<id>/, graph.json, integration.json, metadata.json. See docs/catalog-alignment.md.`
 - Apply labels `compatibility`, `bdd`.

@@ -1,7 +1,8 @@
 @sdk
-Feature: Validation
+@operator:deutschepost
+Feature: Deutsche Post letter validation
   As a developer
-  I want to validate letters and addresses
+  I want to validate letters against Deutsche Post catalog rules
   So that I can ensure shipping requirements are met
 
   Background:
@@ -53,7 +54,7 @@ Feature: Validation
     And length 353 mm
     And width 250 mm
     And height 60 mm
-    And weight 500 grams
+    And weight 501 grams
     And valid destination address
     And valid origin address
     When I validate the letter
@@ -96,37 +97,6 @@ Feature: Validation
     When I validate the letter
     Then the validation should fail
     And I should get an error about invalid address
-
-  Scenario: Validate address with all required fields
-    Given I have an address with name "John Doe"
-    And street "Main Street"
-    And house number "123"
-    And postal code "10115"
-    And city "Berlin"
-    And country code "DE"
-    When I validate the address
-    Then the validation should pass
-    And there should be no errors
-
-  Scenario: Reject address with missing required fields
-    Given I have an address with name "John Doe"
-    And missing street
-    And missing postal code
-    And country code "DE"
-    When I validate the address
-    Then the validation should fail
-    And I should get errors about missing required fields
-
-  Scenario: Reject address with invalid country code
-    Given I have an address with name "John Doe"
-    And street "Main Street"
-    And house number "123"
-    And postal code "10115"
-    And city "Berlin"
-    And country code "XX"
-    When I validate the address
-    Then the validation should fail
-    And I should get an error about invalid country code
 
   Scenario: Validation returns warnings for edge cases
     Given I have a letter with porto_id "small"

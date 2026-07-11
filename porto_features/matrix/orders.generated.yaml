@@ -14,7 +14,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.grossbrief.domestic.einschreiben
@@ -29,7 +29,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.grossbrief.domestic.einschreiben_einwurf
@@ -44,7 +44,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.grossbrief.domestic.einschreiben_rueckschein
@@ -59,7 +59,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.grossbrief.world
@@ -73,7 +73,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.grossbrief.world.einschreiben
@@ -88,7 +88,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.grossbrief.zone_1_eu
@@ -102,7 +102,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.grossbrief.zone_1_eu.einschreiben
@@ -117,7 +117,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.grossbrief.zone_2_europe
@@ -131,7 +131,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.grossbrief.zone_2_europe.einschreiben
@@ -146,7 +146,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.kompaktbrief.domestic
@@ -160,7 +160,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.kompaktbrief.domestic.einschreiben
@@ -175,7 +175,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.kompaktbrief.domestic.einschreiben_einwurf
@@ -190,7 +190,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.kompaktbrief.domestic.einschreiben_rueckschein
@@ -205,7 +205,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.kompaktbrief.world
@@ -219,7 +219,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.kompaktbrief.world.einschreiben
@@ -234,7 +234,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.kompaktbrief.zone_1_eu
@@ -248,7 +248,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.kompaktbrief.zone_1_eu.einschreiben
@@ -263,7 +263,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.kompaktbrief.zone_2_europe
@@ -277,7 +277,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.kompaktbrief.zone_2_europe.einschreiben
@@ -292,7 +292,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.maxibrief.domestic
@@ -306,7 +306,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.maxibrief.domestic.einschreiben
@@ -321,7 +321,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.maxibrief.domestic.einschreiben_einwurf
@@ -336,7 +336,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.maxibrief.domestic.einschreiben_rueckschein
@@ -351,7 +351,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.maxibrief.world
@@ -365,7 +365,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.maxibrief.world.einschreiben
@@ -380,7 +380,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.maxibrief.zone_1_eu
@@ -394,7 +394,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.maxibrief.zone_1_eu.einschreiben
@@ -409,7 +409,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.maxibrief.zone_2_europe
@@ -423,7 +423,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.maxibrief.zone_2_europe.einschreiben
@@ -438,7 +438,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.maxibrief_ausland.world
@@ -452,7 +452,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.maxibrief_ausland.world.einschreiben
@@ -467,7 +467,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.maxibrief_ausland.zone_1_eu
@@ -481,7 +481,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.maxibrief_ausland.zone_1_eu.einschreiben
@@ -496,7 +496,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.maxibrief_ausland.zone_2_europe
@@ -510,7 +510,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.maxibrief_ausland.zone_2_europe.einschreiben
@@ -525,7 +525,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.standardbrief.domestic
@@ -539,7 +539,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.standardbrief.domestic.einschreiben
@@ -554,7 +554,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.standardbrief.domestic.einschreiben_einwurf
@@ -569,7 +569,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.standardbrief.domestic.einschreiben_rueckschein
@@ -584,7 +584,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.standardbrief.world
@@ -598,7 +598,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.standardbrief.world.einschreiben
@@ -613,7 +613,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.standardbrief.zone_1_eu
@@ -627,7 +627,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.standardbrief.zone_1_eu.einschreiben
@@ -642,7 +642,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.standardbrief.zone_2_europe
@@ -656,7 +656,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
 - case_id: deutschepost.internetmarke.standardbrief.zone_2_europe.einschreiben
@@ -671,7 +671,7 @@ order_cells:
   - FRANKING_ZONE
   status: required
   refs:
-  - adapters/internetmarke.feature:Outline:stamp_order
+  - adapters/deutschepost/internetmarke.feature:Outline:stamp_order
   evidence: null
   last_verified: null
-generated_at: '2026-07-10T13:33:08Z'
+generated_at: '2026-07-10T19:41:37Z'

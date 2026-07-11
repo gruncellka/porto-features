@@ -1,4 +1,5 @@
 @sdk
+@operator:deutschepost
 Feature: Pricing
   As a developer
   I want to calculate prices for letters
@@ -57,7 +58,7 @@ Feature: Pricing
   Scenario: Calculate price for extra large letter
     Given I have a letter with porto_id "extra_large"
     And the destination country is "DE"
-    And the weight is 500 grams
+    And the weight is 501 grams
     When I calculate the price
     Then I should get a price in cents
     And the currency should be "EUR"

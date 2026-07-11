@@ -44,7 +44,7 @@ package-dir = {"" = "."}
 
 # Ship only *.feature and *.json from fixtures (no Python in features/fixtures)
 [tool.setuptools.package-data]
-porto_features = ["features/**/*.feature", "fixtures/**/*.json", "matrix/*.yaml"]
+porto_features = ["features/**/*.feature", "fixtures/**/*.json", "matrix/*.yaml", "matrix/*.json"]
 
 [tool.ruff]
 line-length = 100

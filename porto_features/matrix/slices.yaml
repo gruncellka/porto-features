@@ -22,5 +22,7 @@ slices:
     description: Resolve wire code from graph without adapter purchase
   metadata:
     description: Registry, integrations manifest, envelope catalog smoke
+  matrix:
+    description: Pairwise or combinatorial SDK coverage tables (outline scenarios)
   prohibited:
     description: Global policy prohibition slices (provider-agnostic)

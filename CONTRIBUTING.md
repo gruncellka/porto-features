@@ -12,8 +12,8 @@ First run creates `venv`, installs dev dependencies, and installs pre-commit hoo
 
 ## What to edit
 
-- Feature files: `porto_features/features/**/*.feature` (`sdk/`, `adapters/`, root `cli.feature`)
-- Matrix index: `porto_features/matrix/*.yaml` (orders sync via Lab `make matrix-orders-sync`)
+- Feature files: `porto_features/features/**/*.feature` (`sdk/core/`, `sdk/providers/{id}/`, `adapters/{id}/`)
+- Matrix index: `porto_features/matrix/*.yaml` + `cases.generated.json` (orders sync via Lab `make matrix-orders-sync`; SDK index via `make generate-sdk-matrix`)
 - Fixtures: `porto_features/fixtures/**/*.json`
 - Docs hub: `docs/` (vocabulary, matrix, scenario policy, catalog alignment)
 
@@ -22,9 +22,10 @@ Read first: [docs/README.md](docs/README.md) · [docs/matrix.md](docs/matrix.md)
 ## Daily workflow
 
 1. Edit feature and/or fixture files.
-2. Run `make quality` and `make test-cov`.
-3. Update `CHANGELOG.md` for behavior-spec changes.
-4. Commit (pre-commit runs automatically).
+2. After `@sdk` scenario changes, run `make generate-sdk-matrix` (CI runs `make generate-sdk-matrix-check`).
+3. Run `make quality` and `make test-cov`.
+4. Update `CHANGELOG.md` under `[Unreleased]` for behavior-spec changes.
+5. Commit (pre-commit runs automatically).
 
 ## Most useful commands
 
@@ -34,6 +35,8 @@ Read first: [docs/README.md](docs/README.md) · [docs/matrix.md](docs/matrix.md)
 | `make help` | Show all commands |
 | `make quality` | validate + lint + format + type-check |
 | `make validate` | Feature + fixture validation |
+| `make generate-sdk-matrix` | Regenerate `sdk.yaml` from `@sdk` scenarios |
+| `make generate-sdk-matrix-check` | Fail if `sdk.yaml` is stale (CI) |
 | `make test-cov` | Tests with >=90% coverage gate |
 | `make test-publish` | npm + PyPI smoke test |
 

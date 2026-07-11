@@ -1,4 +1,5 @@
 @sdk
+@operator:deutschepost
 Feature: Comprehensive API Testing
   As a developer
   I want to test all SDK capabilities with minimal API requests
@@ -33,3 +34,10 @@ Feature: Comprehensive API Testing
       | extra_large  | DE           | 501    | domestic      |
       | extra_large  | FR           | 501    | zone_1_eu     |
       | extra_large  | US           | 501    | world         |
+      | extra_large  | FR           | 1001   | zone_1_eu     |
+      | extra_large  | US           | 1001   | world         |
+      | small        | CH           | 1      | zone_2_europe |
+      | medium       | CH           | 21     | zone_2_europe |
+      | large        | CH           | 51     | zone_2_europe |
+      | extra_large  | CH           | 501    | zone_2_europe |
+      | extra_large  | CH           | 1001   | zone_2_europe |

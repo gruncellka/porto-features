@@ -2,15 +2,15 @@
 
 **Provider id:** `ukrposhta` · **Country:** UA · **Scope:** letters only
 
-## Offline coverage
+## `@sdk` coverage
 
 - `small` → `lyst_standartnyi` (domestic + world)
 - `large` → `dokument` (domestic only — not international)
 - International registered as service `porto_id` `registered`
 
-## Online / lab-gated
+## `@adapters`
 
-- eCom adapter — lab promotion required
+- eCom adapter — add scenarios when wire catalog and fixtures are ready
 
 ## Tariff reference
 

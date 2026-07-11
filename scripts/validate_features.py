@@ -40,6 +40,9 @@ except ImportError:
     yaml = None
 
 LAYER_TAGS = frozenset({"sdk", "adapters"})
+SCOPE_CORE_TAG = "core"
+SCOPE_OPERATOR_PREFIX = "operator:"
+SCOPE_WIRE_PREFIX = "wire:"
 DEPRECATED_LAYER_TAGS = frozenset({"offline", "online", "capabilities", "api"})
 ADAPTER_SUB_TAGS = frozenset({"canary", "full"})
 DEPRECATED_ADAPTER_SUB_TAGS = frozenset({"release"})
@@ -73,6 +76,20 @@ STALE_CATALOG_REFERENCES = (
     "data_links.json",
     "dimension_ids",
     "supported_zones",
+)
+
+IMPLEMENTATION_TOKEN_WARNINGS = (
+    "Porto SDK client",
+    "CLI ",
+)
+
+CLASS_NAME_IN_STEP = re.compile(
+    r"\b(?:PortoSDK|PortoClient|LetterType|[A-Z][a-z]+(?:Client|Resolver|Service|Exception))\b"
+)
+
+NON_CANONICAL_COUNTRY_STEP = re.compile(
+    r'(?:destination country|the destination country is)\s+"[A-Z]{2}"',
+    re.IGNORECASE,
 )
 
 
@@ -114,6 +131,33 @@ def _collect_vocabulary_errors(content: str, relative_path: Path) -> list[str]:
     return errors
 
 
+def _collect_style_warnings(content: str, relative_path: Path) -> list[str]:
+    """Warn on implementation leakage and non-canonical step phrasing."""
+    warnings: list[str] = []
+
+    for token in IMPLEMENTATION_TOKEN_WARNINGS:
+        if token in content:
+            warnings.append(
+                f"⚠️  {relative_path}: Implementation token '{token.strip()}' in steps — "
+                "prefer SDK-agnostic vocabulary (see docs/vocabulary.md)"
+            )
+
+    for match in CLASS_NAME_IN_STEP.finditer(content):
+        class_name = match.group(0)
+        warnings.append(
+            f"⚠️  {relative_path}: Class-like token '{class_name}' in steps — "
+            "Gherkin must stay implementation-agnostic"
+        )
+
+    if NON_CANONICAL_COUNTRY_STEP.search(content):
+        warnings.append(
+            f"⚠️  {relative_path}: Non-canonical destination country phrasing — "
+            'use `I want to send a letter to country "<country_code>"` (docs/vocabulary.md)'
+        )
+
+    return warnings
+
+
 def _validate_layer_tags(feature_tags: set[str], relative_path: Path) -> list[str]:
     errors: list[str] = []
     warnings: list[str] = []
@@ -147,6 +191,93 @@ def _validate_layer_tags(feature_tags: set[str], relative_path: Path) -> list[st
     return errors + warnings
 
 
+def _scope_tags(feature_tags: set[str]) -> tuple[str | None, str | None]:
+    """Return (core|operator_id|None, wire_id|None) from scope tags."""
+    operator_id: str | None = None
+    wire_id: str | None = None
+    has_core = SCOPE_CORE_TAG in feature_tags
+    for tag in feature_tags:
+        if tag.startswith(SCOPE_OPERATOR_PREFIX):
+            operator_id = tag[len(SCOPE_OPERATOR_PREFIX) :]
+        elif tag.startswith(SCOPE_WIRE_PREFIX):
+            wire_id = tag[len(SCOPE_WIRE_PREFIX) :]
+    if has_core:
+        return SCOPE_CORE_TAG, wire_id
+    return operator_id, wire_id
+
+
+def _enforce_scope_path_layout(relative_path: Path) -> bool:
+    """True when the file lives under the published features tree."""
+    posix = relative_path.as_posix()
+    return "/features/sdk/" in posix or "/features/adapters/" in posix
+
+
+def _validate_scope_tags(feature_tags: set[str], relative_path: Path) -> list[str]:
+    """Validate @core / @operator:* / @wire:* alignment with folder layout."""
+    errors: list[str] = []
+    if not _enforce_scope_path_layout(relative_path):
+        return errors
+
+    path_posix = relative_path.as_posix()
+    layer = feature_tags & LAYER_TAGS
+    if not layer:
+        return errors
+
+    scope, wire_id = _scope_tags(feature_tags)
+    operator_tags = [t for t in feature_tags if t.startswith(SCOPE_OPERATOR_PREFIX)]
+
+    if "sdk" in feature_tags:
+        if scope == SCOPE_CORE_TAG and operator_tags:
+            errors.append(
+                f"❌ {relative_path}: @core and @operator:* are mutually exclusive on @sdk features"
+            )
+        elif scope != SCOPE_CORE_TAG:
+            if len(operator_tags) == 0:
+                errors.append(
+                    f"❌ {relative_path}: @sdk feature must declare @core or exactly one @operator:{{id}}"
+                )
+            elif len(operator_tags) > 1:
+                errors.append(
+                    f"❌ {relative_path}: @sdk feature must declare at most one @operator:{{id}}"
+                )
+            elif scope and f"/providers/{scope}/" not in path_posix:
+                errors.append(
+                    f"❌ {relative_path}: @operator:{scope} must live under sdk/providers/{scope}/"
+                )
+        elif "/sdk/core/" not in path_posix:
+            errors.append(f"❌ {relative_path}: @core features must live under sdk/core/")
+
+    if "adapters" in feature_tags:
+        if len(operator_tags) != 1:
+            errors.append(
+                f"❌ {relative_path}: @adapters feature must declare exactly one @operator:{{id}}"
+            )
+        wire_tags = [t for t in feature_tags if t.startswith(SCOPE_WIRE_PREFIX)]
+        if len(wire_tags) != 1:
+            errors.append(
+                f"❌ {relative_path}: @adapters feature must declare exactly one @wire:{{id}}"
+            )
+        if scope and scope != SCOPE_CORE_TAG and f"/adapters/{scope}/" not in path_posix:
+            errors.append(
+                f"❌ {relative_path}: @operator:{scope} must live under adapters/{scope}/"
+            )
+
+    return errors
+
+
+def _iter_scenario_nodes(feature: dict) -> list[dict]:
+    """Yield scenario/outline nodes from feature children and nested Rules."""
+    nodes: list[dict] = []
+    for child in feature.get("children", []):
+        if child.get("scenario"):
+            nodes.append(child)
+        elif child.get("rule"):
+            for rule_child in child["rule"].get("children", []):
+                if rule_child.get("scenario"):
+                    nodes.append(rule_child)
+    return nodes
+
+
 def validate_feature_file(file_path: Path) -> tuple[bool, list[str]]:
     """Validate a single feature file."""
     errors: list[str] = []
@@ -164,8 +295,9 @@ def validate_feature_file(file_path: Path) -> tuple[bool, list[str]]:
         feature = gherkin_document["feature"]
         feature_tags = _feature_tags(feature)
         errors.extend(_validate_layer_tags(feature_tags, relative_path))
+        errors.extend(_validate_scope_tags(feature_tags, relative_path))
 
-        scenarios = [child for child in feature.get("children", []) if child.get("scenario")]
+        scenarios = _iter_scenario_nodes(feature)
 
         if len(scenarios) == 0:
             errors.append(f"❌ {relative_path}: Feature has no scenarios")
@@ -190,6 +322,7 @@ def validate_feature_file(file_path: Path) -> tuple[bool, list[str]]:
                 errors.append(f'❌ {relative_path}: Scenario "{scenario_name}" has no steps')
 
         errors.extend(_collect_vocabulary_errors(content, relative_path))
+        errors.extend(_collect_style_warnings(content, relative_path))
 
         scenario_count = len(scenarios)
         print(
@@ -218,10 +351,89 @@ def find_feature_files(directory: Path) -> list[Path]:
 
 def _ref_feature_path(ref: str) -> str:
     """Extract feature path from ref like sdk/foo.feature:Scenario:Name."""
-    head = ref.split(":", 1)[0]
+    return _parse_matrix_ref(ref)[0]
+
+
+def _parse_matrix_ref(ref: str) -> tuple[str, str | None, str | None]:
+    """Return (feature_rel_path, ref_kind, scenario_name). kind is None for file-only refs."""
+    head, *tail = ref.split(":")
     if not head.endswith(".feature"):
         head = f"{head}.feature" if "/" in head else f"{head}.feature"
-    return head
+    if not tail:
+        return head, None, None
+    kind = tail[0]
+    name = ":".join(tail[1:])
+    if not name:
+        return head, kind, None
+    return head, kind, name
+
+
+def _resolve_feature_path(features_dir: Path, rel: str) -> Path | None:
+    feature_path = features_dir / rel
+    if feature_path.is_file():
+        return feature_path
+    basename = Path(rel).name
+    for candidate in features_dir.rglob(basename):
+        if candidate.is_file():
+            return candidate
+    return None
+
+
+def _collect_feature_scenario_names(feature_path: Path) -> tuple[set[str], set[str]]:
+    """Return (scenario_names, outline_names) from a feature file."""
+    parser = Parser()
+    gherkin_document = parser.parse(feature_path.read_text(encoding="utf-8"))
+    feature = gherkin_document.get("feature")
+    if not feature:
+        return set(), set()
+
+    scenarios: set[str] = set()
+    outlines: set[str] = set()
+    for child in _iter_scenario_nodes(feature):
+        scenario_obj = child["scenario"]
+        name = scenario_obj.get("name", "")
+        keyword = scenario_obj.get("keyword", "Scenario")
+        if keyword == "Scenario Outline":
+            outlines.add(name)
+        else:
+            scenarios.add(name)
+    return scenarios, outlines
+
+
+def _validate_matrix_ref(ref: str, features_dir: Path, context: str) -> list[str]:
+    """Validate matrix ref resolves to an existing feature and optional scenario/outline."""
+    rel, kind, name = _parse_matrix_ref(ref)
+    feature_path = _resolve_feature_path(features_dir, rel)
+    if feature_path is None:
+        expected = features_dir / rel
+        alt = features_dir / "sdk" / Path(rel).name
+        return [
+            f"❌ {context}: ref '{ref}' — feature file not found (expected {expected} or {alt})"
+        ]
+
+    if kind is None or name is None:
+        return []
+
+    scenarios, outlines = _collect_feature_scenario_names(feature_path)
+    if kind in {"Outline", "Scenario Outline"}:
+        if name not in outlines:
+            known = ", ".join(sorted(outlines)) or "(none)"
+            return [
+                f"❌ {context}: ref '{ref}' — outline '{name}' not found in {rel} "
+                f"(known outlines: {known})"
+            ]
+        return []
+
+    if kind == "Scenario":
+        if name not in scenarios:
+            known = ", ".join(sorted(scenarios)) or "(none)"
+            return [
+                f"❌ {context}: ref '{ref}' — scenario '{name}' not found in {rel} "
+                f"(known scenarios: {known})"
+            ]
+        return []
+
+    return [f"❌ {context}: ref '{ref}' — unknown ref kind '{kind}'"]
 
 
 def _load_yaml(path: Path) -> dict:
@@ -264,6 +476,8 @@ def validate_matrix_files(matrix_dir: Path, features_dir: Path) -> tuple[bool, l
     orders_doc = _load_yaml(orders_path)
     canary_doc = _load_yaml(canary_path)
     sdk_doc = _load_yaml(sdk_path)
+    slices_doc = _load_yaml(slices_path)
+    known_slices = set(slices_doc.get("slices", {}).keys())
 
     order_ids = {row["case_id"] for row in orders_doc.get("order_cells", [])}
 
@@ -275,17 +489,14 @@ def validate_matrix_files(matrix_dir: Path, features_dir: Path) -> tuple[bool, l
             )
 
     for cell in sdk_doc.get("sdk_cells", []):
+        slice_name = cell.get("slice")
+        if slice_name and slice_name not in known_slices:
+            errors.append(
+                f"❌ sdk.yaml: cell '{cell.get('cell_id')}' uses unknown slice "
+                f"'{slice_name}' (define in slices.yaml)"
+            )
         for ref in cell.get("refs", []):
-            rel = _ref_feature_path(ref)
-            feature_path = features_dir / rel
-            if not feature_path.is_file():
-                alt = features_dir / "sdk" / Path(rel).name
-                if alt.is_file():
-                    continue
-                errors.append(
-                    f"❌ sdk.yaml: ref '{ref}' — feature file not found "
-                    f"(expected {feature_path} or {alt})"
-                )
+            errors.extend(_validate_matrix_ref(ref, features_dir, "sdk.yaml"))
 
     for cell in orders_doc.get("order_cells", []):
         expected_id = _expected_case_id(cell)
@@ -296,12 +507,7 @@ def validate_matrix_files(matrix_dir: Path, features_dir: Path) -> tuple[bool, l
                 f"structured fields (expected '{expected_id}')"
             )
         for ref in cell.get("refs", []):
-            rel = _ref_feature_path(ref)
-            feature_path = features_dir / rel
-            if not feature_path.is_file():
-                errors.append(
-                    f"❌ orders.generated.yaml: ref '{ref}' — feature file not found at {feature_path}"
-                )
+            errors.extend(_validate_matrix_ref(ref, features_dir, "orders.generated.yaml"))
 
     if not errors:
         print(

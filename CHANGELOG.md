@@ -1,5 +1,27 @@
 # Changelog
 
+## [Unreleased]
+
+Internetmarke-first launch: SDK catalog depth for Deutsche Post, paid wire matrix via `adapters/deutschepost/internetmarke.feature`. Layout is multi-provider-ready; other adapters ship in later releases.
+
+### Changed
+
+- **BREAKING**: Feature layout under `porto_features/features/sdk/` (`@sdk`) and `porto_features/features/adapters/` (`@adapters`). SDK runners must discover `features/sdk/**/*.feature` and filter by `@sdk`.
+- **BREAKING**: Provider-explicit paths: `sdk/core/`, `sdk/providers/{operator}/`, `adapters/{operator}/`. Matrix refs use nested paths (e.g. `sdk/providers/deutschepost/resolution.feature`, `adapters/deutschepost/internetmarke.feature`).
+- **BREAKING**: Scope tags on every Feature: `@core` (cross-operator SDK) or `@operator:{id}` (operator catalog); adapters also require `@wire:{adapter}` (e.g. `@wire:internetmarke`).
+- Tags renamed: `@offline` → `@sdk`, `@online`/`@api` → `@adapters`, `@release` → `@full`.
+- npm and PyPI packages ship `porto_features/matrix/*.{yaml,json}` (including `cases.generated.json` for TypeScript matrix parity).
+- Gherkin **Rules** group related Backgrounds in `restrictions.feature`, `resolution.feature`, and multi-provider `cli.feature`.
+- Letter validation split: address checks in `sdk/core/validation.feature`; Deutsche Post letter tiers in `sdk/providers/deutschepost/validation.feature`.
+- `sdk/core/cli.feature`: provider-neutral core scenarios plus per-operator Rules (`deutschepost`, `laposte`, `swisspost`, `ukrposhta`); SDK runners should batch CLI BDD by provider for faster feedback.
+
+### Added
+
+- Matrix coverage index: `slices.yaml`, `sdk.yaml`, `canary.yaml`, `orders.generated.yaml` (Deutsche Post Internetmarke wire cells; synced from Lab), `cases.generated.json` (Lab-generated SDK case list for TS runners).
+- `scripts/generate_sdk_matrix.py` — regenerate `sdk.yaml` from `@sdk` scenarios; `make generate-sdk-matrix` and `make generate-sdk-matrix-check` (CI drift gate).
+- Docs hub: `matrix.md`, `scenario-policy.md`, `vocabulary.md`.
+- Validator: matrix ref scenario/outline names, `sdk.yaml` slice taxonomy, scope-tag ↔ folder alignment.
+
 ## [0.2.1]
 
 ### Changed

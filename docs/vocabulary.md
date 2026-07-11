@@ -72,19 +72,22 @@ Normative policy: [porto-data docs/id.md](https://github.com/gruncellka/porto-da
 
 | Provider | Shared `porto_id` | Native `id` examples | Disambiguation |
 |----------|-------------------|----------------------|----------------|
-| Deutsche Post | `extra_large` | `maxibrief`, `maxibrief_ausland` | zone + weight tier |
+| Deutsche Post | `extra_large` | `maxibrief`, `maxibrief_ausland` | W1000 (501–1000 g) → `maxibrief`; W2000 (1001–2000 g) abroad → `maxibrief_ausland` |
 | La Poste | `small` | `lettre_verte`, `lettre_services_plus` | delivery preference / options |
 | Swiss Post | `small` | `a_post_standardbrief`, `b_post_standardbrief` | delivery speed / options |
-| Ukrposhta | `large` | `dokument` | domestic zone only |
+| Ukrposhta | `small` | `lyst_standartnyi` | default letter; domestic + `world` |
+| Ukrposhta | `large` | `dokument` | domestic zone only — international letters use `small` |
 
-`ausland` and `heavy` are fragments of native product names, not buckets.
+`ausland` appears only inside native product ids (e.g. `maxibrief_ausland`), not as a `porto_id` bucket.
+
+Ukrposhta native ids were renamed: `letter_standard` → **`lyst_standartnyi`**, `ukrposhta_document` → **`dokument`**. Do not use legacy names in new scenarios.
 
 ## Review checklist
 
 - Does the scenario use `porto_id` for SDK input?
 - Are native `id` values only in Then assertions?
 - Is the Feature tagged `@sdk` or `@adapters`?
-- Does `@adapters` have lab promotion evidence?
+- Does `@adapters` match generated wire rows in `orders.generated.yaml`?
 
 ## Example scenario
 

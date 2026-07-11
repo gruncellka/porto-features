@@ -1,5 +1,6 @@
 # Daily paid smoke — curated subset of orders.generated.yaml (adapter @canary).
 # Each case_id must exist in matrix/orders.generated.yaml (porto-data wire).
+# Lab selects rows by case_id from this list; @canary on Gherkin marks entry scenarios.
 
 schema_version: 1
 

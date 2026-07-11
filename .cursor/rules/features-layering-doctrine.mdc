@@ -4,41 +4,42 @@
 
 **Agent siblings:** [karpathy-guidelines.mdc](karpathy-guidelines.mdc) · [git-no-auto-commit.mdc](git-no-auto-commit.mdc)
 
-porto-features is a **shared BDD contract** package — Gherkin scenarios and JSON fixtures only. Step definitions live in **SDK repositories**.
+porto-features is a **shared BDD contract** package — Gherkin scenarios and JSON fixtures only. Step definitions belong in **implementor test suites** (any language), not in this repo.
 
 ## The stack (do not collapse)
 
 ```text
 porto-data (facts)     →  catalog JSON + schemas
 porto-features (BDD)   →  behavior contracts (this repo)
-Porto SDK (Py/TS)      →  step definitions + resolver implementation
-Lab runs               →  evidence for @adapters promotion only
+Implementor runners    →  step definitions + execution (outside this repo)
 ```
+
+Wire-derived adapter Examples and `orders.generated.yaml` are **generated** in Porto SDK Lab via `matrix-orders-sync.py` — the only Lab-specific coupling documented here.
 
 ## Core principles
 
-1. **SDK-agnostic Gherkin.** No Python class names, TypeScript modules, or framework internals in `.feature` files.
+1. **Implementation-agnostic Gherkin.** No Python class names, TypeScript modules, or framework internals in `.feature` files.
 
 2. **Input vs assertion identifiers.**
    - **Given / When input:** `porto_id` size buckets (`small`, `medium`, `large`, `extra_large`) and service `porto_id` (`registered`, …).
    - **Then assertions:** native catalog `id` (`standardbrief`, `einschreiben`, …) when verifying resolution output.
 
-3. **No step definitions here.** Never add `tests/steps/**` or SDK glue in this repo.
+3. **No step definitions here.** Never add `tests/steps/**` or runner glue in this repo.
 
 4. **Published paths only.** Features under `porto_features/features/` (including `sdk/` and `adapters/`) and fixtures under `porto_features/fixtures/`.
 
-5. **Tag every Feature.** `@sdk` or `@adapters` at Feature level; `@canary` / `@full` on paid adapter scenarios only after lab promotion.
+5. **Tag every Feature.** `@sdk` or `@adapters` at Feature level; `@canary` / `@full` on paid adapter scenarios when a full or smoke wire matrix is intended.
 
-**0.x:** No version pin file — keep porto-data, porto-features, and SDK bumps in sync in the lab; breaking changes are expected until `1.x`.
+**0.x:** No version pin file — keep porto-data, porto-features, and implementor packages aligned on breaking changes until `1.x`.
 
 ## Red flags
 
 | Smell | Fix |
 |-------|-----|
 | `letter_standard`, `STANDARD` as product input | Use `porto_id` `small` |
-| `registered_mail` as SDK service pick | Use service `porto_id` `registered` |
-| Step defs in this repo | Move to SDK test suites |
-| `@adapters` without lab artifact link in PR | Gate per `docs/scenario-policy.md` |
+| `registered_mail` as service pick | Use service `porto_id` `registered` |
+| Step defs in this repo | Move to implementor test suites |
+| Hand-edited `orders.generated.yaml` | Regenerate via Porto SDK Lab `matrix-orders-sync.py` |
 | `@offline` / `@online` / `@api` | Use `@sdk` / `@adapters` per `docs/matrix.md` |
 | Scenario references `data_links.json` | Use `graph.json`, `integration.json`, `metadata.json` |
 

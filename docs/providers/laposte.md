@@ -2,15 +2,15 @@
 
 **Provider id:** `laposte` · **Country:** FR · **Mark type:** label
 
-## Offline coverage
+## `@sdk` coverage
 
 - Resolution: `porto_id` `small` disambiguation (verte vs recommandée vs services plus)
 - Delivery preference `fastest` → `lettre_services_plus`
 - Ambiguous resolution without preference
 
-## Online / lab-gated
+## `@adapters`
 
-- MTEL adapter scenarios — not in default offline suite
+- MTEL adapter scenarios — not in default `@sdk` suite
 
 ## Tariff reference
 

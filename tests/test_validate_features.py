@@ -121,6 +121,20 @@ def test_collect_vocabulary_errors_flags_data_links_reference():
     assert any("data_links.json" in e for e in errors)
 
 
+def test_collect_style_warnings_flags_implementation_tokens():
+    module = load_module()
+    content = 'Given I have a Porto SDK client initialized\nAnd destination country "DE"'
+    warnings = module._collect_style_warnings(content, Path("x.feature"))
+    assert any("Porto SDK client" in w for w in warnings)
+    assert any("Non-canonical destination country" in w for w in warnings)
+
+
+def test_collect_style_warnings_flags_class_names():
+    module = load_module()
+    warnings = module._collect_style_warnings("When PortoClient resolves", Path("x.feature"))
+    assert any("PortoClient" in w for w in warnings)
+
+
 def test_feature_tags_extracts_sdk_tag():
     module = load_module()
     tags = module._feature_tags({"tags": [{"name": "@sdk"}, {"name": "@slow"}]})
@@ -453,9 +467,7 @@ def test_main_exits_1_when_matrix_has_errors(monkeypatch):
     module = load_module()
     monkeypatch.setattr(module, "find_feature_files", lambda _d: [Path("x.feature")])
     monkeypatch.setattr(module, "validate_feature_file", lambda _p: (True, []))
-    monkeypatch.setattr(
-        module, "validate_matrix_files", lambda _m, _f: (False, ["❌ matrix bad"])
-    )
+    monkeypatch.setattr(module, "validate_matrix_files", lambda _m, _f: (False, ["❌ matrix bad"]))
     monkeypatch.setattr(module, "run_gherlint", lambda _d: (True, []))
 
     with pytest.raises(SystemExit) as exc_info:
@@ -536,7 +548,10 @@ def test_validate_matrix_files_rejects_missing_matrix_files(tmp_path):
 
 
 def _write_minimal_matrix_files(matrix_dir: Path) -> None:
-    (matrix_dir / "slices.yaml").write_text("schema_version: 1\n", encoding="utf-8")
+    (matrix_dir / "slices.yaml").write_text(
+        "schema_version: 1\nslices:\n  happy:\n    description: test\n",
+        encoding="utf-8",
+    )
     (matrix_dir / "sdk.yaml").write_text("schema_version: 1\nsdk_cells: []\n", encoding="utf-8")
     (matrix_dir / "canary.yaml").write_text("schema_version: 1\ncase_ids: []\n", encoding="utf-8")
     (matrix_dir / "orders.generated.yaml").write_text(
@@ -582,7 +597,7 @@ def test_validate_matrix_files_accepts_sdk_ref_via_sdk_subdir(tmp_path):
 schema_version: 1
 sdk_cells:
   - refs:
-      - resolution:Scenario:Name
+      - resolution.feature
 """.strip(),
         encoding="utf-8",
     )
@@ -590,6 +605,97 @@ sdk_cells:
     ok, errors = module.validate_matrix_files(matrix_dir, features_dir)
     assert ok
     assert errors == []
+
+
+def test_validate_matrix_files_rejects_unknown_scenario_ref(tmp_path):
+    module = load_module()
+    matrix_dir = tmp_path / "matrix"
+    features_dir = tmp_path / "features"
+    sdk_dir = features_dir / "sdk"
+    matrix_dir.mkdir()
+    sdk_dir.mkdir(parents=True)
+    (sdk_dir / "resolution.feature").write_text(
+        "Feature: R\nScenario: S\n Given x\n", encoding="utf-8"
+    )
+    _write_minimal_matrix_files(matrix_dir)
+    (matrix_dir / "sdk.yaml").write_text(
+        """
+schema_version: 1
+sdk_cells:
+  - refs:
+      - sdk/resolution.feature:Scenario:Missing
+""".strip(),
+        encoding="utf-8",
+    )
+
+    ok, errors = module.validate_matrix_files(matrix_dir, features_dir)
+    assert not ok
+    assert any("scenario 'Missing' not found" in e for e in errors)
+
+
+def test_validate_matrix_files_rejects_unknown_outline_ref(tmp_path):
+    module = load_module()
+    matrix_dir = tmp_path / "matrix"
+    features_dir = tmp_path / "features"
+    adapters_dir = features_dir / "adapters"
+    matrix_dir.mkdir()
+    adapters_dir.mkdir(parents=True)
+    (adapters_dir / "internetmarke.feature").write_text(
+        """
+@adapters
+Feature: Adapter
+  Scenario Outline: stamp_order
+    Given x
+    Examples:
+      | a |
+      | 1 |
+""".strip(),
+        encoding="utf-8",
+    )
+    _write_minimal_matrix_files(matrix_dir)
+    (matrix_dir / "orders.generated.yaml").write_text(
+        """
+schema_version: 1
+order_cells:
+  - case_id: deutschepost.internetmarke.standardbrief.domestic
+    provider: deutschepost
+    adapter: internetmarke
+    product_id: standardbrief
+    zone_id: domestic
+    service_ids: []
+    refs:
+      - adapters/internetmarke.feature:Outline:wrong_outline
+""".strip(),
+        encoding="utf-8",
+    )
+
+    ok, errors = module.validate_matrix_files(matrix_dir, features_dir)
+    assert not ok
+    assert any("outline 'wrong_outline' not found" in e for e in errors)
+
+
+def test_validate_matrix_files_rejects_unknown_slice(tmp_path):
+    module = load_module()
+    matrix_dir = tmp_path / "matrix"
+    features_dir = tmp_path / "features"
+    matrix_dir.mkdir()
+    features_dir.mkdir()
+    _write_minimal_matrix_files(matrix_dir)
+    (matrix_dir / "sdk.yaml").write_text(
+        """
+schema_version: 1
+sdk_cells:
+  - cell_id: test.cell
+    slice: not_a_slice
+    refs:
+      - sdk/resolution.feature
+""".strip(),
+        encoding="utf-8",
+    )
+
+    ok, errors = module.validate_matrix_files(matrix_dir, features_dir)
+    assert not ok
+    assert any("unknown slice 'not_a_slice'" in e for e in errors)
 
 
 def test_validate_matrix_files_rejects_missing_order_ref(tmp_path):
@@ -650,6 +756,82 @@ def test_load_module_continues_when_yaml_missing(monkeypatch):
     module = load_fresh_module(monkeypatch, block="yaml")
     assert module is not None
     assert module.yaml is None
+
+
+def test_parse_matrix_ref_handles_kind_without_name():
+    module = load_module()
+    rel, kind, name = module._parse_matrix_ref("sdk/foo.feature:Scenario")
+    assert rel == "sdk/foo.feature"
+    assert kind == "Scenario"
+    assert name is None
+
+
+def test_validate_matrix_ref_rejects_unknown_ref_kind(tmp_path):
+    module = load_module()
+    features_dir = tmp_path / "features"
+    sdk_dir = features_dir / "sdk"
+    sdk_dir.mkdir(parents=True)
+    (sdk_dir / "resolution.feature").write_text(
+        "Feature: R\nScenario: S\n Given x\n", encoding="utf-8"
+    )
+    errors = module._validate_matrix_ref(
+        "sdk/resolution.feature:Foo:Bar",
+        features_dir,
+        "sdk.yaml",
+    )
+    assert any("unknown ref kind 'Foo'" in e for e in errors)
+
+
+def test_collect_feature_scenario_names_returns_empty_for_missing_feature(tmp_path):
+    module = load_module()
+    feature_file = tmp_path / "empty.feature"
+    feature_file.write_text("", encoding="utf-8")
+
+    class FakeParser:
+        def parse(self, _content):
+            return {}
+
+    module.Parser = FakeParser
+    scenarios, outlines = module._collect_feature_scenario_names(feature_file)
+    assert scenarios == set()
+    assert outlines == set()
+
+
+def test_validate_scope_tags_requires_operator_on_sdk_provider_path():
+    module = load_module()
+    path = Path("porto_features/features/sdk/providers/deutschepost/pricing.feature")
+    errors = module._validate_scope_tags({"sdk"}, path)
+    assert any("@core or exactly one @operator" in e for e in errors)
+
+
+def test_validate_scope_tags_rejects_core_and_operator_together():
+    module = load_module()
+    path = Path("porto_features/features/sdk/core/restrictions.feature")
+    errors = module._validate_scope_tags({"sdk", "core", "operator:deutschepost"}, path)
+    assert any("mutually exclusive" in e for e in errors)
+
+
+def test_validate_scope_tags_requires_wire_on_adapters():
+    module = load_module()
+    path = Path("porto_features/features/adapters/deutschepost/internetmarke.feature")
+    errors = module._validate_scope_tags({"adapters", "operator:deutschepost"}, path)
+    assert any("@wire:" in e for e in errors)
+
+
+def test_iter_scenario_nodes_collects_rule_scenarios():
+    module = load_module()
+    content = """
+Feature: R
+  Rule: group
+    Scenario: inside rule
+      Given x
+  Scenario: outside rule
+    Given y
+"""
+    doc = module.Parser().parse(content)
+    nodes = module._iter_scenario_nodes(doc["feature"])
+    names = {n["scenario"]["name"] for n in nodes}
+    assert names == {"inside rule", "outside rule"}
 
 
 def test_script_main_entrypoint_exits_zero():

@@ -2,14 +2,14 @@
 
 **Provider id:** `swisspost` · **Country:** CH · **Mark type:** stamp
 
-## Offline coverage
+## `@sdk` coverage
 
 - Resolution: A-Post / B-Post products at `small` and `large` buckets
-- Service `thickness` surcharge (`zuschlag_dicke`) — offline pricing only
+- Service `thickness` surcharge (`zuschlag_dicke`) — SDK pricing only
 
-## Online / lab-gated
+## `@adapters`
 
-- WebStamp adapter — lab promotion required
+- WebStamp adapter — add scenarios when wire catalog and fixtures are ready
 
 ## Tariff reference
 
