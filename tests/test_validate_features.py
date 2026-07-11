@@ -121,6 +121,68 @@ def test_collect_vocabulary_errors_flags_data_links_reference():
     assert any("data_links.json" in e for e in errors)
 
 
+def test_collect_tag_casing_errors_ignores_non_at_tags():
+    module = load_module()
+    feature = {
+        "tags": [{"name": "not-a-tag"}],
+        "children": [],
+    }
+    assert module._collect_tag_casing_errors(feature, Path("ok.feature")) == []
+
+
+def test_collect_tag_casing_errors_rejects_uppercase_feature_tag():
+    module = load_module()
+    feature = {
+        "tags": [{"name": "@SDK"}],
+        "children": [{"scenario": {"name": "S", "tags": [], "steps": [{"text": "x"}]}}],
+    }
+    errors = module._collect_tag_casing_errors(feature, Path("bad.feature"))
+    assert any("must be lowercase" in e and "@sdk" in e for e in errors)
+
+
+def test_collect_tag_casing_errors_rejects_uppercase_scenario_tag():
+    module = load_module()
+    feature = {
+        "tags": [{"name": "@adapters"}],
+        "children": [
+            {
+                "scenario": {
+                    "name": "Paid",
+                    "tags": [{"name": "@Full"}],
+                    "steps": [{"text": "x"}],
+                }
+            }
+        ],
+    }
+    errors = module._collect_tag_casing_errors(feature, Path("bad.feature"))
+    assert any("Scenario 'Paid'" in e and "@full" in e for e in errors)
+
+
+def test_validate_layer_tags_warns_on_uppercase_deprecated_release_tag():
+    module = load_module()
+    messages = module._validate_layer_tags({"adapters", "Release"}, Path("release.feature"))
+    assert any("@release is deprecated" in m for m in messages)
+
+
+def test_validate_feature_file_rejects_uppercase_sdk_tag(tmp_path, monkeypatch):
+    module = load_module()
+    monkeypatch.chdir(tmp_path)
+    feature_file = tmp_path / "upper.feature"
+    feature_file.write_text(
+        """
+@SDK
+Feature: Uppercase tag
+  Scenario: One
+    Given x
+""".strip(),
+        encoding="utf-8",
+    )
+
+    is_valid, errors = module.validate_feature_file(feature_file)
+    assert not is_valid
+    assert any("must be lowercase" in e for e in errors)
+
+
 def test_collect_style_warnings_flags_implementation_tokens():
     module = load_module()
     content = "Given I have a Porto SDK client initialized"

@@ -36,6 +36,19 @@ Every **Feature** must declare **`@sdk` or `@adapters`** at Feature level (exact
 
 Do **not** use `@offline`, `@online`, or `@api` — deprecated.
 
+### Tag casing
+
+All Gherkin tags must be **lowercase** (including scenario tags):
+
+- `@sdk`, `@adapters`, `@core`, `@canary`, `@full`
+- `@operator:deutschepost`, `@wire:internetmarke`
+
+Do **not** use mixed-case legacy tags such as `@SDK`, `@Release`, or `@Full`. Renames from older conventions:
+
+- `@offline` → `@sdk`
+- `@online` / `@api` → `@adapters`
+- `@release` → `@full`
+
 ## Generated adapter matrix
 
 Adapter `stamp_order` Example rows and `matrix/orders.generated.yaml` are **generated** from porto-data wire cells. Regeneration: [matrix.md](matrix.md) — do not hand-edit generated files in this repo.

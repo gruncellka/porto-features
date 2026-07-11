@@ -120,6 +120,32 @@ def _node_tags(node: dict) -> set[str]:
     return tags
 
 
+def _collect_tag_casing_errors(feature: dict, relative_path: Path) -> list[str]:
+    """Reject non-lowercase Gherkin tags (@sdk not @SDK, @full not @Full)."""
+    errors: list[str] = []
+
+    def check_tag(raw: str, context_label: str) -> None:
+        if not raw.startswith("@"):
+            return
+        body = raw[1:]
+        if body != body.lower():
+            errors.append(
+                f"❌ {relative_path}: {context_label} tag '{raw}' must be lowercase — "
+                f"use '@{body.lower()}' (see docs/scenario-policy.md)"
+            )
+
+    for tag in feature.get("tags", []):
+        check_tag(tag.get("name", ""), "Feature")
+
+    for child in _iter_scenario_nodes(feature):
+        scenario_obj = child["scenario"]
+        scenario_name = scenario_obj.get("name", "Unnamed")
+        for tag in scenario_obj.get("tags", []):
+            check_tag(tag.get("name", ""), f"Scenario '{scenario_name}'")
+
+    return errors
+
+
 def _collect_vocabulary_errors(content: str, relative_path: Path) -> list[str]:
     errors: list[str] = []
     for native_id in DEPRECATED_NATIVE_PRODUCT_IDS:
@@ -184,14 +210,14 @@ def _validate_layer_tags(feature_tags: set[str], relative_path: Path) -> list[st
     errors: list[str] = []
     warnings: list[str] = []
 
-    deprecated = feature_tags & DEPRECATED_LAYER_TAGS
+    deprecated = {t for t in feature_tags if t.lower() in DEPRECATED_LAYER_TAGS}
     if deprecated:
         warnings.append(
-            f"⚠️  {relative_path}: Deprecated tag(s) {sorted(deprecated)} — "
+            f"⚠️  {relative_path}: Deprecated tag(s) {sorted(t.lower() for t in deprecated)} — "
             "use @sdk or @adapters (see docs/matrix.md)"
         )
 
-    layer = feature_tags & LAYER_TAGS
+    layer = {t.lower() for t in feature_tags if t.lower() in LAYER_TAGS}
     if len(layer) == 0:
         errors.append(
             f"❌ {relative_path}: Feature must declare @sdk or @adapters "
@@ -200,12 +226,12 @@ def _validate_layer_tags(feature_tags: set[str], relative_path: Path) -> list[st
     elif len(layer) > 1:
         errors.append(f"❌ {relative_path}: Feature must declare exactly one of @sdk or @adapters")
 
-    if "adapters" in feature_tags and "api" in feature_tags:
+    if "adapters" in layer and any(t.lower() == "api" for t in feature_tags):
         errors.append(
             f"❌ {relative_path}: Drop @api — @adapters already implies carrier integration"
         )
 
-    if feature_tags & DEPRECATED_ADAPTER_SUB_TAGS:
+    if any(t.lower() in DEPRECATED_ADAPTER_SUB_TAGS for t in feature_tags):
         warnings.append(
             f"⚠️  {relative_path}: @release is deprecated — use @full on adapter scenarios"
         )
@@ -217,12 +243,12 @@ def _validate_adapter_scenario_tags(
     feature_tags: set[str], scenarios: list[dict], relative_path: Path
 ) -> list[str]:
     """@adapters features must tag at least one scenario @canary or @full."""
-    if "adapters" not in feature_tags:
+    if "adapters" not in {t.lower() for t in feature_tags}:
         return []
 
     has_lane_tag = False
     for scenario in scenarios:
-        scenario_tags = _node_tags(scenario["scenario"])
+        scenario_tags = {t.lower() for t in _node_tags(scenario["scenario"])}
         if scenario_tags & ADAPTER_SUB_TAGS:
             has_lane_tag = True
             break
@@ -239,12 +265,14 @@ def _scope_tags(feature_tags: set[str]) -> tuple[str | None, str | None]:
     """Return (core|operator_id|None, wire_id|None) from scope tags."""
     operator_id: str | None = None
     wire_id: str | None = None
-    has_core = SCOPE_CORE_TAG in feature_tags
+    tags_lower = {t.lower() for t in feature_tags}
+    has_core = SCOPE_CORE_TAG in tags_lower
     for tag in feature_tags:
-        if tag.startswith(SCOPE_OPERATOR_PREFIX):
-            operator_id = tag[len(SCOPE_OPERATOR_PREFIX) :]
-        elif tag.startswith(SCOPE_WIRE_PREFIX):
-            wire_id = tag[len(SCOPE_WIRE_PREFIX) :]
+        lower = tag.lower()
+        if lower.startswith(SCOPE_OPERATOR_PREFIX):
+            operator_id = lower[len(SCOPE_OPERATOR_PREFIX) :]
+        elif lower.startswith(SCOPE_WIRE_PREFIX):
+            wire_id = lower[len(SCOPE_WIRE_PREFIX) :]
     if has_core:
         return SCOPE_CORE_TAG, wire_id
     return operator_id, wire_id
@@ -263,14 +291,14 @@ def _validate_scope_tags(feature_tags: set[str], relative_path: Path) -> list[st
         return errors
 
     path_posix = relative_path.as_posix()
-    layer = feature_tags & LAYER_TAGS
+    layer = {t.lower() for t in feature_tags if t.lower() in LAYER_TAGS}
     if not layer:
         return errors
 
     scope, wire_id = _scope_tags(feature_tags)
-    operator_tags = [t for t in feature_tags if t.startswith(SCOPE_OPERATOR_PREFIX)]
+    operator_tags = [t for t in feature_tags if t.lower().startswith(SCOPE_OPERATOR_PREFIX)]
 
-    if "sdk" in feature_tags:
+    if "sdk" in layer:
         if scope == SCOPE_CORE_TAG and operator_tags:
             errors.append(
                 f"❌ {relative_path}: @core and @operator:* are mutually exclusive on @sdk features"
@@ -291,12 +319,12 @@ def _validate_scope_tags(feature_tags: set[str], relative_path: Path) -> list[st
         elif "/sdk/core/" not in path_posix:
             errors.append(f"❌ {relative_path}: @core features must live under sdk/core/")
 
-    if "adapters" in feature_tags:
+    if "adapters" in layer:
         if len(operator_tags) != 1:
             errors.append(
                 f"❌ {relative_path}: @adapters feature must declare exactly one @operator:{{id}}"
             )
-        wire_tags = [t for t in feature_tags if t.startswith(SCOPE_WIRE_PREFIX)]
+        wire_tags = [t for t in feature_tags if t.lower().startswith(SCOPE_WIRE_PREFIX)]
         if len(wire_tags) != 1:
             errors.append(
                 f"❌ {relative_path}: @adapters feature must declare exactly one @wire:{{id}}"
@@ -337,6 +365,7 @@ def validate_feature_file(file_path: Path) -> tuple[bool, list[str]]:
             return False, errors
 
         feature = gherkin_document["feature"]
+        errors.extend(_collect_tag_casing_errors(feature, relative_path))
         feature_tags = _feature_tags(feature)
         errors.extend(_validate_layer_tags(feature_tags, relative_path))
         errors.extend(_validate_scope_tags(feature_tags, relative_path))
