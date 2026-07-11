@@ -2,21 +2,25 @@
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-07-11
+
 Internetmarke-first launch: SDK catalog depth for Deutsche Post, paid wire matrix via `adapters/deutschepost/internetmarke.feature`. Layout is multi-provider-ready; other adapters ship in later releases.
 
 ### Changed
 
 - **BREAKING**: Feature layout under `porto_features/features/sdk/` (`@sdk`) and `porto_features/features/adapters/` (`@adapters`). SDK runners must discover `features/sdk/**/*.feature` and filter by `@sdk`.
-- **BREAKING**: Provider-explicit paths: `sdk/core/`, `sdk/providers/{operator}/`, `adapters/{operator}/`. Matrix refs use nested paths (e.g. `sdk/providers/deutschepost/resolution.feature`, `adapters/deutschepost/internetmarke.feature`).
+- **BREAKING**: Provider-explicit paths: `sdk/core/`, `sdk/providers/{operator}/`, `adapters/{operator}/`. Matrix refs use nested paths (e.g. `sdk/providers/deutschepost/resolution.feature`, `adapters/deutschepost/internetmarke.feature`); basename-only refs are rejected.
 - **BREAKING**: Scope tags on every Feature: `@core` (cross-operator SDK) or `@operator:{id}` (operator catalog); adapters also require `@wire:{adapter}` (e.g. `@wire:internetmarke`).
-- Tags renamed: `@offline` → `@sdk`, `@online`/`@api` → `@adapters`, `@release` → `@full`.
+- **BREAKING**: Tags renamed (all lowercase): `@offline` → `@sdk`, `@online`/`@api` → `@adapters`, `@release` → `@full`. Non-lowercase tags (e.g. `@SDK`, `@Full`) fail validation.
+- **BREAKING**: Canonical Gherkin step phrasing enforced in validator — country, weight, and adapter `zone id` steps (see `docs/vocabulary.md`). SDK step defs must support canonical phrases; legacy aliases belong in implementor suites only.
 - **BREAKING**: Matrix generators moved to Porto SDK Lab (`scripts/matrix-sdk-sync.py`, `scripts/matrix-orders-sync.py`). Regenerate via `make matrix-sync` from Lab — not from this package.
 - npm and PyPI packages ship `porto_features/matrix/*.{yaml,json}` (including `cases.generated.json` for TypeScript matrix parity).
+- Package description (README, PyPI, npm): **Structured BDD contracts for Porto SDK — shared Gherkin scenarios and JSON fixtures.**
 - Gherkin **Rules** group related Backgrounds in `restrictions.feature`, `resolution.feature`, and multi-provider `cli.feature`.
 - Letter validation split: address checks in `sdk/core/validation.feature`; Deutsche Post letter tiers in `sdk/providers/deutschepost/validation.feature`.
 - `sdk/core/cli.feature`: `Rule: Core commands` plus per-operator Rules (`deutschepost`, `ukrposhta`, `laposte`, `swisspost`); SDK runners batch CLI BDD in bundle order.
 - Ukrposhta `product_options.feature`: weight 500g for `large` / `dokument` domestic cell.
-- `validate_features.py`: run gherlint from repo root so `gherlint.toml` config loads.
+- `validate_features.py`: run gherlint from repo root so `gherlint.toml` config loads; matrix ref, vocabulary, scope-tag, adapter-lane, and tag-casing checks.
 - CI: self-contained validation only (`make quality`, `make test-cov`) — no porto-data or Porto SDK Lab clones. Matrix generator drift gated in Lab CI.
 - Publish packaging: `gherlint.toml` dev-only; hardened `MANIFEST.in` and `test_publish.sh` (clean wheel, forbidden-path guards).
 - **License:** Apache-2.0 — PEP 639 `license = "Apache-2.0"` + `license-files` (removed `License :: OSI Approved :: MIT License` classifier); npm `Apache-2.0`.
@@ -24,17 +28,18 @@ Internetmarke-first launch: SDK catalog depth for Deutsche Post, paid wire matri
 ### Added
 
 - Matrix coverage index: `slices.yaml`, `sdk.yaml`, `canary.yaml`, `orders.generated.yaml` (Deutsche Post Internetmarke wire cells; synced from Lab), `cases.generated.json` (Lab-generated SDK case list for TS runners).
-- Docs: `matrix.md`, `scenario-policy.md`, `vocabulary.md`.
+- Docs: `matrix.md`, `scenario-policy.md`, `vocabulary.md` (tag casing, deprecated tag renames, canonical steps).
 - Doc naming rule: `.cursor/rules/doc-naming.mdc` (lowercase, no redirect stubs).
-- Validator: matrix ref scenario/outline names, `sdk.yaml` slice taxonomy, scope-tag ↔ folder alignment.
-- gherlint tag conventions in `pyproject.toml` (`@sdk`, `@operator:*`, `@wire:*`, `@canary`, `@full`).
+- Validator: matrix ref scenario/outline names, `sdk.yaml` slice taxonomy, scope-tag ↔ folder alignment, `@adapters` requires scenario `@canary` or `@full`.
+- `gherlint.toml` tag patterns: `@sdk`, `@adapters`, `@core`, `@operator:*`, `@wire:*`, `@canary`, `@full`.
 
 ### Removed
 
 - `scripts/generate_sdk_matrix.py` — superseded by Porto SDK Lab `scripts/matrix-sdk-sync.py` and `labs/lib/matrix/`.
-- Legacy doc redirect stubs: `docs/FEATURE_ANALYSIS.md`, `docs/STEP_VOCABULARY.md`, `docs/catalog-alignment.md`.
+- Legacy root docs superseded by `docs/`: `BDD_POLICY.md`, `FEATURE_ANALYSIS.md`, `STEP_VOCABULARY.md`.
+- Address fixtures `valid_GB.json` and `valid_NO.json` (no scenarios reference them — `valid_NO` may return when Norway coverage ships).
 
-## [0.2.1]
+## [0.2.1] - 2026-03-12
 
 ### Changed
 

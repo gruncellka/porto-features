@@ -17,7 +17,7 @@ See also: [matrix.md](matrix.md) — `cell_id` / `case_id` formats and Lab sync 
 
 Every **Feature** must declare **`@sdk` or `@adapters`** at Feature level (exactly one).
 
-### Scope tags (0.4+)
+### Scope tags (0.3+)
 
 | Tag | Meaning | Package path |
 |-----|---------|--------------|
@@ -79,7 +79,7 @@ Reuse canonical address fixtures under `porto_features/fixtures/addresses/`:
 
 Shared rows use `street: Python-TypeScript`, `house_number: 1`, `postal_code: 01001`. `restricted_UA` restriction is keyed by `country_code` + `region_code` (`UA-14`), not city name.
 
-**Planned (not shipped in 0.4):** `valid_NO.json` (Norway / Deutsche Post non-EU Europe zone) — do not reference in scenarios until the fixture lands.
+**Planned (not shipped in 0.3):** `valid_NO.json` (Norway / Deutsche Post non-EU Europe zone) — do not reference in scenarios until the fixture lands.
 
 ## When porto-data changes
 
