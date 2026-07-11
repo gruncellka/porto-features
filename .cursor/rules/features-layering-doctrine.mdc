@@ -1,6 +1,6 @@
 # Features layering doctrine (porto-features)
 
-**Hub:** `docs/README.md` · `docs/vocabulary.md` · `docs/scenario-policy.md` · `docs/matrix.md` · **PR review:** [`.cursor/BUGBOT.md`](../BUGBOT.md)
+**Docs:** `docs/vocabulary.md` · `docs/scenario-policy.md` · `docs/matrix.md` · **PR review:** [`.cursor/BUGBOT.md`](../BUGBOT.md)
 
 **Agent siblings:** [karpathy-guidelines.mdc](karpathy-guidelines.mdc) · [git-no-auto-commit.mdc](git-no-auto-commit.mdc)
 

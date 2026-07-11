@@ -30,11 +30,11 @@ make test-cov
 
 ## Documentation
 
-- **[docs/README.md](docs/README.md)** — doc hub
 - **[docs/vocabulary.md](docs/vocabulary.md)** — canonical Gherkin steps (`porto_id` input)
-- **[docs/matrix.md](docs/matrix.md)** — SDK + adapter coverage index, `@sdk` / `@adapters` tags
-- **[docs/scenario-policy.md](docs/scenario-policy.md)** — tag policy, paid adapter rules
-- **[docs/alignment.md](docs/alignment.md)** — porto-data mapping for scenario authors
+- **[docs/scenario-policy.md](docs/scenario-policy.md)** — tag policy, paid adapter rules, fixtures
+- **[docs/matrix.md](docs/matrix.md)** — coverage index, `cell_id` / `case_id`, Lab sync
+
+Catalog facts and mapping tables live in **porto-data** — not duplicated here.
 
 ---
 
@@ -48,16 +48,6 @@ porto_features/features/
 └── adapters/{operator}/         # @adapters @operator:{id} @wire:{adapter}
 ```
 
-| Path | Tags | Focus |
-|------|------|-------|
-| `features/sdk/core/restrictions.feature` | `@sdk` `@core` | Sanctions and compliance (Rules) |
-| `features/sdk/core/validation.feature` | `@sdk` `@core` | Address validation |
-| `features/sdk/core/metadata.feature` | `@sdk` `@core` | Bundle metadata and provider registry |
-| `features/sdk/core/data_access.feature` | `@sdk` `@core` | Catalog entity access |
-| `features/sdk/core/cli.feature` | `@sdk` `@core` | CLI contract |
-| `features/sdk/providers/deutschepost/*.feature` | `@sdk` `@operator:deutschepost` | DP resolution, pricing, services, … |
-| `features/sdk/providers/laposte/*.feature` | `@sdk` `@operator:laposte` | La Poste disambiguation and options |
-| `features/sdk/providers/ukrposhta/*.feature` | `@sdk` `@operator:ukrposhta` | Ukrposhta product options |
-| `features/adapters/deutschepost/internetmarke.feature` | `@adapters` `@operator:deutschepost` `@wire:internetmarke` | Paid Internetmarke stamp orders |
+See [docs/scenario-policy.md](docs/scenario-policy.md) for tag and path rules.
 
 🔳 gruncellka

@@ -18,6 +18,8 @@ Canonical phrasing for shared BDD language across `porto-features`, Python SDK t
 | Service input | **Given** service `porto_id` | `service porto_id is "registered"` |
 | Service fact | **Then** native `id` | `service with id "einschreiben"` |
 
+`porto_id` is a size or service **bucket** at the SDK edge; native `id` is the operator catalog SKU in **Then** assertions. Catalog mapping and disambiguation rules live in **porto-data** — not duplicated here.
+
 Do **not** use legacy tokens (`letter_standard`, `STANDARD`, `registered_mail`) as SDK input in new scenarios.
 
 ## Canonical phrases
@@ -60,48 +62,9 @@ Do **not** use legacy tokens (`letter_standard`, `STANDARD`, `registered_mail`) 
 | `I have a letter with porto_id "medium"` | `I have a letter with type "COMPACT"` |
 | `service porto_id is "registered"` | `I want to add service "registered_mail"` |
 
-## Product porto_id buckets
-
-`small` · `medium` · `large` · `extra_large` · `postcard`
-
-Normative policy: [porto-data docs/id.md](https://github.com/gruncellka/porto-data/blob/main/docs/id.md)
-
-## Disambiguation (native `id` vs `porto_id` bucket)
-
-`porto_id` is a size/speed **bucket**; native `id` is the operator SKU. When multiple native products share one bucket, scenarios use zone, weight, delivery preference, or explicit product pick — never a second `porto_id`.
-
-| Provider | Shared `porto_id` | Native `id` examples | Disambiguation |
-|----------|-------------------|----------------------|----------------|
-| Deutsche Post | `extra_large` | `maxibrief`, `maxibrief_ausland` | W1000 (501–1000 g) → `maxibrief`; W2000 (1001–2000 g) abroad → `maxibrief_ausland` |
-| La Poste | `small` | `lettre_verte`, `lettre_services_plus` | delivery preference / options |
-| Swiss Post | `small` | `a_post_standardbrief`, `b_post_standardbrief` | delivery speed / options |
-| Ukrposhta | `small` | `lyst_standartnyi` | default letter; domestic + `world` |
-| Ukrposhta | `large` | `dokument` | domestic zone only — international letters use `small` |
-
-`ausland` appears only inside native product ids (e.g. `maxibrief_ausland`), not as a `porto_id` bucket.
-
-Ukrposhta native ids were renamed: `letter_standard` → **`lyst_standartnyi`**, `ukrposhta_document` → **`dokument`**. Do not use legacy names in new scenarios.
-
 ## Review checklist
 
 - Does the scenario use `porto_id` for SDK input?
 - Are native `id` values only in Then assertions?
 - Is the Feature tagged `@sdk` or `@adapters`?
 - Does `@adapters` match generated wire rows in `orders.generated.yaml`?
-
-## Example scenario
-
-```gherkin
-@sdk
-Feature: Resolution
-
-  Scenario: Resolve domestic standard letter
-    Given provider is "deutschepost"
-    And I want to send a letter to country "DE"
-    And the letter weight is 20 grams
-    And the letter porto_id is "small"
-    When I resolve the shipping configuration
-    Then I should get product with id "standardbrief"
-    And I should get zone with id "domestic"
-    And I should get weight tier "W0020"
-```

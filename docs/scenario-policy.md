@@ -2,7 +2,7 @@
 
 How we design `.feature` scenarios and tag paid adapter coverage. This package defines **contracts only** — step definitions and expensive execution live in implementor test suites.
 
-See also: [matrix.md](matrix.md) — coverage index and glossary.
+See also: [matrix.md](matrix.md) — `cell_id` / `case_id` formats and Lab sync commands · [vocabulary.md](vocabulary.md) — canonical Gherkin steps.
 
 ## Confidence ratio
 
@@ -38,7 +38,7 @@ Do **not** use `@offline`, `@online`, or `@api` — deprecated.
 
 ## Generated adapter matrix
 
-Adapter `stamp_order` Example rows and `matrix/orders.generated.yaml` are **generated** from porto-data wire cells. Regeneration runs in [Porto SDK Lab](https://github.com/gruncellka/porto-sdk-lab) via `matrix-orders-sync.py` — do not hand-edit generated files in this repo.
+Adapter `stamp_order` Example rows and `matrix/orders.generated.yaml` are **generated** from porto-data wire cells. Regeneration: [matrix.md](matrix.md) — do not hand-edit generated files in this repo.
 
 `orders.generated.yaml` may list all wire cells with `evidence: null` until a paid run attaches verification metadata. That is a coverage index scaffold, not proof that every cell has been exercised.
 
@@ -72,5 +72,5 @@ Shared rows use `street: Python-TypeScript`, `house_number: 1`, `postal_code: 01
 
 1. Check diffs in affected provider catalogs and `policy/`.
 2. Update only affected scenarios/fixtures.
-3. When wire graph changes, regenerate adapter matrix output via Porto SDK Lab `matrix-orders-sync.py`.
+3. Regenerate matrix artifacts when wire or `@sdk` coverage changes — see [matrix.md](matrix.md).
 4. Re-evaluate `canary.yaml` if wire or pricing behavior changed.

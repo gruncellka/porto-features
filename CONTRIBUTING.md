@@ -15,9 +15,11 @@ First run creates `venv`, installs dev dependencies, and installs pre-commit hoo
 - Feature files: `porto_features/features/**/*.feature` (`sdk/core/`, `sdk/providers/{id}/`, `adapters/{id}/`)
 - Matrix index: `porto_features/matrix/*.{yaml,json}` — regenerate via Porto SDK Lab `make matrix-sync` (not in this package)
 - Fixtures: `porto_features/fixtures/**/*.json`
-- Docs hub: `docs/` (vocabulary, matrix, scenario policy, catalog alignment)
+- Docs: `docs/` (`vocabulary.md`, `scenario-policy.md`, `matrix.md`)
 
-Read first: [docs/README.md](docs/README.md) · [docs/matrix.md](docs/matrix.md) · [docs/vocabulary.md](docs/vocabulary.md) · [docs/scenario-policy.md](docs/scenario-policy.md)
+Read first: [docs/vocabulary.md](docs/vocabulary.md) · [docs/scenario-policy.md](docs/scenario-policy.md) · [docs/matrix.md](docs/matrix.md)
+
+**0.x coordination:** Ship breaking catalog and scenario changes together with aligned porto-data and implementor releases — no version pin file in this repo.
 
 ## Daily workflow
 

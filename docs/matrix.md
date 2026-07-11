@@ -2,37 +2,17 @@
 
 This package indexes **what** scenarios prove. Implementor test suites decide **when** and **how** to execute them (free `@sdk` in CI; paid `@adapters` with credentials).
 
-## Glossary (one word, one meaning)
+Tag meanings and scope rules: [scenario-policy.md](scenario-policy.md). Feature folder layout: root [README.md](../README.md).
 
-| Term | Meaning |
-|------|---------|
-| **`@sdk`** | Free BDD — resolver, pricing, validation from porto-data |
-| **`@adapters`** | Paid BDD — real provider purchase via integration |
-| **`@canary` / `@full`** | Adapter sub-tags — smoke vs full wire matrix |
-| **`provider`** | Postal operator (`deutschepost`, …) — same as porto-data |
-| **`adapter`** | Integration id (`internetmarke`, …) — same as porto-data |
-| **`concern`** | Test domain in `cell_id` (`resolution`, `pricing`, …) |
-| **`case_id`** | Adapter order cell slug from porto-data wire (`deutschepost.internetmarke.standardbrief.domestic.einschreiben`) |
-
-Rejected tags: `@offline`, `@online`, `@api`, `@capabilities`, `@features`.
-
-## Layout
+## Matrix files
 
 ```text
-porto_features/
-├── matrix/
-│   slices.yaml              # slice taxonomy
-│   sdk.yaml                 # layer A index (Lab-generated)
-│   canary.yaml              # daily paid case_ids (hand, ⊆ orders)
-│   orders.generated.yaml    # layer B — from porto-data wire only
-├── features/
-│   sdk/
-│   ├── core/                # @sdk @core
-│   └── providers/{id}/      # @sdk @operator:{id}
-│   adapters/{id}/           # @adapters @operator:{id} @wire:{adapter}
+porto_features/matrix/
+├── slices.yaml              # slice taxonomy
+├── sdk.yaml                 # layer A index (Lab-generated)
+├── canary.yaml              # daily paid case_ids (hand, ⊆ orders)
+└── orders.generated.yaml    # layer B — from porto-data wire only
 ```
-
-## Two layers
 
 | Layer | Tag | Matrix file | Typical cost |
 |-------|-----|-------------|--------------|
@@ -40,6 +20,15 @@ porto_features/
 | Adapters | `@adapters` | `orders.generated.yaml` + `canary.yaml` | Paid when executed |
 
 **Order list source of truth:** porto-data `graph.edges.wire.<adapter>`. Generated into `orders.generated.yaml` by Porto SDK Lab `matrix-orders-sync.py`. Paid runs may attach `evidence:` metadata; they do not define new `case_id`s.
+
+## Index terms
+
+| Term | Meaning |
+|------|---------|
+| **`provider`** | Postal operator (`deutschepost`, …) — same id as porto-data |
+| **`adapter`** | Integration id (`internetmarke`, …) — same id as porto-data |
+| **`concern`** | Test domain in `cell_id` (`resolution`, `pricing`, …) |
+| **`case_id`** | Adapter order cell slug from porto-data wire (`deutschepost.internetmarke.standardbrief.domestic.einschreiben`) |
 
 ## cell_id (SDK layer)
 

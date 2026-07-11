@@ -23,7 +23,7 @@ Internetmarke-first launch: SDK catalog depth for Deutsche Post, paid wire matri
 ### Added
 
 - Matrix coverage index: `slices.yaml`, `sdk.yaml`, `canary.yaml`, `orders.generated.yaml` (Deutsche Post Internetmarke wire cells; synced from Lab), `cases.generated.json` (Lab-generated SDK case list for TS runners).
-- Docs hub: `matrix.md`, `scenario-policy.md`, `vocabulary.md`, `alignment.md` (renamed from `catalog-alignment.md`).
+- Docs: `matrix.md`, `scenario-policy.md`, `vocabulary.md`.
 - Doc naming rule: `.cursor/rules/doc-naming.mdc` (lowercase, no redirect stubs).
 - Validator: matrix ref scenario/outline names, `sdk.yaml` slice taxonomy, scope-tag ↔ folder alignment.
 - gherlint tag conventions in `pyproject.toml` (`@sdk`, `@operator:*`, `@wire:*`, `@canary`, `@full`).
