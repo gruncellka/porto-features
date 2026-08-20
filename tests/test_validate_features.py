@@ -436,10 +436,6 @@ def test_find_feature_files_finds_nested_features(tmp_path):
     assert [f.name for f in files] == ["nested.feature"]
 
 
-
-
-
-
 def test_main_exits_1_when_no_feature_files(monkeypatch):
     module = load_module()
     monkeypatch.setattr(module, "find_feature_files", lambda _d: [])
@@ -495,14 +491,6 @@ def test_main_exits_0_when_all_feature_checks_pass(monkeypatch):
     assert exc_info.value.code == 0
 
 
-
-
-
-
-
-
-
-
 def test_collect_vocabulary_errors_flags_deprecated_service_id():
     module = load_module()
     errors = module._collect_vocabulary_errors('Given service "registered_mail"', Path("x.feature"))
@@ -531,28 +519,6 @@ def test_validate_layer_tags_errors_on_removed_full_tag():
     module = load_module()
     messages = module._validate_layer_tags({"adapters", "full"}, Path("full.feature"))
     assert any("@release/@full are removed" in m and "use @heavy" in m for m in messages)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 def test_load_module_exits_when_gherkin_missing(monkeypatch):
@@ -632,6 +598,30 @@ def test_validate_scope_tags_rejects_adapters_operator_path_mismatch():
         path,
     )
     assert any("must live under adapters/deutschepost/" in e for e in errors)
+
+
+def test_adapter_behavior_file_none_outside_adapters_tree():
+    module = load_module()
+    assert (
+        module._adapter_behavior_file(Path("porto_features/features/sdk/core/errors.feature"))
+        is None
+    )
+
+
+def test_adapter_behavior_file_none_for_other_adapter_filename():
+    module = load_module()
+    path = Path("porto_features/features/adapters/deutschepost/internetmarke/other.feature")
+    assert module._adapter_behavior_file(path) is None
+
+
+def test_validate_scope_tags_rejects_wire_directory_mismatch():
+    module = load_module()
+    path = Path("porto_features/features/adapters/deutschepost/internetmarke/marks.feature")
+    errors = module._validate_scope_tags(
+        {"adapters", "operator:deutschepost", "wire:wrongwire"},
+        path,
+    )
+    assert any("@wire:wrongwire must match integration directory" in e for e in errors)
 
 
 def test_validate_adapter_scenario_tags_requires_canary_or_heavy():
