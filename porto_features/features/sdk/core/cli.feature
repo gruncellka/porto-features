@@ -88,13 +88,6 @@ Feature: CLI Commands
       And the result should have field "base_price" as number
       And the result should have field "currency" with value "EUR"
 
-    Scenario: [deutschepost] Simulate stamp generation
-      When I call CLI stamp simulate command with porto_id "small" country "DE" weight 20
-      Then the result should have field "simulation" with value true
-      And the result should have field "product" with nested "id" "standardbrief"
-      And the result should have field "price" as number
-      And the result should have field "valid" as boolean
-
     Scenario: [deutschepost] Check restrictions for home country
       When I call CLI restrictions command with country "DE"
       Then the result should have field "restricted" with value false
@@ -169,14 +162,7 @@ Feature: CLI Commands
       Then the result should have field "product"
       And the result should have field "zone" with nested "id" "world"
       And the result should have field "base_price" as number
-      And the result should have field "currency" with value "UAH"
-
-    Scenario: [ukrposhta] Simulate stamp generation
-      When I call CLI stamp simulate command with porto_id "small" country "UA" weight 20
-      Then the result should have field "simulation" with value true
-      And the result should have field "product" with nested "id" "lyst_standartnyi"
-      And the result should have field "price" as number
-      And the result should have field "valid" as boolean
+      And the result should have field "currency" with value "USD"
 
     Scenario: [ukrposhta] Check restrictions for home country
       When I call CLI restrictions command with country "UA"
@@ -256,13 +242,6 @@ Feature: CLI Commands
       And the result should have field "base_price" as number
       And the result should have field "currency" with value "EUR"
 
-    Scenario: [laposte] Simulate stamp generation
-      When I call CLI stamp simulate command with porto_id "small" country "FR" weight 20
-      Then the result should have field "simulation" with value true
-      And the result should have field "product" with nested "id" "lettre_verte"
-      And the result should have field "price" as number
-      And the result should have field "valid" as boolean
-
     Scenario: [laposte] Check restrictions for home country
       When I call CLI restrictions command with country "FR"
       Then the result should have field "restricted" with value false
@@ -340,14 +319,6 @@ Feature: CLI Commands
       And the result should have field "zone" with nested "id" "world"
       And the result should have field "base_price" as number
       And the result should have field "currency" with value "CHF"
-
-    Scenario: [swisspost] Simulate stamp generation
-      Given product id is "a_post_standardbrief"
-      When I call CLI stamp simulate command with porto_id "small" country "CH" weight 20
-      Then the result should have field "simulation" with value true
-      And the result should have field "product" with nested "id" "a_post_standardbrief"
-      And the result should have field "price" as number
-      And the result should have field "valid" as boolean
 
     Scenario: [swisspost] Check restrictions for home country
       When I call CLI restrictions command with country "CH"

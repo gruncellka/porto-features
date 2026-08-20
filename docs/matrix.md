@@ -1,108 +1,14 @@
-# Matrix — SDK + adapters coverage index
+# Matrix — moved to Porto SDK Lab
 
-This package indexes **what** scenarios prove. Implementor test suites decide **when** and **how** to execute them (free `@sdk` in CI; paid `@adapters` with credentials).
+Coverage / run inventory (`sdk.yaml`, `orders.generated.yaml`, `canary.yaml`, …) lives in **Porto SDK Lab** under `labs/matrix/`.
 
-Tag meanings and scope rules: [scenario-policy.md](scenario-policy.md). Feature folder layout: root [README.md](../README.md).
+It is Lab/CI execution policy — not part of the published porto-features behavioral contract.
 
-## Matrix files
+Canonical doc: [Porto SDK Lab `docs/labs/matrix.md`](https://github.com/gruncellka/porto-sdk-lab/blob/main/docs/labs/matrix.md) (in-lab: `docs/labs/matrix.md`).
 
-```text
-porto_features/matrix/
-├── slices.yaml              # slice taxonomy
-├── sdk.yaml                 # layer A index (Lab-generated)
-├── canary.yaml              # daily paid case_ids (hand, ⊆ orders)
-└── orders.generated.yaml    # layer B — from porto-data wire only
-```
-
-| Layer | Tag | Matrix file | Typical cost |
-|-------|-----|-------------|--------------|
-| SDK | `@sdk` | `sdk.yaml` | Free |
-| Adapters | `@adapters` | `orders.generated.yaml` + `canary.yaml` | Paid when executed |
-
-**Order list source of truth:** porto-data `graph.edges.wire.<adapter>`. Generated into `orders.generated.yaml` by Porto SDK Lab `matrix-orders-sync.py`. Paid runs may attach `evidence:` metadata; they do not define new `case_id`s.
-
-## Index terms
-
-| Term | Meaning |
-|------|---------|
-| **`provider`** | Postal operator (`deutschepost`, …) — same id as porto-data |
-| **`adapter`** | Integration id (`internetmarke`, …) — same id as porto-data |
-| **`concern`** | Test domain in `cell_id` (`resolution`, `pricing`, …) |
-| **`case_id`** | Adapter order cell slug from porto-data wire (`deutschepost.internetmarke.standardbrief.domestic.einschreiben`) |
-
-## cell_id (SDK layer)
-
-```text
-{provider}.{concern}.{slice}.{porto_id}.{zone}
-```
-
-Example: `deutschepost.resolution.happy.small.domestic`
-
-## case_id (adapter order cells)
-
-```text
-{provider}.{adapter}.{product_id}.{zone_id}[.{service_id}...]
-```
-
-Examples:
-
-| case_id | Meaning |
-|---------|---------|
-| `deutschepost.internetmarke.standardbrief.domestic` | Base domestic standard letter |
-| `deutschepost.internetmarke.maxibrief_ausland.world` | International maxi (native id with underscore) |
-| `deutschepost.internetmarke.standardbrief.domestic.einschreiben` | Domestic + registered service |
-
-Rules:
-
-- **Dots** separate segments only; `product_id` and `service_id` keep internal underscores as porto-data native ids.
-- **At most one** `service_id` per cell today (wire variants) — if multiple later, append each as its own dot segment (sorted).
-- **Do not hand-edit** `orders.generated.yaml` — regenerate via Porto SDK Lab `matrix-orders-sync.py`.
-- **Do not parse** `case_id` in product code — use structured fields on the order cell; `case_id` is a stable slug and artifact path key.
-- **Matrix refs** must name an existing scenario or outline when using `:Scenario:` / `:Outline:` suffixes (enforced by `scripts/validate_features.py`).
-
-## Run lanes (by tag)
-
-| Lane | porto-features artifact | Tag filter |
-|------|-------------------------|------------|
-| SDK exhaustive | `features/sdk/` + `sdk.yaml` | `@sdk` |
-| Adapter canary | `canary.yaml` case_ids | `@adapters` `@canary` |
-| Adapter full | all `order_cells` in `orders.generated.yaml` | `@adapters` `@full` |
-
-Implementor runners (Python, TypeScript, or other) load the same `.feature` files and filter by tag.
-
-## Regenerate matrix artifacts (Lab)
-
-All matrix generators live in [Porto SDK Lab](https://github.com/gruncellka/porto-sdk-lab). Committed outputs stay in this package. **Drift checks** (`matrix-sync-check`) run in Lab CI — this repo validates committed matrix files locally via `make validate` (refs, slices, case_ids).
-
-After `@sdk` scenario changes:
-
-```bash
-# From Porto SDK Lab root
-make matrix-sdk-sync
-make matrix-sdk-sync-check   # Lab CI gate — fails on drift
-```
-
-After porto-data wire graph changes:
-
-```bash
-make matrix-orders-sync
-make matrix-orders-sync-check
-```
-
-Both at once:
+Regenerate from Lab:
 
 ```bash
 make matrix-sync
-make matrix-sync-check
+python scripts/validate-matrix.py
 ```
-
-Direct scripts:
-
-```bash
-python scripts/matrix-sdk-sync.py
-python scripts/matrix-sdk-sync.py --check
-python scripts/matrix-orders-sync.py
-python scripts/matrix-orders-sync.py --check
-```
-
-SDK implementors with large CLI suites should batch BDD by `@operator:{id}` (not one monolithic run) — see `sdk/core/cli.feature` per-provider Rules.

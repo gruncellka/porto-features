@@ -1,0 +1,117 @@
+{
+  "description": "Porto SDK error catalog — sole SoT for PORTO_* codes and details schemas.",
+  "codes": [
+    {"code": "PORTO_AUTH_FAILED", "domain": "auth", "description": "Provider authentication failed (HTTP 401 semantics)."},
+    {"code": "PORTO_AUTH_DENIED", "domain": "auth", "description": "Credentials rejected or app not approved."},
+    {"code": "PORTO_LINKAGE_PENDING", "domain": "auth", "description": "Provider account linkage pending operator approval."},
+    {"code": "PORTO_WALLET_INSUFFICIENT", "domain": "wallet", "description": "Prepaid wallet balance too low for purchase."},
+    {"code": "PORTO_LETTER_TOO_HEAVY", "domain": "letter", "description": "Letter weight exceeds allowed tier or product limit."},
+    {"code": "PORTO_LETTER_TOO_LARGE", "domain": "letter", "description": "Letter dimensions exceed allowed limits."},
+    {"code": "PORTO_LETTER_INVALID_DIMENSIONS", "domain": "letter", "description": "Letter dimensions invalid for selected product."},
+    {"code": "PORTO_LETTER_INVALID_TYPE", "domain": "letter", "description": "Letter type invalid or unsupported."},
+    {"code": "PORTO_LETTER_INVALID_WEIGHT_TIER", "domain": "letter", "description": "Weight tier ID missing or invalid in catalog."},
+    {"code": "PORTO_DESTINATION_UNSUPPORTED", "domain": "destination", "description": "Destination blocked by policy or sanctions."},
+    {"code": "PORTO_DESTINATION_INVALID", "domain": "destination", "description": "Unknown country or zone lookup failed."},
+    {"code": "PORTO_PRODUCT_NOT_FOUND", "domain": "product", "description": "No product for porto_id, zone, and weight tier."},
+    {"code": "PORTO_PRODUCT_AMBIGUOUS", "domain": "product", "description": "Multiple product candidates; selection failed."},
+    {"code": "PORTO_PRICE_NOT_FOUND", "domain": "price", "description": "No tariff row for product and zone."},
+    {"code": "PORTO_MARK_GENERATION_FAILED", "domain": "mark", "description": "Postmark purchase or generation failed."},
+    {"code": "PORTO_MARK_VALIDATION_FAILED", "domain": "mark", "description": "Postmark validation failed."},
+    {"code": "PORTO_MARK_EXPIRED", "domain": "mark", "description": "Postmark expired or no longer valid."},
+    {"code": "PORTO_ADDRESS_INVALID", "domain": "address", "description": "Address validation failed."},
+    {"code": "PORTO_NETWORK_TIMEOUT", "domain": "network", "description": "Request timed out or connection timeout."},
+    {"code": "PORTO_NETWORK_RATE_LIMITED", "domain": "network", "description": "Operator rate limit (HTTP 429)."},
+    {"code": "PORTO_NETWORK_UNAVAILABLE", "domain": "network", "description": "Operator unreachable (5xx, DNS, connection refused)."},
+    {"code": "PORTO_DATA_NOT_FOUND", "domain": "data", "description": "porto-data entity or file absent."},
+    {"code": "PORTO_DATA_INVALID", "domain": "data", "description": "porto-data schema, reference, or mapping invalid."},
+    {"code": "PORTO_DATA_CORRUPTED", "domain": "data", "description": "porto-data checksum or bundle integrity failure."},
+    {"code": "PORTO_DATA_SCHEMA_UNSUPPORTED", "domain": "data", "description": "porto-data package version missing or older than this SDK supports (package version is the catalog schema version)."},
+    {"code": "PORTO_DATA_SCHEMA_TOO_NEW", "domain": "data", "description": "porto-data package version newer than this SDK supports; upgrade the SDK (package version is the catalog schema version)."},
+    {"code": "PORTO_FEATURE_UNSUPPORTED", "domain": "feature", "description": "Capability not supported for provider or wire."},
+    {"code": "PORTO_REGISTERED_MAIL_NOT_AVAILABLE", "domain": "registered", "description": "Registered mail not available for product."},
+    {"code": "PORTO_REGISTERED_MAIL_INVALID_TYPE", "domain": "registered", "description": "Invalid registered mail type."},
+    {"code": "PORTO_REGISTERED_MAIL_TRACKING_FAILED", "domain": "registered", "description": "Registered mail tracking failed."},
+    {"code": "PORTO_TRACKING_UNSUPPORTED", "domain": "tracking", "description": "Provider wire or adapter cannot track this shipment or stamp."},
+    {"code": "PORTO_TRACKING_NOT_FOUND", "domain": "tracking", "description": "Tracking number unknown to the carrier."},
+    {"code": "PORTO_PROVIDER_NOT_CONFIGURED", "domain": "provider", "description": "Provider id is not configured in PortoConfig.providers."},
+    {"code": "PORTO_SERVICES_INCOMPATIBLE", "domain": "service", "description": "Selected add-on services are not combinable per porto-data combinable_with."}
+  ],
+  "details_schemas": {
+    "PORTO_ADDRESS_INVALID": {
+      "required": [],
+      "optional": ["field", "reason", "jurisdiction", "country_code", "form_issues"]
+    },
+    "PORTO_WALLET_INSUFFICIENT": {
+      "required": ["required_cents"],
+      "optional": ["portokasse_id"]
+    },
+    "PORTO_DESTINATION_UNSUPPORTED": {
+      "required": ["country_code"],
+      "optional": ["reason"]
+    },
+    "PORTO_DESTINATION_INVALID": {
+      "required": ["country_code"],
+      "optional": ["reason"]
+    },
+    "PORTO_PRODUCT_NOT_FOUND": {
+      "required": ["porto_id", "zone_id", "weight_tier_id"],
+      "optional": ["product_id", "candidates"]
+    },
+    "PORTO_PRODUCT_AMBIGUOUS": {
+      "required": ["porto_id", "zone_id", "weight_tier_id"],
+      "optional": ["product_id", "candidates"]
+    },
+    "PORTO_PRICE_NOT_FOUND": {
+      "required": ["product_id", "zone_id", "weight_tier_id"],
+      "optional": []
+    },
+    "PORTO_NETWORK_TIMEOUT": {
+      "required": [],
+      "optional": ["http_status", "retryable"]
+    },
+    "PORTO_NETWORK_RATE_LIMITED": {
+      "required": [],
+      "optional": ["http_status", "retryable"]
+    },
+    "PORTO_NETWORK_UNAVAILABLE": {
+      "required": [],
+      "optional": ["http_status", "retryable"]
+    },
+    "PORTO_DATA_NOT_FOUND": {
+      "required": [],
+      "optional": ["path", "entity_id"]
+    },
+    "PORTO_DATA_INVALID": {
+      "required": [],
+      "optional": ["path", "entity_id"]
+    },
+    "PORTO_DATA_CORRUPTED": {
+      "required": [],
+      "optional": ["path", "checksum_expected"]
+    },
+    "PORTO_DATA_SCHEMA_UNSUPPORTED": {
+      "required": ["porto_data_version", "supported_min", "supported_max_exclusive"],
+      "optional": ["path"]
+    },
+    "PORTO_DATA_SCHEMA_TOO_NEW": {
+      "required": ["porto_data_version", "supported_min", "supported_max_exclusive"],
+      "optional": ["path"]
+    },
+    "PORTO_TRACKING_UNSUPPORTED": {
+      "required": ["provider_id"],
+      "optional": ["wire", "tracking_kind"]
+    },
+    "PORTO_TRACKING_NOT_FOUND": {
+      "required": ["provider_id", "tracking_number"],
+      "optional": []
+    },
+    "PORTO_PROVIDER_NOT_CONFIGURED": {
+      "required": ["provider_id"],
+      "optional": ["configured_providers"]
+    },
+    "PORTO_SERVICES_INCOMPATIBLE": {
+      "required": ["service_ids"],
+      "optional": ["conflicts"]
+    }
+  }
+}

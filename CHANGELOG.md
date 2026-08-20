@@ -2,6 +2,41 @@
 
 ## [Unreleased]
 
+### Removed
+
+- **BREAKING**: Dropped `sdk/providers/deutschepost/mark_simulate.feature` (formerly `stamp_generation.feature`). It was a misnomer for resolve + `prepare_mark_order` and never created a PortoMark; coverage remains in `resolution.feature`.
+- Dropped CLI scenarios `Simulate stamp generation` and `When I call CLI stamp simulate command...` (no CLI simulate command; steps faked `simulation: true`).
+
+### Changed
+
+- **BREAKING**: Paid adapter matrix tag `@full` → `@heavy` (no alias). Historical: `@release` → `@full` → `@heavy`.
+- `sdk/providers/deutschepost/api_comprehensive_testing.feature` → `pricing_matrix.feature`.
+- Scenario titles: `Generate mark with pricing`; `Price is consistent`.
+
+## [0.4.0] - 2026-08-20
+
+### Added
+
+- **Jurisdiction address forms:** fixtures `invalid_postal_{DE,CH,FR,UA}`, `valid_postbox_{DE,UA}`; `valid_CH` uses 4-digit NPA; `sdk/core/validation.feature` outlines for DE/CH/FR/UA street + post-box success and postal-pattern failure; `details_schemas.PORTO_ADDRESS_INVALID` optional `field` / `reason` / `jurisdiction` / `form_issues` / `kind`.
+
+### Changed
+
+- **BREAKING**: Dropped `contracts/` — catalog is `porto_features/errors.json` (sibling of `features/`).
+- **BREAKING**: Removed adapter `fixtures/adapters/**/errors.json` — Gherkin `@error` scenarios are enough.
+- **BREAKING**: `@error` `@scenario:` ids must be unique across features (`make check`). Renamed adapter `core.letter.overweight` → `internetmarke.letter.overweight`.
+- **BREAKING**: Removed `features.json` machine index — SDKs execute published Gherkin directly; no Gherkin→JSON copy.
+- **BREAKING**: Removed `contracts/scenarios.json`. Error scenarios live in Gherkin (`@error` + `PORTO_*` steps) and must match `errors.json` (`make check-error-contracts`).
+- **BREAKING**: Lab/CI matrix indexes moved out of this package to Porto SDK Lab `labs/matrix/` (no longer shipped on npm/PyPI).
+- `docs/matrix.md` is a pointer to Lab matrix docs.
+- Ukrposhta international CLI quote currency is **USD** (catalog world-zone price row), not UAH.
+
+### Changed (prior unreleased)
+
+- Added machine-readable error catalog under `porto_features/errors.json` (formerly `contracts/errors.json`).
+- **BREAKING**: Adapter features live under `adapters/{operator}/{integration}/` with `marks.feature` (success) and `errors.feature` (failures). Matrix refs use `adapters/deutschepost/internetmarke/marks.feature:Outline:mark_order`.
+- Added `@error`, `@auth`, and `@mark` scenario tags for adapter error contracts.
+- **`@auth`**: auth/token/linkage failures on `errors.feature` (simulated OpenAPI 401 CI-safe; live DHL/Portokasse probes lab-only).
+
 ## [0.3.0] - 2026-07-11
 
 Internetmarke-first launch: SDK catalog depth for Deutsche Post, paid wire matrix via `adapters/deutschepost/internetmarke.feature`. Layout is multi-provider-ready; other adapters ship in later releases.

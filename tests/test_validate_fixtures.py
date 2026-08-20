@@ -148,6 +148,50 @@ def test_validate_fixture_file_accepts_valid_address(tmp_path, monkeypatch):
     assert errors == []
 
 
+def test_validate_address_fixture_accepts_post_box_form(tmp_path, monkeypatch):
+    module = load_module()
+    monkeypatch.chdir(tmp_path)
+    address_file = tmp_path / "porto_features" / "fixtures" / "addresses" / "pb.json"
+    address_file.parent.mkdir(parents=True)
+    address_file.write_text("{}", encoding="utf-8")
+
+    errors = module.validate_address_fixture(
+        address_file,
+        {
+            "id": "addr",
+            "name": "Name",
+            "post_box": "123",
+            "postal_code": "12345",
+            "city": "City",
+            "country_code": "DE",
+        },
+    )
+    assert errors == []
+
+
+def test_validate_address_fixture_rejects_post_box_with_street(tmp_path, monkeypatch):
+    module = load_module()
+    monkeypatch.chdir(tmp_path)
+    address_file = tmp_path / "porto_features" / "fixtures" / "addresses" / "pb.json"
+    address_file.parent.mkdir(parents=True)
+    address_file.write_text("{}", encoding="utf-8")
+
+    errors = module.validate_address_fixture(
+        address_file,
+        {
+            "id": "addr",
+            "name": "Name",
+            "post_box": "123",
+            "street": "Main",
+            "house_number": "1",
+            "postal_code": "12345",
+            "city": "City",
+            "country_code": "DE",
+        },
+    )
+    assert any("post_box form cannot include" in e for e in errors)
+
+
 def test_validate_fixture_file_fails_when_address_errors_exist(tmp_path, monkeypatch):
     module = load_module()
     monkeypatch.chdir(tmp_path)

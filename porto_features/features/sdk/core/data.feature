@@ -1,6 +1,6 @@
 @sdk
 @core
-Feature: Data Access
+Feature: Data
   As a developer
   I want to access porto-data entities
   So that I can retrieve products, zones, prices, services, restrictions, envelopes, and metadata
@@ -102,8 +102,8 @@ Feature: Data Access
     And providers should include provider "laposte"
     And providers should include provider "swisspost"
 
-  Scenario: Access integrations manifest
-    When I access integrations manifest
-    Then I should get integrations information
-    And integrations should describe adapter capabilities
-    And integrations should list adapter ids for online purchase
+  Scenario: Access execution manifest
+    When I access execution manifest
+    Then I should get execution information
+    And execution manifest should describe billing and execution methods
+    And execution manifest should list wire ids for online purchase

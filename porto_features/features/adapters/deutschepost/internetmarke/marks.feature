@@ -1,10 +1,10 @@
 @adapters
 @operator:deutschepost
 @wire:internetmarke
-Feature: Internetmarke adapter purchases
+Feature: Internetmarke adapter mark purchases
   As a developer
-  I want to purchase stamps via Deutsche Post Internetmarke
-  So that adapter integration and Portokasse checkout are verified
+  I want to purchase PortoMarks via Deutsche Post Internetmarke
+  So that wire execution and Portokasse checkout are verified
 
   Background:
     Given provider is "deutschepost"
@@ -12,35 +12,35 @@ Feature: Internetmarke adapter purchases
     And I have access to porto-data
 
   @canary
-  Scenario: Generate stamp with pre-calculation
+  Scenario: Generate mark with pricing
     Given I have a letter with porto_id "small"
     And I want to send a letter to country "DE"
     And the letter weight is 20 grams
     And valid destination address
     And valid origin address
     And Internetmarke credentials are configured
-    When I generate a digital stamp
-    Then the stamp should be generated successfully
-    And the stamp should have an id
-    And the stamp should have a barcode
-    And the stamp should have a valid until date
-    And the stamp should include pre-calculated price
-    And the stamp should include final API price
+    When I create a mark
+    Then the mark should be created successfully
+    And the mark should have an id
+    And the mark should have a barcode
+    And the mark should have a valid until date
+    And the mark should include pre-calculated price
+    And the mark should include final API price
 
-  @full
+  @heavy
   Scenario: Compare pre-calculated and API prices
     Given I have a letter with porto_id "small"
     And I want to send a letter to country "DE"
     And the letter weight is 20 grams
     And Internetmarke credentials are configured
-    When I generate a digital stamp
+    When I create a mark
     Then the system should compare pre-calculated and API prices
     And if prices match, no mismatch should be reported
     And if prices differ, a mismatch should be reported
     And the price difference should be calculated
 
-  @full
-  Scenario Outline: stamp_order
+  @heavy
+  Scenario Outline: mark_order
     Given product id is "<product_id>"
     And zone id is "<zone_id>"
     And I want to send a letter to country "<country_code>"
@@ -49,17 +49,17 @@ Feature: Internetmarke adapter purchases
     And valid destination address for country "<country_code>"
     And valid origin address
     And Internetmarke credentials are configured
-    When I generate a digital stamp
-    Then the stamp should be generated successfully
-    And the stamp should have an id
-    And the stamp should have a barcode
-    And the stamp should have a qr_code
-    And the stamp should have a valid until date
-    And the stamp should include pre-calculated price
-    And the stamp should include final API price
+    When I create a mark
+    Then the mark should be created successfully
+    And the mark should have an id
+    And the mark should have a barcode
+    And the mark should have a qr_code
+    And the mark should have a valid until date
+    And the mark should include pre-calculated price
+    And the mark should include final API price
     And the API price should match pre-calculated price or show mismatch
-    And the stamp should have an image_url
-    And the stamp should have a print_format
+    And the mark should have an image_url
+    And the mark should have a print_format
 
     Examples:
       | product_id | zone_id | country_code | weight | service_ids |

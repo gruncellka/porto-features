@@ -8,6 +8,7 @@ Shared BDD contracts (Gherkin) and fixtures aligned with [porto-data](https://gi
 
 ```
 porto_features/                     # Published package content
+├── contracts/                      # Machine-readable contracts
 ├── matrix/                         # Coverage index (sdk, canary, orders)
 ├── features/
 │   ├── sdk/
@@ -31,7 +32,7 @@ Every Feature declares exactly one of `@sdk` or `@adapters`. See `docs/vocabular
 
 ## Generated adapter matrix
 
-`orders.generated.yaml` and adapter `stamp_order` Examples are produced from porto-data wire by Porto SDK Lab `matrix-orders-sync.py` — do not hand-edit.
+`orders.generated.yaml` and adapter `mark_order` Examples are produced from porto-data wire by Porto SDK Lab `matrix-orders-sync.py` — do not hand-edit.
 
 ## Do NOT
 

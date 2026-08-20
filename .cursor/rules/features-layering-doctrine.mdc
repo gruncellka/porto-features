@@ -26,9 +26,9 @@ Wire-derived adapter Examples and `orders.generated.yaml` are **generated** in P
 
 3. **No step definitions here.** Never add `tests/steps/**` or runner glue in this repo.
 
-4. **Published paths only.** Features under `porto_features/features/` (including `sdk/` and `adapters/`) and fixtures under `porto_features/fixtures/`.
+4. **Published paths only.** `porto_features/errors.json`, features under `porto_features/features/` (including `sdk/` and `adapters/`), address fixtures under `porto_features/fixtures/`. No `contracts/` folder.
 
-5. **Tag every Feature.** `@sdk` or `@adapters` at Feature level; `@canary` / `@full` on paid adapter scenarios when a full or smoke wire matrix is intended. **All tags lowercase** — never `@SDK`, `@Full`, or `@Release`.
+5. **Tag every Feature.** `@sdk` or `@adapters` at Feature level; `@canary` / `@heavy` on paid adapter scenarios when a smoke or expensive wire matrix is intended. **All tags lowercase** — never `@SDK`, `@Heavy`, or `@Release`.
 
 **0.x:** No version pin file — keep porto-data, porto-features, and implementor packages aligned on breaking changes until `1.x`.
 

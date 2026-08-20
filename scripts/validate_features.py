@@ -9,7 +9,7 @@ Validates that all .feature files in porto_features/features/:
 - Avoid legacy porto-data / SDK vocabulary
 - Pass gherlint linting rules
 
-Also validates matrix/ YAML indexes (sdk.yaml, canary.yaml, orders.generated.yaml).
+Lab matrix indexes live under labs/matrix/ (validated in Porto SDK Lab).
 """
 
 from __future__ import annotations
@@ -18,7 +18,6 @@ import re
 import subprocess
 import sys
 from pathlib import Path
-from types import ModuleType
 
 try:
     from gherkin.parser import Parser
@@ -35,21 +34,15 @@ except ImportError:
     print("   Linting will be skipped")
     gherlint = None
 
-yaml: ModuleType | None
-try:
-    import yaml as _yaml
-except ImportError:
-    yaml = None
-else:
-    yaml = _yaml
-
 LAYER_TAGS = frozenset({"sdk", "adapters"})
 SCOPE_CORE_TAG = "core"
 SCOPE_OPERATOR_PREFIX = "operator:"
 SCOPE_WIRE_PREFIX = "wire:"
 DEPRECATED_LAYER_TAGS = frozenset({"offline", "online", "capabilities", "api"})
-ADAPTER_SUB_TAGS = frozenset({"canary", "full"})
-DEPRECATED_ADAPTER_SUB_TAGS = frozenset({"release"})
+ADAPTER_SUB_TAGS = frozenset({"canary", "heavy"})
+ADAPTER_ERROR_SUB_TAGS = frozenset({"error"})
+DEPRECATED_ADAPTER_SUB_TAGS = frozenset({"release", "full"})
+ADAPTER_BEHAVIOR_FILENAMES = frozenset({"marks.feature", "errors.feature"})
 
 DEPRECATED_NATIVE_PRODUCT_IDS = frozenset(
     {
@@ -121,7 +114,7 @@ def _node_tags(node: dict) -> set[str]:
 
 
 def _collect_tag_casing_errors(feature: dict, relative_path: Path) -> list[str]:
-    """Reject non-lowercase Gherkin tags (@sdk not @SDK, @full not @Full)."""
+    """Reject non-lowercase Gherkin tags (@sdk not @SDK, @heavy not @Heavy)."""
     errors: list[str] = []
 
     def check_tag(raw: str, context_label: str) -> None:
@@ -232,31 +225,46 @@ def _validate_layer_tags(feature_tags: set[str], relative_path: Path) -> list[st
         )
 
     if any(t.lower() in DEPRECATED_ADAPTER_SUB_TAGS for t in feature_tags):
-        warnings.append(
-            f"⚠️  {relative_path}: @release is deprecated — use @full on adapter scenarios"
+        errors.append(
+            f"❌ {relative_path}: @release/@full are removed — use @heavy on adapter scenarios"
         )
 
     return errors + warnings
 
 
+def _adapter_behavior_file(relative_path: Path) -> str | None:
+    """Return marks.feature or errors.feature when under adapters/{provider}/{integration}/."""
+    posix = relative_path.as_posix()
+    if "/features/adapters/" not in posix:
+        return None
+    name = relative_path.name
+    if name in ADAPTER_BEHAVIOR_FILENAMES:
+        return name
+    return None
+
+
 def _validate_adapter_scenario_tags(
     feature_tags: set[str], scenarios: list[dict], relative_path: Path
 ) -> list[str]:
-    """@adapters features must tag at least one scenario @canary or @full."""
+    """Execution features need @canary/@heavy; errors features need @error."""
     if "adapters" not in {t.lower() for t in feature_tags}:
         return []
+
+    behavior = _adapter_behavior_file(relative_path)
+    required = ADAPTER_ERROR_SUB_TAGS if behavior == "errors.feature" else ADAPTER_SUB_TAGS
+    label = "@error" if behavior == "errors.feature" else "@canary or @heavy"
 
     has_lane_tag = False
     for scenario in scenarios:
         scenario_tags = {t.lower() for t in _node_tags(scenario["scenario"])}
-        if scenario_tags & ADAPTER_SUB_TAGS:
+        if scenario_tags & required:
             has_lane_tag = True
             break
 
     if not has_lane_tag:
         return [
-            f"❌ {relative_path}: @adapters feature must tag at least one scenario "
-            f"@canary or @full (see docs/scenario-policy.md)"
+            f"❌ {relative_path}: @adapters {behavior or 'feature'} must tag at least one "
+            f"scenario {label} (see docs/scenario-policy.md)"
         ]
     return []
 
@@ -333,6 +341,13 @@ def _validate_scope_tags(feature_tags: set[str], relative_path: Path) -> list[st
             errors.append(
                 f"❌ {relative_path}: @operator:{scope} must live under adapters/{scope}/"
             )
+        if wire_id and _adapter_behavior_file(relative_path):
+            parts = path_posix.split("/features/adapters/", 1)[-1].split("/")
+            if len(parts) >= 2 and parts[1] != wire_id:
+                errors.append(
+                    f"❌ {relative_path}: @wire:{wire_id} must match integration directory "
+                    f"adapters/{{provider}}/{wire_id}/"
+                )
 
     return errors
 
@@ -423,178 +438,6 @@ def find_feature_files(directory: Path) -> list[Path]:
     return sorted(p for p in directory.rglob("*.feature") if p.is_file())
 
 
-def _ref_feature_path(ref: str) -> str:
-    """Extract feature path from ref like sdk/foo.feature:Scenario:Name."""
-    return _parse_matrix_ref(ref)[0]
-
-
-def _parse_matrix_ref(ref: str) -> tuple[str, str | None, str | None]:
-    """Return (feature_rel_path, ref_kind, scenario_name). kind is None for file-only refs."""
-    head, *tail = ref.split(":")
-    if not head.endswith(".feature"):
-        head = f"{head}.feature" if "/" in head else f"{head}.feature"
-    if not tail:
-        return head, None, None
-    kind = tail[0]
-    name = ":".join(tail[1:])
-    if not name:
-        return head, kind, None
-    return head, kind, name
-
-
-def _resolve_feature_path(features_dir: Path, rel: str) -> Path | None:
-    """Resolve matrix ref to a feature file. Refs must use nested paths (sdk/… or adapters/…)."""
-    if "/" not in rel:
-        return None
-    feature_path = features_dir / rel
-    if feature_path.is_file():
-        return feature_path
-    return None
-
-
-def _collect_feature_scenario_names(feature_path: Path) -> tuple[set[str], set[str]]:
-    """Return (scenario_names, outline_names) from a feature file."""
-    parser = Parser()
-    gherkin_document = parser.parse(feature_path.read_text(encoding="utf-8"))
-    feature = gherkin_document.get("feature")
-    if not feature:
-        return set(), set()
-
-    scenarios: set[str] = set()
-    outlines: set[str] = set()
-    for child in _iter_scenario_nodes(feature):
-        scenario_obj = child["scenario"]
-        name = scenario_obj.get("name", "")
-        keyword = scenario_obj.get("keyword", "Scenario")
-        if keyword == "Scenario Outline":
-            outlines.add(name)
-        else:
-            scenarios.add(name)
-    return scenarios, outlines
-
-
-def _validate_matrix_ref(ref: str, features_dir: Path, context: str) -> list[str]:
-    """Validate matrix ref resolves to an existing feature and optional scenario/outline."""
-    rel, kind, name = _parse_matrix_ref(ref)
-    feature_path = _resolve_feature_path(features_dir, rel)
-    if feature_path is None:
-        expected = features_dir / rel
-        if "/" not in rel:
-            return [
-                f"❌ {context}: ref '{ref}' — matrix refs must use nested paths "
-                f"(e.g. sdk/core/cli.feature), not bare '{rel}'"
-            ]
-        return [f"❌ {context}: ref '{ref}' — feature file not found (expected {expected})"]
-
-    if kind is None or name is None:
-        return []
-
-    scenarios, outlines = _collect_feature_scenario_names(feature_path)
-    if kind in {"Outline", "Scenario Outline"}:
-        if name not in outlines:
-            known = ", ".join(sorted(outlines)) or "(none)"
-            return [
-                f"❌ {context}: ref '{ref}' — outline '{name}' not found in {rel} "
-                f"(known outlines: {known})"
-            ]
-        return []
-
-    if kind == "Scenario":
-        if name not in scenarios:
-            known = ", ".join(sorted(scenarios)) or "(none)"
-            return [
-                f"❌ {context}: ref '{ref}' — scenario '{name}' not found in {rel} "
-                f"(known scenarios: {known})"
-            ]
-        return []
-
-    return [f"❌ {context}: ref '{ref}' — unknown ref kind '{kind}'"]
-
-
-def _load_yaml(path: Path) -> dict:
-    assert yaml is not None
-    lines = [
-        line
-        for line in path.read_text(encoding="utf-8").splitlines()
-        if line.strip() and not line.strip().startswith("#")
-    ]
-    doc = yaml.safe_load("\n".join(lines))
-    return doc if isinstance(doc, dict) else {}
-
-
-def _expected_case_id(cell: dict) -> str:
-    """Dot-scoped case_id from structured order cell fields."""
-    parts = [cell["provider"], cell["adapter"], cell["product_id"], cell["zone_id"]]
-    service_ids = cell.get("service_ids") or []
-    if isinstance(service_ids, list):
-        parts.extend(service_ids)
-    return ".".join(parts)
-
-
-def validate_matrix_files(matrix_dir: Path, features_dir: Path) -> tuple[bool, list[str]]:
-    """Validate matrix YAML indexes."""
-    if yaml is None:
-        print("⚠️  PyYAML not installed — skipping matrix validation")
-        return True, []
-
-    errors: list[str] = []
-    orders_path = matrix_dir / "orders.generated.yaml"
-    canary_path = matrix_dir / "canary.yaml"
-    sdk_path = matrix_dir / "sdk.yaml"
-    slices_path = matrix_dir / "slices.yaml"
-
-    for required in (slices_path, sdk_path, canary_path, orders_path):
-        if not required.is_file():
-            errors.append(f"❌ Missing matrix file: {required.relative_to(matrix_dir.parent)}")
-    if errors:
-        return False, errors
-
-    orders_doc = _load_yaml(orders_path)
-    canary_doc = _load_yaml(canary_path)
-    sdk_doc = _load_yaml(sdk_path)
-    slices_doc = _load_yaml(slices_path)
-    known_slices = set(slices_doc.get("slices", {}).keys())
-
-    order_ids = {row["case_id"] for row in orders_doc.get("order_cells", [])}
-
-    for case_id in canary_doc.get("case_ids", []):
-        if case_id not in order_ids:
-            errors.append(
-                f"❌ canary.yaml: case_id '{case_id}' not in orders.generated.yaml "
-                "(must be porto-data wire subset)"
-            )
-
-    for cell in sdk_doc.get("sdk_cells", []):
-        slice_name = cell.get("slice")
-        if slice_name and slice_name not in known_slices:
-            errors.append(
-                f"❌ sdk.yaml: cell '{cell.get('cell_id')}' uses unknown slice "
-                f"'{slice_name}' (define in slices.yaml)"
-            )
-        for ref in cell.get("refs", []):
-            errors.extend(_validate_matrix_ref(ref, features_dir, "sdk.yaml"))
-
-    for cell in orders_doc.get("order_cells", []):
-        expected_id = _expected_case_id(cell)
-        actual_id = cell.get("case_id")
-        if actual_id != expected_id:
-            errors.append(
-                f"❌ orders.generated.yaml: case_id '{actual_id}' does not match "
-                f"structured fields (expected '{expected_id}')"
-            )
-        for ref in cell.get("refs", []):
-            errors.extend(_validate_matrix_ref(ref, features_dir, "orders.generated.yaml"))
-
-    if not errors:
-        print(
-            f"✅ matrix/: {len(order_ids)} order_cells, "
-            f"{len(canary_doc.get('case_ids', []))} canary ids, "
-            f"{len(sdk_doc.get('sdk_cells', []))} sdk cells"
-        )
-
-    return len(errors) == 0, errors
-
-
 def run_gherlint(features_dir: Path) -> tuple[bool, list[str]]:
     """Run gherlint on feature files."""
     if gherlint is None:
@@ -638,8 +481,6 @@ def main() -> None:
     """Main validation function."""
     project_root = Path(__file__).parent.parent
     features_dir = project_root / "porto_features" / "features"
-    matrix_dir = project_root / "porto_features" / "matrix"
-
     print("🔍 Validating Gherkin feature files...\n")
 
     feature_files = find_feature_files(features_dir)
@@ -666,15 +507,7 @@ def main() -> None:
         if file_has_errors:
             has_errors = True
 
-    print("\n📋 Step 2: Matrix index validation")
-    print("-" * 50)
-    matrix_ok, matrix_errors = validate_matrix_files(matrix_dir, features_dir)
-    for error in matrix_errors:
-        all_errors.append(error)
-    if not matrix_ok:
-        has_errors = True
-
-    print("\n🔍 Step 3: Gherkin linting")
+    print("\n🔍 Step 2: Gherkin linting")
     print("-" * 50)
     _lint_valid, lint_errors = run_gherlint(features_dir)
     lint_has_errors = False

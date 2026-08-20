@@ -158,10 +158,10 @@ def test_collect_tag_casing_errors_rejects_uppercase_scenario_tag():
     assert any("Scenario 'Paid'" in e and "@full" in e for e in errors)
 
 
-def test_validate_layer_tags_warns_on_uppercase_deprecated_release_tag():
+def test_validate_layer_tags_errors_on_removed_release_tag():
     module = load_module()
     messages = module._validate_layer_tags({"adapters", "Release"}, Path("release.feature"))
-    assert any("@release is deprecated" in m for m in messages)
+    assert any("@release/@full are removed" in m for m in messages)
 
 
 def test_validate_feature_file_rejects_uppercase_sdk_tag(tmp_path, monkeypatch):
@@ -436,53 +436,8 @@ def test_find_feature_files_finds_nested_features(tmp_path):
     assert [f.name for f in files] == ["nested.feature"]
 
 
-def test_validate_matrix_files_rejects_mismatched_case_id(tmp_path):
-    module = load_module()
-    matrix_dir = tmp_path / "matrix"
-    features_dir = tmp_path / "features"
-    matrix_dir.mkdir()
-    features_dir.mkdir()
-    (matrix_dir / "slices.yaml").write_text("schema_version: 1\n", encoding="utf-8")
-    (matrix_dir / "sdk.yaml").write_text("schema_version: 1\nsdk_cells: []\n", encoding="utf-8")
-    (matrix_dir / "canary.yaml").write_text("schema_version: 1\ncase_ids: []\n", encoding="utf-8")
-    (matrix_dir / "orders.generated.yaml").write_text(
-        """
-schema_version: 1
-order_cells:
-  - case_id: wrong_slug
-    provider: deutschepost
-    adapter: internetmarke
-    product_id: standardbrief
-    zone_id: domestic
-    service_ids: []
-    refs: []
-""".strip(),
-        encoding="utf-8",
-    )
-
-    ok, errors = module.validate_matrix_files(matrix_dir, features_dir)
-    assert not ok
-    assert any("does not match structured fields" in e for e in errors)
 
 
-def test_validate_matrix_files_rejects_canary_not_in_orders(tmp_path):
-    module = load_module()
-    matrix_dir = tmp_path / "matrix"
-    features_dir = tmp_path / "features"
-    matrix_dir.mkdir()
-    features_dir.mkdir()
-    (matrix_dir / "slices.yaml").write_text("schema_version: 1\n", encoding="utf-8")
-    (matrix_dir / "sdk.yaml").write_text("schema_version: 1\nsdk_cells: []\n", encoding="utf-8")
-    (matrix_dir / "orders.generated.yaml").write_text(
-        "schema_version: 1\norder_cells: []\n", encoding="utf-8"
-    )
-    (matrix_dir / "canary.yaml").write_text(
-        "schema_version: 1\ncase_ids:\n  - missing_case\n", encoding="utf-8"
-    )
-
-    ok, errors = module.validate_matrix_files(matrix_dir, features_dir)
-    assert not ok
-    assert any("missing_case" in e for e in errors)
 
 
 def test_main_exits_1_when_no_feature_files(monkeypatch):
@@ -540,40 +495,12 @@ def test_main_exits_0_when_all_feature_checks_pass(monkeypatch):
     assert exc_info.value.code == 0
 
 
-def test_main_exits_1_when_matrix_has_errors(monkeypatch):
-    module = load_module()
-    monkeypatch.setattr(module, "find_feature_files", lambda _d: [Path("x.feature")])
-    monkeypatch.setattr(module, "validate_feature_file", lambda _p: (True, []))
-    monkeypatch.setattr(module, "validate_matrix_files", lambda _m, _f: (False, ["❌ matrix bad"]))
-    monkeypatch.setattr(module, "run_gherlint", lambda _d: (True, []))
-
-    with pytest.raises(SystemExit) as exc_info:
-        module.main()
-    assert exc_info.value.code == 1
 
 
-def test_ref_feature_path_appends_extension_for_bare_name():
-    module = load_module()
-    assert module._ref_feature_path("resolution:Scenario:Name") == "resolution.feature"
 
 
-def test_ref_feature_path_keeps_nested_path():
-    module = load_module()
-    assert module._ref_feature_path("sdk/resolution:Scenario:Name") == "sdk/resolution.feature"
 
 
-def test_expected_case_id_includes_service_ids():
-    module = load_module()
-    cell = {
-        "provider": "deutschepost",
-        "adapter": "internetmarke",
-        "product_id": "standardbrief",
-        "zone_id": "domestic",
-        "service_ids": ["einschreiben"],
-    }
-    assert module._expected_case_id(cell) == (
-        "deutschepost.internetmarke.standardbrief.domestic.einschreiben"
-    )
 
 
 def test_collect_vocabulary_errors_flags_deprecated_service_id():
@@ -600,235 +527,32 @@ def test_validate_layer_tags_rejects_adapters_with_api():
     assert any("Drop @api" in m for m in messages)
 
 
-def test_validate_layer_tags_warns_on_deprecated_release_tag():
+def test_validate_layer_tags_errors_on_removed_full_tag():
     module = load_module()
-    messages = module._validate_layer_tags({"adapters", "release"}, Path("release.feature"))
-    assert any("@release is deprecated" in m for m in messages)
+    messages = module._validate_layer_tags({"adapters", "full"}, Path("full.feature"))
+    assert any("@release/@full are removed" in m and "use @heavy" in m for m in messages)
 
 
-def test_validate_matrix_files_skips_when_yaml_unavailable(tmp_path, monkeypatch):
-    module = load_module()
-    monkeypatch.setattr(module, "yaml", None)
-    ok, errors = module.validate_matrix_files(tmp_path / "matrix", tmp_path / "features")
-    assert ok
-    assert errors == []
 
 
-def test_validate_matrix_files_rejects_missing_matrix_files(tmp_path):
-    module = load_module()
-    matrix_dir = tmp_path / "matrix"
-    matrix_dir.mkdir()
-
-    ok, errors = module.validate_matrix_files(matrix_dir, tmp_path / "features")
-    assert not ok
-    assert any("Missing matrix file" in e for e in errors)
 
 
-def _write_minimal_matrix_files(matrix_dir: Path) -> None:
-    (matrix_dir / "slices.yaml").write_text(
-        "schema_version: 1\nslices:\n  happy:\n    description: test\n",
-        encoding="utf-8",
-    )
-    (matrix_dir / "sdk.yaml").write_text("schema_version: 1\nsdk_cells: []\n", encoding="utf-8")
-    (matrix_dir / "canary.yaml").write_text("schema_version: 1\ncase_ids: []\n", encoding="utf-8")
-    (matrix_dir / "orders.generated.yaml").write_text(
-        "schema_version: 1\norder_cells: []\n", encoding="utf-8"
-    )
 
 
-def test_validate_matrix_files_rejects_missing_sdk_ref(tmp_path):
-    module = load_module()
-    matrix_dir = tmp_path / "matrix"
-    features_dir = tmp_path / "features"
-    matrix_dir.mkdir()
-    features_dir.mkdir()
-    _write_minimal_matrix_files(matrix_dir)
-    (matrix_dir / "sdk.yaml").write_text(
-        """
-schema_version: 1
-sdk_cells:
-  - refs:
-      - sdk/missing.feature:Scenario:Name
-""".strip(),
-        encoding="utf-8",
-    )
-
-    ok, errors = module.validate_matrix_files(matrix_dir, features_dir)
-    assert not ok
-    assert any("sdk.yaml: ref" in e and "feature file not found" in e for e in errors)
 
 
-def test_validate_matrix_files_accepts_sdk_ref_via_nested_path(tmp_path):
-    module = load_module()
-    matrix_dir = tmp_path / "matrix"
-    features_dir = tmp_path / "features"
-    sdk_dir = features_dir / "sdk"
-    matrix_dir.mkdir()
-    sdk_dir.mkdir(parents=True)
-    (sdk_dir / "resolution.feature").write_text(
-        "Feature: R\nScenario: S\n Given x\n", encoding="utf-8"
-    )
-    _write_minimal_matrix_files(matrix_dir)
-    (matrix_dir / "sdk.yaml").write_text(
-        """
-schema_version: 1
-sdk_cells:
-  - refs:
-      - sdk/resolution.feature
-""".strip(),
-        encoding="utf-8",
-    )
-
-    ok, errors = module.validate_matrix_files(matrix_dir, features_dir)
-    assert ok
-    assert errors == []
 
 
-def test_validate_matrix_ref_rejects_bare_filename(tmp_path):
-    module = load_module()
-    features_dir = tmp_path / "features"
-    sdk_dir = features_dir / "sdk"
-    sdk_dir.mkdir(parents=True)
-    (sdk_dir / "resolution.feature").write_text(
-        "Feature: R\nScenario: S\n Given x\n", encoding="utf-8"
-    )
-    errors = module._validate_matrix_ref("resolution.feature", features_dir, "sdk.yaml")
-    assert any("must use nested paths" in e for e in errors)
 
 
-def test_validate_matrix_files_rejects_unknown_scenario_ref(tmp_path):
-    module = load_module()
-    matrix_dir = tmp_path / "matrix"
-    features_dir = tmp_path / "features"
-    sdk_dir = features_dir / "sdk"
-    matrix_dir.mkdir()
-    sdk_dir.mkdir(parents=True)
-    (sdk_dir / "resolution.feature").write_text(
-        "Feature: R\nScenario: S\n Given x\n", encoding="utf-8"
-    )
-    _write_minimal_matrix_files(matrix_dir)
-    (matrix_dir / "sdk.yaml").write_text(
-        """
-schema_version: 1
-sdk_cells:
-  - refs:
-      - sdk/resolution.feature:Scenario:Missing
-""".strip(),
-        encoding="utf-8",
-    )
-
-    ok, errors = module.validate_matrix_files(matrix_dir, features_dir)
-    assert not ok
-    assert any("scenario 'Missing' not found" in e for e in errors)
 
 
-def test_validate_matrix_files_rejects_unknown_outline_ref(tmp_path):
-    module = load_module()
-    matrix_dir = tmp_path / "matrix"
-    features_dir = tmp_path / "features"
-    adapters_dir = features_dir / "adapters"
-    matrix_dir.mkdir()
-    adapters_dir.mkdir(parents=True)
-    (adapters_dir / "internetmarke.feature").write_text(
-        """
-@adapters
-Feature: Adapter
-  Scenario Outline: stamp_order
-    Given x
-    Examples:
-      | a |
-      | 1 |
-""".strip(),
-        encoding="utf-8",
-    )
-    _write_minimal_matrix_files(matrix_dir)
-    (matrix_dir / "orders.generated.yaml").write_text(
-        """
-schema_version: 1
-order_cells:
-  - case_id: deutschepost.internetmarke.standardbrief.domestic
-    provider: deutschepost
-    adapter: internetmarke
-    product_id: standardbrief
-    zone_id: domestic
-    service_ids: []
-    refs:
-      - adapters/internetmarke.feature:Outline:wrong_outline
-""".strip(),
-        encoding="utf-8",
-    )
-
-    ok, errors = module.validate_matrix_files(matrix_dir, features_dir)
-    assert not ok
-    assert any("outline 'wrong_outline' not found" in e for e in errors)
 
 
-def test_validate_matrix_files_rejects_unknown_slice(tmp_path):
-    module = load_module()
-    matrix_dir = tmp_path / "matrix"
-    features_dir = tmp_path / "features"
-    matrix_dir.mkdir()
-    features_dir.mkdir()
-    _write_minimal_matrix_files(matrix_dir)
-    (matrix_dir / "sdk.yaml").write_text(
-        """
-schema_version: 1
-sdk_cells:
-  - cell_id: test.cell
-    slice: not_a_slice
-    refs:
-      - sdk/resolution.feature
-""".strip(),
-        encoding="utf-8",
-    )
-
-    ok, errors = module.validate_matrix_files(matrix_dir, features_dir)
-    assert not ok
-    assert any("unknown slice 'not_a_slice'" in e for e in errors)
 
 
-def test_validate_matrix_files_rejects_missing_order_ref(tmp_path):
-    module = load_module()
-    matrix_dir = tmp_path / "matrix"
-    features_dir = tmp_path / "features"
-    matrix_dir.mkdir()
-    features_dir.mkdir()
-    _write_minimal_matrix_files(matrix_dir)
-    (matrix_dir / "orders.generated.yaml").write_text(
-        """
-schema_version: 1
-order_cells:
-  - case_id: deutschepost.internetmarke.standardbrief.domestic
-    provider: deutschepost
-    adapter: internetmarke
-    product_id: standardbrief
-    zone_id: domestic
-    service_ids: []
-    refs:
-      - adapters/missing.feature:Scenario:Name
-""".strip(),
-        encoding="utf-8",
-    )
-
-    ok, errors = module.validate_matrix_files(matrix_dir, features_dir)
-    assert not ok
-    assert any("feature file not found" in e for e in errors)
 
 
-def test_validate_matrix_files_reports_success_summary(tmp_path, capsys):
-    module = load_module()
-    matrix_dir = tmp_path / "matrix"
-    features_dir = tmp_path / "features"
-    matrix_dir.mkdir()
-    features_dir.mkdir()
-    _write_minimal_matrix_files(matrix_dir)
-
-    ok, errors = module.validate_matrix_files(matrix_dir, features_dir)
-    captured = capsys.readouterr()
-
-    assert ok
-    assert errors == []
-    assert "order_cells" in captured.out
 
 
 def test_load_module_exits_when_gherkin_missing(monkeypatch):
@@ -839,51 +563,6 @@ def test_load_module_continues_when_gherlint_missing(monkeypatch):
     module = load_fresh_module(monkeypatch, block="gherlint")
     assert module is not None
     assert module.gherlint is None
-
-
-def test_load_module_continues_when_yaml_missing(monkeypatch):
-    module = load_fresh_module(monkeypatch, block="yaml")
-    assert module is not None
-    assert module.yaml is None
-
-
-def test_parse_matrix_ref_handles_kind_without_name():
-    module = load_module()
-    rel, kind, name = module._parse_matrix_ref("sdk/foo.feature:Scenario")
-    assert rel == "sdk/foo.feature"
-    assert kind == "Scenario"
-    assert name is None
-
-
-def test_validate_matrix_ref_rejects_unknown_ref_kind(tmp_path):
-    module = load_module()
-    features_dir = tmp_path / "features"
-    sdk_dir = features_dir / "sdk"
-    sdk_dir.mkdir(parents=True)
-    (sdk_dir / "resolution.feature").write_text(
-        "Feature: R\nScenario: S\n Given x\n", encoding="utf-8"
-    )
-    errors = module._validate_matrix_ref(
-        "sdk/resolution.feature:Foo:Bar",
-        features_dir,
-        "sdk.yaml",
-    )
-    assert any("unknown ref kind 'Foo'" in e for e in errors)
-
-
-def test_collect_feature_scenario_names_returns_empty_for_missing_feature(tmp_path):
-    module = load_module()
-    feature_file = tmp_path / "empty.feature"
-    feature_file.write_text("", encoding="utf-8")
-
-    class FakeParser:
-        def parse(self, _content):
-            return {}
-
-    module.Parser = FakeParser
-    scenarios, outlines = module._collect_feature_scenario_names(feature_file)
-    assert scenarios == set()
-    assert outlines == set()
 
 
 def test_validate_scope_tags_requires_operator_on_sdk_provider_path():
@@ -902,7 +581,7 @@ def test_validate_scope_tags_rejects_core_and_operator_together():
 
 def test_validate_scope_tags_requires_wire_on_adapters():
     module = load_module()
-    path = Path("porto_features/features/adapters/deutschepost/internetmarke.feature")
+    path = Path("porto_features/features/adapters/deutschepost/internetmarke/marks.feature")
     errors = module._validate_scope_tags({"adapters", "operator:deutschepost"}, path)
     assert any("@wire:" in e for e in errors)
 
@@ -940,14 +619,14 @@ def test_validate_scope_tags_rejects_core_outside_sdk_core():
 
 def test_validate_scope_tags_rejects_adapters_without_operator():
     module = load_module()
-    path = Path("porto_features/features/adapters/deutschepost/internetmarke.feature")
+    path = Path("porto_features/features/adapters/deutschepost/internetmarke/marks.feature")
     errors = module._validate_scope_tags({"adapters", "wire:internetmarke"}, path)
     assert any("exactly one @operator" in e for e in errors)
 
 
 def test_validate_scope_tags_rejects_adapters_operator_path_mismatch():
     module = load_module()
-    path = Path("porto_features/features/adapters/laposte/internetmarke.feature")
+    path = Path("porto_features/features/adapters/laposte/internetmarke/marks.feature")
     errors = module._validate_scope_tags(
         {"adapters", "operator:deutschepost", "wire:internetmarke"},
         path,
@@ -955,18 +634,42 @@ def test_validate_scope_tags_rejects_adapters_operator_path_mismatch():
     assert any("must live under adapters/deutschepost/" in e for e in errors)
 
 
-def test_validate_adapter_scenario_tags_requires_canary_or_full():
+def test_validate_adapter_scenario_tags_requires_canary_or_heavy():
     module = load_module()
-    path = Path("porto_features/features/adapters/deutschepost/internetmarke.feature")
+    path = Path("porto_features/features/adapters/deutschepost/internetmarke/marks.feature")
     scenarios = [{"scenario": {"name": "No lane", "tags": [], "steps": [{"text": "x"}]}}]
     errors = module._validate_adapter_scenario_tags({"adapters"}, scenarios, path)
-    assert any("@canary or @full" in e for e in errors)
+    assert any("@canary or @heavy" in e for e in errors)
 
 
 def test_validate_adapter_scenario_tags_accepts_canary():
     module = load_module()
-    path = Path("porto_features/features/adapters/deutschepost/internetmarke.feature")
+    path = Path("porto_features/features/adapters/deutschepost/internetmarke/marks.feature")
     scenarios = [{"scenario": {"name": "Smoke", "tags": [{"name": "@canary"}], "steps": []}}]
+    errors = module._validate_adapter_scenario_tags({"adapters"}, scenarios, path)
+    assert errors == []
+
+
+def test_validate_adapter_scenario_tags_accepts_error_on_errors_feature():
+    module = load_module()
+    path = Path("porto_features/features/adapters/deutschepost/internetmarke/errors.feature")
+    scenarios = [{"scenario": {"name": "Auth fail", "tags": [{"name": "@error"}], "steps": []}}]
+    errors = module._validate_adapter_scenario_tags({"adapters"}, scenarios, path)
+    assert errors == []
+
+
+def test_validate_adapter_scenario_tags_accepts_auth_on_errors_feature():
+    module = load_module()
+    path = Path("porto_features/features/adapters/deutschepost/internetmarke/errors.feature")
+    scenarios = [
+        {
+            "scenario": {
+                "name": "Auth boundary",
+                "tags": [{"name": "@error"}, {"name": "@auth"}],
+                "steps": [],
+            }
+        }
+    ]
     errors = module._validate_adapter_scenario_tags({"adapters"}, scenarios, path)
     assert errors == []
 
@@ -974,9 +677,11 @@ def test_validate_adapter_scenario_tags_accepts_canary():
 def test_validate_feature_file_rejects_adapters_without_lane_tags(tmp_path, monkeypatch):
     module = load_module()
     monkeypatch.chdir(tmp_path)
-    adapters_dir = tmp_path / "porto_features" / "features" / "adapters" / "deutschepost"
+    adapters_dir = (
+        tmp_path / "porto_features" / "features" / "adapters" / "deutschepost" / "internetmarke"
+    )
     adapters_dir.mkdir(parents=True)
-    feature_file = adapters_dir / "internetmarke.feature"
+    feature_file = adapters_dir / "marks.feature"
     feature_file.write_text(
         """
 @adapters
@@ -991,7 +696,7 @@ Feature: Adapter
 
     is_valid, errors = module.validate_feature_file(feature_file)
     assert not is_valid
-    assert any("@canary or @full" in e for e in errors)
+    assert any("@canary or @heavy" in e for e in errors)
 
 
 def test_iter_scenario_nodes_collects_rule_scenarios():

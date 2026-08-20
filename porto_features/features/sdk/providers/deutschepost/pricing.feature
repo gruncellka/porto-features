@@ -76,7 +76,7 @@ Feature: Pricing
     And the result should have field "price" as number
     And the result should have field "currency" with value "EUR"
 
-  Scenario: Price calculation is consistent
+  Scenario: Price is consistent
     Given I have a letter with porto_id "small"
     And I want to send a letter to country "DE"
     And the letter weight is 20 grams

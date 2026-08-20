@@ -55,6 +55,20 @@ Do **not** use legacy tokens (`letter_standard`, `STANDARD`, `registered_mail`) 
 - `Given service porto_id is "<porto_id>"`
 - `Then the services array should contain service with id "<native_id>"`
 
+### Mark execution
+
+- `When I create a mark`
+- `When I attempt to create a mark`
+- `Then the mark should be created successfully`
+- `Then the mark should have an id`
+- `Then mark creation should fail`
+- `Then I should get Porto error code "<code>"`
+
+### Error codes
+
+- `Then mark creation should fail`
+- `Then I should get Porto error code "<code>"`
+
 ## Allowed aliases (SDK only — avoid in new features)
 
 | Canonical | Legacy alias |
@@ -62,7 +76,9 @@ Do **not** use legacy tokens (`letter_standard`, `STANDARD`, `registered_mail`) 
 | `the letter porto_id is "small"` | `the letter type is "STANDARD"` |
 | `I have a letter with porto_id "medium"` | `I have a letter with type "COMPACT"` |
 | `service porto_id is "registered"` | `I want to add service "registered_mail"` |
-| `I want to send a letter to country "DE"` | `destination country "DE"`, `the destination country is "DE"` |
+| `When I create a mark` | `When I generate a digital stamp` |
+| `When I attempt to create a mark` | `When I attempt to generate a digital stamp` |
+| `Then the mark should be created successfully` | `Then the stamp should be generated successfully` |
 | `the letter weight is 20 grams` | `weight 20 grams`, `the weight is 20 grams` |
 
 ## Review checklist

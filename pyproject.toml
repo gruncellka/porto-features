@@ -1,7 +1,7 @@
 [project]
 name = "gruncellka-porto-features"
-version = "0.3.0"
-description = "Structured BDD contracts for Porto SDK — shared Gherkin scenarios and JSON fixtures"
+version = "0.4.0"
+description = "Structured BDD contracts for Porto SDK — shared Gherkin scenarios, fixtures, and errors.json"
 readme = "README.md"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
@@ -45,7 +45,11 @@ package-dir = {"" = "."}
 
 # Ship only contract assets under porto_features/ (see package.json "files" for npm parity).
 [tool.setuptools.package-data]
-porto_features = ["features/**/*.feature", "fixtures/**/*.json", "matrix/*.yaml", "matrix/*.json"]
+porto_features = [
+    "errors.json",
+    "features/**/*.feature",
+    "fixtures/**/*.json",
+]
 
 [tool.ruff]
 line-length = 100

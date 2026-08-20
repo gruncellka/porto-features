@@ -1,9 +1,9 @@
 @sdk
 @operator:deutschepost
-Feature: Comprehensive API Testing
+Feature: Pricing matrix
   As a developer
-  I want to test all SDK capabilities with minimal API requests
-  So that I can verify functionality across products, zones, and services with broad coverage
+  I want to price letters across products, zones, and weights
+  So that I can verify coverage without carrier purchase
 
   Background:
     Given provider is "deutschepost"

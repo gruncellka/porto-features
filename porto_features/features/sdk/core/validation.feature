@@ -39,3 +39,31 @@ Feature: Address validation
     When I validate the address
     Then the validation should fail
     And I should get an error about invalid country code
+
+  Scenario Outline: Validate jurisdiction address form fixture
+    Given I have destination address fixture "<fixture>"
+    When I validate the address
+    Then the validation should pass
+    And there should be no errors
+
+    Examples:
+      | fixture         |
+      | valid_DE        |
+      | valid_CH        |
+      | valid_FR        |
+      | valid_UA        |
+      | valid_postbox_DE |
+      | valid_postbox_UA |
+
+  Scenario Outline: Reject invalid postal code for jurisdiction form
+    Given I have destination address fixture "<fixture>"
+    When I validate the address
+    Then the validation should fail
+    And I should get an error about invalid address
+
+    Examples:
+      | fixture            |
+      | invalid_postal_DE |
+      | invalid_postal_CH |
+      | invalid_postal_FR |
+      | invalid_postal_UA |

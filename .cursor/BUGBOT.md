@@ -39,10 +39,10 @@ If a PR adds language-specific step-definition code (for example files in `tests
 
 ### 3) Published feature and fixture assets must live under porto_features/ (blocking)
 
-If a PR adds new shared feature or fixture assets outside `porto_features/features/**` or `porto_features/fixtures/**`, then:
+If a PR adds new shared feature, fixture, or catalog assets outside `porto_features/features/**`, `porto_features/fixtures/**`, or `porto_features/errors.json`, then:
 
 - Add a blocking Bug titled `Shared test asset added outside published package paths`.
-- Body: `Place feature and fixture assets under porto_features/ so npm and PyPI publish identical content.`
+- Body: `Place features, fixtures, and errors.json under porto_features/ so npm and PyPI publish identical content.`
 - Apply labels `packaging`, `release`.
 
 ### 4) Feature changes should include validation script updates when needed (non-blocking)
