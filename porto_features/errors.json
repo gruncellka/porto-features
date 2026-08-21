@@ -31,7 +31,7 @@
     {"code": "PORTO_REGISTERED_MAIL_NOT_AVAILABLE", "domain": "registered", "description": "Registered mail not available for product."},
     {"code": "PORTO_REGISTERED_MAIL_INVALID_TYPE", "domain": "registered", "description": "Invalid registered mail type."},
     {"code": "PORTO_REGISTERED_MAIL_TRACKING_FAILED", "domain": "registered", "description": "Registered mail tracking failed."},
-    {"code": "PORTO_TRACKING_UNSUPPORTED", "domain": "tracking", "description": "Provider wire or adapter cannot track this shipment or stamp."},
+    {"code": "PORTO_TRACKING_UNSUPPORTED", "domain": "tracking", "description": "Provider wire or adapter cannot track this letter or mark."},
     {"code": "PORTO_TRACKING_NOT_FOUND", "domain": "tracking", "description": "Tracking number unknown to the carrier."},
     {"code": "PORTO_PROVIDER_NOT_CONFIGURED", "domain": "provider", "description": "Provider id is not configured in PortoConfig.providers."},
     {"code": "PORTO_SERVICES_INCOMPATIBLE", "domain": "service", "description": "Selected add-on services are not combinable per porto-data combinable_with."}

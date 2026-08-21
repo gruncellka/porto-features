@@ -3,7 +3,7 @@
 Feature: Address validation
   As a developer
   I want to validate addresses
-  So that I can ensure shipping requirements are met
+  So that I can ensure mailing requirements are met
 
   Background:
     Given I have a Porto SDK client initialized

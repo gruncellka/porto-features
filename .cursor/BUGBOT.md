@@ -31,7 +31,7 @@ If a PR adds or changes `.feature` files and introduces SDK-specific implementat
 
 ### 2) Step definitions must not be added in this repo (blocking)
 
-If a PR adds language-specific step-definition code (for example files in `tests/steps/**`, or new `.py`/`.ts` step glue intended for BDD execution), then:
+If a PR adds language-specific step-definition code (for example files in `tests/bdd/steps/**`, or new `.py`/`.ts` step glue intended for BDD execution), then:
 
 - Add a blocking Bug titled `Language-specific step definitions added to shared features repo`.
 - Body: `This repository stores shared features and fixtures only. Keep step definitions in SDK repositories.`
@@ -47,10 +47,10 @@ If a PR adds new shared feature, fixture, or catalog assets outside `porto_featu
 
 ### 4) Feature changes should include validation script updates when needed (non-blocking)
 
-If a PR changes `porto_features/features/**` or `porto_features/fixtures/**` and `scripts/validate_features.py` is not updated when validation rules appear affected, then:
+If a PR changes `porto_features/features/**` or `porto_features/fixtures/**` and `scripts/validate_features.py` or `scripts/validate_error_contracts.py` is not updated when validation rules appear affected, then:
 
 - Add a non-blocking Bug titled `Feature/fixture change may need validator update`.
-- Body: `Confirm that scripts/validate_features.py still validates the new scenario or fixture patterns, and update it if needed.`
+- Body: `Confirm that scripts/validate_features.py and scripts/validate_error_contracts.py still validate the new scenario or fixture patterns, and update them if needed.`
 - Apply label `quality`.
 
 ### 5) Fixtures should stay scenario-focused and stable (non-blocking)
@@ -108,3 +108,43 @@ If a PR names SDK classes (`LetterType`, `PortoClient`, module paths), internal 
 - Add a blocking Bug titled `SDK implementation detail in Gherkin`.
 - Body: `Scenarios describe behavior only. Step definitions in SDK repos map vocabulary to implementation.`
 - Apply labels `compatibility`, `bdd`.
+
+### 12) Paid adapter tags are @canary / @heavy (blocking)
+
+If a PR adds or keeps `@full` or `@release` on adapter scenarios, then:
+
+- Add a blocking Bug titled `Removed adapter tag @full or @release`.
+- Body: `Paid lane tags are @canary (smoke) and @heavy (wire matrix). Historical: @release → @full → @heavy. See docs/scenario-policy.md.`
+- Apply labels `bdd`, `quality`.
+
+### 13) Do not add fake mark simulation (blocking)
+
+If a PR adds `mark_simulate`, `stamp_generation`, CLI `stamp simulate`, or `When I simulate stamp generation` (hardcoded `simulation: true` after resolve/prepare, no PortoMark), then:
+
+- Add a blocking Bug titled `Fake mark simulation is not a contract`.
+- Body: `Offline resolve belongs in resolution.feature. Paid purchase is When I create a mark on adapters/.../marks.feature.`
+- Apply labels `bdd`, `quality`.
+
+### 14) @error scenarios need unique @scenario: and a catalog PORTO_* (blocking)
+
+If a PR adds or changes `@error` scenarios without a unique `@scenario:` id or without a `PORTO_*` code declared in `porto_features/errors.json`, then:
+
+- Add a blocking Bug titled `Error scenario missing unique id or catalog code`.
+- Body: `Each @error scenario needs @scenario:{id} unique across features and a PORTO_* step that exists in errors.json. Run make check-error-contracts.`
+- Apply labels `bdd`, `quality`.
+
+### 15) Do not ship contracts/ or matrix/ in this package (blocking)
+
+If a PR adds `porto_features/contracts/`, `porto_features/matrix/`, or `porto_features/features.json` as published package content, then:
+
+- Add a blocking Bug titled `Removed package path reintroduced`.
+- Body: `Published paths are errors.json, features/, and fixtures/. Lab coverage indexes live in Porto SDK Lab labs/matrix/.`
+- Apply labels `packaging`, `release`.
+
+### 16) Gherkin uses letter behavior vocabulary (blocking)
+
+If a PR adds `shipping`, `shipment`, `When I check restrictions`, `When I access` catalog steps, `When I prepare a mark order`, `When I calculate the price`, or `When I resolve the shipping configuration` in `.feature` files, then:
+
+- Add a blocking Bug titled `Non-canonical Gherkin vocabulary`.
+- Body: `Use letter / price / mailing requirements. Resolve with When I resolve the letter. Catalog inspection is When I inspect … data. Paid errors use When I attempt to create a mark. See docs/vocabulary.md.`
+- Apply labels `bdd`, `quality`.

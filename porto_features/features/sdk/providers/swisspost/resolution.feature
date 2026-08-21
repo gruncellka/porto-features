@@ -3,7 +3,7 @@
 Feature: Swiss Post resolution
   As a developer
   I want to resolve product, zone, and weight tier from country code and porto_id
-  So that I can determine the correct shipping configuration for a letter
+  So that I can determine the correct product and zone for a letter
 
   Background:
     Given provider is "swisspost"
@@ -13,7 +13,7 @@ Feature: Swiss Post resolution
     Given I want to send a letter to country "CH"
     And the letter weight is 20 grams
     And the letter porto_id is "small"
-    When I resolve the shipping configuration
+    When I resolve the letter
     Then I should get product with id "a_post_standardbrief"
     And I should get zone with id "domestic"
     And I should get weight tier "W0020"

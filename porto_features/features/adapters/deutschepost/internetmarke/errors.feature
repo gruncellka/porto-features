@@ -22,8 +22,10 @@ Feature: Internetmarke adapter errors
   @scenario:internetmarke.letter.overweight
   Scenario: Letter overweight fails before purchase
     Given Internetmarke credentials are not configured
+    And I want to send a letter to country "DE"
+    And the letter porto_id is "small"
     And the letter weight is 50000 grams
-    When I determine the envelope type for error testing
+    When I resolve the letter
     Then I should get Porto error code "PORTO_LETTER_TOO_HEAVY"
 
   @error
@@ -31,7 +33,7 @@ Feature: Internetmarke adapter errors
   Scenario: Invalid address format fails before purchase
     Given Internetmarke credentials are configured
     And the mark destination address is invalid for testing
-    When I prepare a mark order for error testing
+    When I attempt to create a mark
     Then mark creation should fail
     And I should get Porto error code "PORTO_ADDRESS_INVALID"
 

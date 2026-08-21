@@ -16,7 +16,7 @@ Feature: Normalized Porto error codes (provider-agnostic)
     And I want to send a letter to country "FR"
     And the letter weight is 20 grams
     And the letter porto_id is "small"
-    When I resolve the shipping configuration
+    When I resolve the letter
     Then the resolution should be invalid
     And I should get Porto error code "PORTO_PRODUCT_AMBIGUOUS"
 
@@ -25,12 +25,14 @@ Feature: Normalized Porto error codes (provider-agnostic)
     Given I want to send a letter to country "XX"
     And the letter weight is 20 grams
     And the letter porto_id is "small"
-    When I resolve the shipping configuration
+    When I resolve the letter
     Then the resolution should be invalid
     And I should get Porto error code "PORTO_DESTINATION_INVALID"
 
   @scenario:core.letter.overweight
   Scenario: Letter weight exceeds product maximum
-    Given the letter weight is 50000 grams
-    When I determine the envelope type for error testing
+    Given I want to send a letter to country "DE"
+    And the letter porto_id is "small"
+    And the letter weight is 50000 grams
+    When I resolve the letter
     Then I should get Porto error code "PORTO_LETTER_TOO_HEAVY"

@@ -1,3 +1,8 @@
+---
+description: porto-features layering — Gherkin contracts, tags, published paths
+alwaysApply: true
+---
+
 # Features layering doctrine (porto-features)
 
 **Docs:** `docs/vocabulary.md` · `docs/scenario-policy.md` · `docs/matrix.md` · **PR review:** [`.cursor/BUGBOT.md`](../BUGBOT.md)
@@ -24,11 +29,15 @@ Wire-derived adapter Examples and `orders.generated.yaml` are **generated** in P
    - **Given / When input:** `porto_id` size buckets (`small`, `medium`, `large`, `extra_large`) and service `porto_id` (`registered`, …).
    - **Then assertions:** native catalog `id` (`standardbrief`, `einschreiben`, …) when verifying resolution output.
 
-3. **No step definitions here.** Never add `tests/steps/**` or runner glue in this repo.
+3. **No step definitions here.** Never add `tests/bdd/steps/**` or runner glue in this repo.
 
 4. **Published paths only.** `porto_features/errors.json`, features under `porto_features/features/` (including `sdk/` and `adapters/`), address fixtures under `porto_features/fixtures/`. No `contracts/` folder.
 
-5. **Tag every Feature.** `@sdk` or `@adapters` at Feature level; `@canary` / `@heavy` on paid adapter scenarios when a smoke or expensive wire matrix is intended. **All tags lowercase** — never `@SDK`, `@Heavy`, or `@Release`.
+5. **Tag every Feature.** `@sdk` or `@adapters` at Feature level; `@canary` / `@heavy` on paid adapter scenarios when a smoke or expensive wire matrix is intended. **All tags lowercase** — never `@SDK`, `@Heavy`, `@Full`, or `@Release`.
+
+6. **No fake mark simulation.** Offline resolve is `When I resolve the letter` in `sdk/providers/{operator}/resolution.feature`. Do not add `mark_simulate`, `stamp_generation`, or CLI stamp-simulate. Paid purchase is `When I create a mark` on `marks.feature`.
+
+7. **Letter, not shipment.** Customer copy uses letter / price / mailing requirements / additional services. Do not write shipping or shipment. Eligibility is inside resolve — not `When I check restrictions`. Catalog reads are `When I inspect … data`.
 
 **0.x:** No version pin file — keep porto-data, porto-features, and implementor packages aligned on breaking changes until `1.x`.
 
@@ -40,8 +49,14 @@ Wire-derived adapter Examples and `orders.generated.yaml` are **generated** in P
 | `registered_mail` as service pick | Use service `porto_id` `registered` |
 | Step defs in this repo | Move to implementor test suites |
 | Hand-edited `orders.generated.yaml` | Regenerate via Porto SDK Lab `matrix-orders-sync.py` |
-| `@offline` / `@online` / `@api` | Use `@sdk` / `@adapters` per `docs/matrix.md` |
-| Scenario references `data_links.json` | Use `graph.json`, `integration.json`, `metadata.json` |
+| `@offline` / `@online` / `@api` | Use `@sdk` / `@adapters` per `docs/scenario-policy.md` |
+| `@full` / `@release` | Use `@heavy` on paid adapter scenarios |
+| `When I simulate stamp generation` / CLI stamp simulate | Use `resolution.feature`; paid path is `When I create a mark` |
+| `shipping` / `shipment` in Gherkin | letter / price / mailing requirements |
+| `When I check restrictions` / `When I access` | `When I resolve the letter` / `When I inspect … data` |
+| `When I prepare a mark order` | `When I attempt to create a mark` (errors) or unit tests |
+| `contracts/` or `porto_features/matrix/` | Catalog is `errors.json`; indexes live in Lab `labs/matrix/` |
+| Scenario references `data_links.json` | Use `graph.json`, `execution.json`, `metadata.json` |
 
 ## Before merge
 
@@ -50,4 +65,4 @@ PR review blocking rules: see `.cursor/BUGBOT.md` (not duplicated here).
 1. `make quality` and `make test-cov`
 2. Update `docs/vocabulary.md` when adding canonical steps
 3. Update `CHANGELOG.md` for behavior-spec changes
-4. Validator rules in `scripts/validate_features.py` when new patterns are introduced
+4. Validator rules in `scripts/validate_features.py` and `scripts/validate_error_contracts.py` when new patterns are introduced

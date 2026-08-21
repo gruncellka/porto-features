@@ -8,20 +8,23 @@ Shared BDD contracts (Gherkin) and fixtures aligned with [porto-data](https://gi
 
 ```
 porto_features/                     # Published package content
-├── contracts/                      # Machine-readable contracts
-├── matrix/                         # Coverage index (sdk, canary, orders)
+├── errors.json                     # PORTO_* catalog
 ├── features/
 │   ├── sdk/
 │   │   ├── core/                   # @sdk @core
 │   │   └── providers/{operator}/   # @sdk @operator:{id}
-│   └── adapters/{operator}/        # @adapters @operator:{id} @wire:{adapter}
+│   └── adapters/{operator}/{integration}/
+│       ├── marks.feature           # @adapters @canary / @heavy
+│       └── errors.feature          # @error + unique @scenario:
 └── fixtures/                       # Test data
     └── addresses/
 ```
 
+Coverage indexes (`sdk.yaml`, `orders.generated.yaml`, …) live in Porto SDK Lab `labs/matrix/` — not in this package.
+
 ## Gherkin Format
 
-Every Feature declares exactly one of `@sdk` or `@adapters`. See `docs/vocabulary.md` for canonical steps.
+Every Feature declares exactly one of `@sdk` or `@adapters`. Paid purchase uses `When I create a mark`. Do not add fake simulate / stamp-generation features — offline resolve is `When I resolve the letter`. See `docs/vocabulary.md` and `docs/scenario-policy.md`.
 
 ## Key Principles
 
@@ -32,10 +35,12 @@ Every Feature declares exactly one of `@sdk` or `@adapters`. See `docs/vocabular
 
 ## Generated adapter matrix
 
-`orders.generated.yaml` and adapter `mark_order` Examples are produced from porto-data wire by Porto SDK Lab `matrix-orders-sync.py` — do not hand-edit.
+`labs/matrix/orders.generated.yaml` and adapter `mark_order` Examples are produced from porto-data wire by Porto SDK Lab `matrix-orders-sync.py` — do not hand-edit.
 
 ## Do NOT
 
 - Add step definitions here — those belong in implementor test suites
 - Reference runner internals in feature files
 - Duplicate fixtures that exist in porto-data
+- Ship `contracts/` or `porto_features/matrix/` in this package
+- Add `mark_simulate` / `stamp_generation` / CLI stamp-simulate scenarios

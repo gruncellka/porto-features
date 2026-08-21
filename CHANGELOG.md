@@ -6,12 +6,16 @@
 
 - **BREAKING**: Dropped `sdk/providers/deutschepost/mark_simulate.feature` (formerly `stamp_generation.feature`). It was a misnomer for resolve + `prepare_mark_order` and never created a PortoMark; coverage remains in `resolution.feature`.
 - Dropped CLI scenarios `Simulate stamp generation` and `When I call CLI stamp simulate command...` (no CLI simulate command; steps faked `simulation: true`).
+- **BREAKING**: Dropped CLI `When I call CLI restrictions command` scenarios (no public `restrict` CLI). Eligibility is `When I resolve the letter`.
+- Dropped `When I check restrictions` / `When I check sanctions` as public steps.
 
 ### Changed
 
 - **BREAKING**: Paid adapter matrix tag `@full` → `@heavy` (no alias). Historical: `@release` → `@full` → `@heavy`.
 - `sdk/providers/deutschepost/api_comprehensive_testing.feature` → `pricing_matrix.feature`.
-- Scenario titles: `Generate mark with pricing`; `Price is consistent`.
+- **BREAKING**: Gherkin letter vocabulary — `When I resolve the letter`, `When I get the price`, `When I inspect … data`; no shipping/shipment; canary title `Purchase mark with pricing`.
+- **BREAKING**: `restrictions.feature` goes through resolve (`PORTO_DESTINATION_UNSUPPORTED` for prohibited destinations/regions). Catalog inspect uses `When I inspect restrictions data`.
+- Overweight and invalid-address errors use `When I resolve the letter` / `When I attempt to create a mark` (no envelope-type or prepare-mark-order harness).
 
 ## [0.4.0] - 2026-08-20
 

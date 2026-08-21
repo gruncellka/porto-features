@@ -12,7 +12,7 @@ Feature: Internetmarke adapter mark purchases
     And I have access to porto-data
 
   @canary
-  Scenario: Generate mark with pricing
+  Scenario: Purchase mark with pricing
     Given I have a letter with porto_id "small"
     And I want to send a letter to country "DE"
     And the letter weight is 20 grams

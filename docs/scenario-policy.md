@@ -11,7 +11,7 @@ See also: [matrix.md](matrix.md) — `cell_id` / `case_id` formats and Lab sync 
 
 `@sdk` scenarios cover resolution, pricing, services, restrictions, validation, metadata, delivery hints — anything verifiable from porto-data fixtures without carrier purchase.
 
-`@adapters` scenarios describe integration health: auth, payload acceptance, mark generation, wire codes. Running them may purchase marks when credentials are configured.
+`@adapters` scenarios describe integration health: auth, payload acceptance, mark purchase, wire codes. Running them may purchase marks when credentials are configured.
 
 ## Required tags
 
@@ -61,6 +61,10 @@ Adapter `mark_order` Example rows and Lab `labs/matrix/orders.generated.yaml` ar
 Lab `orders.generated.yaml` may list all wire cells with `evidence: null` until a paid run attaches verification metadata. That is a coverage index scaffold, not proof that every cell has been exercised.
 
 Hand-authored adapter scenarios should match generated wire rows; add or refine Gherkin only when catalog or wire behavior changes, using generated output as the structural source of truth.
+
+## Do not fake mark simulation
+
+Offline resolve is **`resolution.feature`**. Do not add `mark_simulate`, `stamp_generation`, or CLI `stamp simulate` scenarios (those hardcoded `simulation: true` and never created a PortoMark). Real purchase is `When I create a mark` on `@adapters` `marks.feature`.
 
 ## Paid adapter rules
 

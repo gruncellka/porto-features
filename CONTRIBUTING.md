@@ -12,7 +12,7 @@ First run creates `venv`, installs dev dependencies, and installs pre-commit hoo
 
 ## What to edit
 
-- Feature files: `porto_features/features/**/*.feature` (`sdk/core/`, `sdk/providers/{id}/`, `adapters/{id}/`)
+- Feature files: `porto_features/features/**/*.feature` (`sdk/core/`, `sdk/providers/{id}/`, `adapters/{id}/{integration}/marks.feature` and `errors.feature`)
 - Error catalog: `porto_features/errors.json` (authored PORTO_* taxonomy; each SDK builds language bindings)
 - Fixtures: `porto_features/fixtures/addresses/**/*.json`
 - Docs: `docs/` (`vocabulary.md`, `scenario-policy.md`, `matrix.md` → Lab)

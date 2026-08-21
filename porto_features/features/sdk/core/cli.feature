@@ -3,7 +3,7 @@
 Feature: CLI Commands
   As a developer or integrator
   I want to use CLI commands for porto SDK
-  So that I can inspect data, validate payloads, and calculate prices without writing code
+  So that I can inspect data, validate payloads, and get prices without writing code
 
   Rule: Core commands
     Background:
@@ -73,7 +73,7 @@ Feature: CLI Commands
       And the result should have field "price" as number
       And the result should have field "currency" with value "EUR"
 
-    Scenario: [deutschepost] Calculate price for domestic small letter
+    Scenario: [deutschepost] Get price for domestic small letter
       When I call CLI price command with porto_id "small" country "DE" weight 20
       Then the result should have field "product" with nested "id" "standardbrief"
       And the result should have field "zone" with nested "id" "domestic"
@@ -81,17 +81,13 @@ Feature: CLI Commands
       And the result should have field "currency" with value "EUR"
       And the result should have field "is_valid" with value true
 
-    Scenario: [deutschepost] Calculate price for international letter
+    Scenario: [deutschepost] Get price for international letter
       When I call CLI price command with porto_id "small" country "US" weight 20
       Then the result should have field "product"
       And the result should have field "zone" with nested "id" "world"
       And the result should have field "base_price" as number
       And the result should have field "currency" with value "EUR"
 
-    Scenario: [deutschepost] Check restrictions for home country
-      When I call CLI restrictions command with country "DE"
-      Then the result should have field "restricted" with value false
-      And the result should have field "restrictions" as array
 
     Scenario: [deutschepost] CLI commands produce identical results for price
       When I call CLI price command with porto_id "small" country "DE" weight 20
@@ -149,7 +145,7 @@ Feature: CLI Commands
       And the result should have field "price" as number
       And the result should have field "currency" with value "UAH"
 
-    Scenario: [ukrposhta] Calculate price for domestic small letter
+    Scenario: [ukrposhta] Get price for domestic small letter
       When I call CLI price command with porto_id "small" country "UA" weight 20
       Then the result should have field "product" with nested "id" "lyst_standartnyi"
       And the result should have field "zone" with nested "id" "domestic"
@@ -157,17 +153,13 @@ Feature: CLI Commands
       And the result should have field "currency" with value "UAH"
       And the result should have field "is_valid" with value true
 
-    Scenario: [ukrposhta] Calculate price for international letter
+    Scenario: [ukrposhta] Get price for international letter
       When I call CLI price command with porto_id "small" country "US" weight 20
       Then the result should have field "product"
       And the result should have field "zone" with nested "id" "world"
       And the result should have field "base_price" as number
       And the result should have field "currency" with value "USD"
 
-    Scenario: [ukrposhta] Check restrictions for home country
-      When I call CLI restrictions command with country "UA"
-      Then the result should have field "restricted" with value false
-      And the result should have field "restrictions" as array
 
     Scenario: [ukrposhta] CLI commands produce identical results for price
       When I call CLI price command with porto_id "small" country "UA" weight 20
@@ -227,7 +219,7 @@ Feature: CLI Commands
       And the result should have field "price" as number
       And the result should have field "currency" with value "EUR"
 
-    Scenario: [laposte] Calculate price for domestic small letter
+    Scenario: [laposte] Get price for domestic small letter
       When I call CLI price command with porto_id "small" country "FR" weight 20
       Then the result should have field "product" with nested "id" "lettre_verte"
       And the result should have field "zone" with nested "id" "domestic"
@@ -235,17 +227,13 @@ Feature: CLI Commands
       And the result should have field "currency" with value "EUR"
       And the result should have field "is_valid" with value true
 
-    Scenario: [laposte] Calculate price for international letter
+    Scenario: [laposte] Get price for international letter
       When I call CLI price command with porto_id "small" country "US" weight 20
       Then the result should have field "product"
       And the result should have field "zone" with nested "id" "world"
       And the result should have field "base_price" as number
       And the result should have field "currency" with value "EUR"
 
-    Scenario: [laposte] Check restrictions for home country
-      When I call CLI restrictions command with country "FR"
-      Then the result should have field "restricted" with value false
-      And the result should have field "restrictions" as array
 
     Scenario: [laposte] CLI commands produce identical results for price
       When I call CLI price command with porto_id "small" country "FR" weight 20
@@ -304,7 +292,7 @@ Feature: CLI Commands
       And the result should have field "price" as number
       And the result should have field "currency" with value "CHF"
 
-    Scenario: [swisspost] Calculate price for domestic small letter
+    Scenario: [swisspost] Get price for domestic small letter
       Given product id is "a_post_standardbrief"
       When I call CLI price command with porto_id "small" country "CH" weight 20
       Then the result should have field "product" with nested "id" "a_post_standardbrief"
@@ -313,17 +301,13 @@ Feature: CLI Commands
       And the result should have field "currency" with value "CHF"
       And the result should have field "is_valid" with value true
 
-    Scenario: [swisspost] Calculate price for international letter
+    Scenario: [swisspost] Get price for international letter
       When I call CLI price command with porto_id "small" country "US" weight 20
       Then the result should have field "product"
       And the result should have field "zone" with nested "id" "world"
       And the result should have field "base_price" as number
       And the result should have field "currency" with value "CHF"
 
-    Scenario: [swisspost] Check restrictions for home country
-      When I call CLI restrictions command with country "CH"
-      Then the result should have field "restricted" with value false
-      And the result should have field "restrictions" as array
 
     Scenario: [swisspost] CLI commands produce identical results for price
       Given product id is "a_post_standardbrief"

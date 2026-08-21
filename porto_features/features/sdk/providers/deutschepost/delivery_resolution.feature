@@ -14,7 +14,7 @@ Feature: Deutsche Post delivery resolution
     Given I want to send a letter to country "DE"
     And the letter weight is 20 grams
     And the letter porto_id is "small"
-    When I resolve the shipping configuration
+    When I resolve the letter
     Then I should get product with id "standardbrief"
     And delivery hint span should be "between"
     And delivery hint days max should be 2

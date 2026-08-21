@@ -2,86 +2,81 @@
 @core
 Feature: Restrictions policy
   As a developer
-  I want to check shipping restrictions and sanctions
-  So that I can ensure compliance with shipping regulations
+  I want destination eligibility during letter resolution
+  So that I can comply with mailing restrictions
 
   Rule: Operational destinations
-    Background:
-      Given I have a Porto SDK client initialized
-      And I have access to porto-data
-
-    Scenario: Check restrictions for destination country
-      Given I want to send a letter to country "DE"
-      When I check restrictions
-      Then there should be no restrictions
-      And shipping should be allowed
-
-    Scenario: Check restrictions for EU country
-      Given I want to send a letter to country "FR"
-      When I check restrictions
-      Then there should be no restrictions
-      And shipping should be allowed
-
-  Rule: Restricted destinations and sanctions
-    Background:
-      Given I have a Porto SDK client initialized
-      And I have access to porto-data
-
-    Scenario: Check restrictions for restricted country
-      Given I want to send a letter to country "YE"
-      When I check restrictions
-      Then there should be restrictions
-      And shipping should be restricted
-      And I should get restriction information
-
-    Scenario: Reject shipment to restricted region in Ukraine (UA-14)
-      Given I have destination address fixture "restricted_UA"
-      And I want to send a letter to country "UA"
-      And destination region code is "UA-14"
-      When I check restrictions
-      Then there should be restrictions
-      And shipping should be prohibited
-      And I should get an error about restricted destination region
-
-    Scenario: Check restrictions returns framework information
-      Given I want to send a letter to a restricted country
-      When I check restrictions
-      Then I should get framework information
-      And the framework should indicate the legal basis
-      And the framework should indicate effective dates
-
-    Scenario: Check if country is under sanctions
-      Given I want to send a letter to country "RU"
-      When I check sanctions
-      Then the country should be under sanctions
-      And I should get sanctions information
-      And shipping should be restricted
-
-    Scenario: Check denied party screening information
-      When I access denied party screening information
-      Then I should get screening policy details
-      And the information should include compliance frameworks
-      And the information should include screening lists
-
-  Rule: SDK integration with restrictions
     Background:
       Given provider is "deutschepost"
       And I have a Porto SDK client initialized
       And I have access to porto-data
 
-    Scenario: Resolution includes restriction status
+    Scenario: Resolve letter to home country
       Given I want to send a letter to country "DE"
       And the letter weight is 20 grams
       And the letter porto_id is "small"
-      When I resolve the shipping configuration
-      Then the resolution should include restriction status
-      And the restriction status should indicate if shipping is allowed
+      When I resolve the letter
+      Then I should get product with id "standardbrief"
+      And I should get zone with id "domestic"
 
-    Scenario: Validation warns about restrictions
-      Given I have a letter with porto_id "small"
-      And the destination country has restrictions
-      And valid dimensions and weight
-      When I validate the letter
-      Then the validation should pass
-      And I should get warnings about restrictions
-      And the warnings should include restriction details
+    Scenario: Resolve letter to EU country
+      Given I want to send a letter to country "FR"
+      And the letter weight is 20 grams
+      And the letter porto_id is "small"
+      When I resolve the letter
+      Then I should get product with id "standardbrief"
+      And I should get zone with id "zone_1_eu"
+
+  Rule: Restricted destinations
+    Background:
+      Given provider is "deutschepost"
+      And I have a Porto SDK client initialized
+      And I have access to porto-data
+
+    Scenario: Cannot resolve letter to prohibited country
+      Given I want to send a letter to country "YE"
+      And the letter weight is 20 grams
+      And the letter porto_id is "small"
+      When I resolve the letter
+      Then the resolution should be invalid
+      And I should get Porto error code "PORTO_DESTINATION_UNSUPPORTED"
+
+    Scenario: Cannot resolve letter to restricted region in Ukraine (UA-14)
+      Given I have destination address fixture "restricted_UA"
+      And I want to send a letter to country "UA"
+      And destination region code is "UA-14"
+      And the letter weight is 20 grams
+      And the letter porto_id is "small"
+      When I resolve the letter
+      Then the resolution should be invalid
+      And I should get Porto error code "PORTO_DESTINATION_UNSUPPORTED"
+      And I should get an error about restricted destination region
+
+    Scenario: Cannot resolve letter returns framework information
+      Given I want to send a letter to country "YE"
+      And the letter weight is 20 grams
+      And the letter porto_id is "small"
+      When I resolve the letter
+      Then the resolution should be invalid
+      And I should get Porto error code "PORTO_DESTINATION_UNSUPPORTED"
+      And I should get framework information
+      And the framework should indicate the legal basis
+      And the framework should indicate effective dates
+
+  Rule: Catalog inspection
+    Background:
+      Given I have a Porto SDK client initialized
+      And I have access to porto-data
+
+    Scenario: Inspect restrictions data
+      When I inspect restrictions data
+      Then I should get restrictions information
+      And restrictions should have field "sanctions_information"
+      And restrictions should have field "denied_party_screening"
+      And restrictions should have array "restrictions"
+
+    Scenario: Inspect denied party screening
+      When I inspect denied party screening
+      Then I should get screening policy details
+      And the information should include compliance frameworks
+      And the information should include screening lists
