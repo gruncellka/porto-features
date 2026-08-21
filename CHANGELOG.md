@@ -16,6 +16,7 @@
 - **BREAKING**: Gherkin letter vocabulary — `When I resolve the letter`, `When I get the price`, `When I inspect … data`; no shipping/shipment; canary title `Purchase mark with pricing`.
 - **BREAKING**: `restrictions.feature` goes through resolve (`PORTO_DESTINATION_UNSUPPORTED` for prohibited destinations/regions). Catalog inspect uses `When I inspect restrictions data`.
 - Overweight and invalid-address errors use `When I resolve the letter` / `When I attempt to create a mark` (no envelope-type or prepare-mark-order harness).
+- **BREAKING**: Service feature Then tokens use catalog feature `porto_id` — `tracking` (was `tracking_number`). Customer phrase “tracking number capability” stays.
 
 ## [0.4.0] - 2026-08-20
 

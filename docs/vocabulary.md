@@ -87,6 +87,8 @@ Do **not** use legacy tokens (`letter_standard`, `STANDARD`, `registered_mail`) 
 
 - `Given service porto_id is "<porto_id>"`
 - `Then the services array should contain service with id "<native_id>"`
+- `Then the features should include "<feature_porto_id>"` (catalog feature `porto_id`, e.g. `tracking` — not native `sendungsnummer`, not `tracking_number`)
+- Customer capability phrases may stay (`tracking number capability`, `proof of mailing capability`)
 
 ### Mark execution
 

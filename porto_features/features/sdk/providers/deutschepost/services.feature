@@ -24,14 +24,14 @@ Feature: Services
     Given I have service "einschreiben"
     When I get the service features
     Then I should get an array of features
-    And the features should include "tracking_number"
+    And the features should include "tracking"
     And the features should include "proof_of_mailing"
 
   Scenario: Get service features for mailbox delivery
     Given I have service "einschreiben_einwurf"
     When I get the service features
     Then I should get an array of features
-    And the features should include "tracking_number"
+    And the features should include "tracking"
 
   Scenario: Add registered mail service to letter
     Given I have a letter order
