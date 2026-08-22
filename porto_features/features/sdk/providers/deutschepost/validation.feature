@@ -3,7 +3,7 @@
 Feature: Deutsche Post letter validation
   As a developer
   I want to validate letters against Deutsche Post catalog rules
-  So that I can ensure shipping requirements are met
+  So that I can ensure mailing requirements are met
 
   Background:
     Given provider is "deutschepost"

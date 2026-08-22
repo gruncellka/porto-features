@@ -1,5 +1,6 @@
 .PHONY: . help venv install-hooks
 .PHONY: validate-features validate-fixtures lint-gherlint format-json format-code lint-code type-check
+.PHONY: check-error-contracts check
 .PHONY: validate format lint quality test test-cov test-coverage test-publish
 
 # Prefer Python 3.13+ (project requires >=3.13). Override in CI: PYTHON3=python
@@ -25,14 +26,16 @@ help:
 	@echo "  make venv          - Create venv + install dev deps only (CI / scripts)"
 	@echo ""
 	@echo "Most Common Commands:"
+	@echo "  make check         - Alias for validate (features, fixtures, error contracts)"
 	@echo "  make quality       - validate + format + lint + type-check"
-	@echo "  make validate      - Validate feature and fixture files"
+	@echo "  make validate      - Validate features, fixtures, error contracts"
 	@echo "  make format        - Format Python and JSON"
 	@echo "  make lint          - Lint features and Python"
 	@echo ""
 	@echo "Feature Commands:"
 	@echo "  make validate-features - Validate all .feature files"
 	@echo "  make validate-fixtures - Validate all fixture JSON files"
+	@echo "  make check-error-contracts - @error ⊆ errors.json; unique scenario ids"
 	@echo "  make lint-gherlint     - Lint Gherkin with gherlint"
 	@echo ""
 	@echo "JSON Commands:"
@@ -76,7 +79,9 @@ install-hooks: venv
 # ==========================================
 # Most Common Commands
 # ==========================================
-validate: venv validate-features validate-fixtures
+validate: venv validate-features validate-fixtures check-error-contracts
+
+check: validate
 
 format: venv format-code format-json
 
@@ -96,6 +101,11 @@ validate-fixtures: venv
 	@echo "Validating fixture files..."
 	@. $(VENV)/bin/activate && python scripts/validate_fixtures.py || (echo "✗ Fixture validation failed." && exit 1)
 	@echo "✓ Fixture validation complete"
+
+check-error-contracts: venv
+	@echo "Checking @error scenarios against errors.json..."
+	@. $(VENV)/bin/activate && python scripts/validate_error_contracts.py || (echo "✗ Error contracts mismatch." && exit 1)
+	@echo "✓ Error contract check complete"
 
 lint-gherlint: venv
 	@echo "Linting feature files..."

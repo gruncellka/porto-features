@@ -1,16 +1,16 @@
 @sdk
 @core
-Feature: Data Access
+Feature: Data
   As a developer
-  I want to access porto-data entities
+  I want to inspect porto-data entities
   So that I can retrieve products, zones, prices, services, restrictions, envelopes, and metadata
 
   Background:
     Given I have porto-data available
     And I have a Porto SDK client initialized
 
-  Scenario: Access products data
-    When I access products data
+  Scenario: Inspect products data
+    When I inspect products data
     Then I should get an array of products
     And the products array should contain product with id "standardbrief"
     And the products array should contain product with id "kompaktbrief"
@@ -21,8 +21,8 @@ Feature: Data Access
     And each product should have field "envelope_ids"
     And each product should have field "zones"
 
-  Scenario: Access zones data
-    When I access zones data
+  Scenario: Inspect zones data
+    When I inspect zones data
     Then I should get an array of zones
     And the zones array should contain zone with id "domestic"
     And the zones array should contain zone with id "zone_1_eu"
@@ -31,8 +31,8 @@ Feature: Data Access
     And each zone should have field "name"
     And each zone should have field "country_codes"
 
-  Scenario: Access prices data
-    When I access prices data
+  Scenario: Inspect prices data
+    When I inspect prices data
     Then I should get product prices
     And prices should have structure for product "standardbrief"
     And prices should have structure for product "kompaktbrief"
@@ -44,8 +44,8 @@ Feature: Data Access
     And each price in array should have field "effective_from"
     And each price in array should have field "effective_to"
 
-  Scenario: Access services data
-    When I access services data
+  Scenario: Inspect services data
+    When I inspect services data
     Then I should get an array of services
     And the services array should contain service with id "einschreiben"
     And the services array should contain service with id "einschreiben_einwurf"
@@ -54,8 +54,8 @@ Feature: Data Access
     And each service should have field "name"
     And each service should have field "features"
 
-  Scenario: Access restrictions data
-    When I access restrictions data
+  Scenario: Inspect restrictions data
+    When I inspect restrictions data
     Then I should get restrictions information
     And restrictions should have field "sanctions_information"
     And restrictions should have field "denied_party_screening"
@@ -63,8 +63,8 @@ Feature: Data Access
     And each restriction should have field "country_code"
     And each restriction should have field "framework_id"
 
-  Scenario: Access envelopes data
-    When I access envelopes data
+  Scenario: Inspect envelopes data
+    When I inspect envelopes data
     Then I should get an array of envelopes
     And the envelopes array should contain envelope with id "DL"
     And the envelopes array should contain envelope with id "C6"
@@ -74,8 +74,8 @@ Feature: Data Access
     And each envelope should have field "width"
     And each envelope should have field "height"
 
-  Scenario: Access weight tiers data
-    When I access weight tiers data
+  Scenario: Inspect weight tiers data
+    When I inspect weight tiers data
     Then I should get weight tiers
     And weight tiers should contain tier "W0020"
     And weight tiers should contain tier "W0050"
@@ -84,8 +84,8 @@ Feature: Data Access
     And each weight tier should have field "max"
     And each weight tier should have field "label"
 
-  Scenario: Access features data
-    When I access features data
+  Scenario: Inspect features data
+    When I inspect features data
     Then I should get an array of features
     And the features array should contain feature with id "sendungsnummer"
     And the features array should contain feature with id "einliefernachweis"
@@ -94,16 +94,16 @@ Feature: Data Access
     And each feature should have field "name"
     And each feature should have field "label"
 
-  Scenario: Access provider registry
-    When I access provider registry
+  Scenario: Inspect provider registry
+    When I inspect the provider registry
     Then I should get providers information
     And providers should include provider "deutschepost"
     And providers should include provider "ukrposhta"
     And providers should include provider "laposte"
     And providers should include provider "swisspost"
 
-  Scenario: Access integrations manifest
-    When I access integrations manifest
-    Then I should get integrations information
-    And integrations should describe adapter capabilities
-    And integrations should list adapter ids for online purchase
+  Scenario: Inspect execution manifest
+    When I inspect the execution manifest
+    Then I should get execution information
+    And execution manifest should describe billing and execution methods
+    And execution manifest should list wire ids for online purchase

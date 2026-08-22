@@ -13,15 +13,18 @@ import sys
 from pathlib import Path
 from typing import Any
 
-ADDRESS_REQUIRED_FIELDS = [
+ADDRESS_COMMON_FIELDS = [
     "id",
     "name",
-    "street",
-    "house_number",
     "postal_code",
     "city",
     "country_code",
 ]
+ADDRESS_STREET_FIELDS = ["street", "house_number"]
+
+
+def _non_empty_string(value: Any) -> bool:
+    return isinstance(value, str) and bool(value.strip())
 
 
 def find_fixture_files(directory: Path) -> list[Path]:
@@ -39,17 +42,31 @@ def find_fixture_files(directory: Path) -> list[Path]:
 
 
 def validate_address_fixture(file_path: Path, payload: dict[str, Any]) -> list[str]:
-    """Validate address fixture fields and types."""
+    """Validate address fixture fields and types (street XOR post_box)."""
     errors: list[str] = []
     relative_path = file_path.relative_to(Path.cwd())
 
-    for field in ADDRESS_REQUIRED_FIELDS:
+    for field in ADDRESS_COMMON_FIELDS:
         value = payload.get(field)
         if value is None:
             errors.append(f"❌ {relative_path}: Missing required field '{field}'")
             continue
-        if not isinstance(value, str) or not value.strip():
+        if not _non_empty_string(value):
             errors.append(f"❌ {relative_path}: Field '{field}' must be a non-empty string")
+
+    has_post_box = _non_empty_string(payload.get("post_box"))
+    has_street = _non_empty_string(payload.get("street"))
+    has_house = _non_empty_string(payload.get("house_number"))
+    has_street_line = has_street or has_house
+
+    if has_post_box and has_street_line:
+        errors.append(f"❌ {relative_path}: post_box form cannot include street/house_number")
+    elif has_post_box or has_street and has_house:
+        pass
+    else:
+        for field in ADDRESS_STREET_FIELDS:
+            if not _non_empty_string(payload.get(field)):
+                errors.append(f"❌ {relative_path}: Missing required field '{field}'")
 
     # region_code is recommended for sanctions/regional checks.
     region_code = payload.get("region_code")

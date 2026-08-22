@@ -1,0 +1,10 @@
+{
+    "id": "addr_de_invalid_postal",
+    "name": "PortoClient",
+    "street": "Python-TypeScript",
+    "house_number": "1",
+    "postal_code": "1011",
+    "city": "Lickofurt am Internet",
+    "region_code": "DE-BE",
+    "country_code": "DE"
+}

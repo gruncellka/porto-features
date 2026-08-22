@@ -1,4 +1,4 @@
 # Dev-only Gherkin lint config (repo checkout / CI). Not shipped in PyPI wheel or npm package.
 [convention]
 feature_tags_pattern = "^@(sdk|adapters|core|operator:[a-z]+|wire:[a-z][a-z0-9_]*)$"
-scenario_tags_pattern = "^@(canary|full)$"
+scenario_tags_pattern = "^@(canary|heavy|error|mark|auth|scenario:[a-z0-9._]+)$"

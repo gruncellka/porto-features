@@ -2,7 +2,7 @@
 @operator:deutschepost
 Feature: Services
   As a developer
-  I want to work with shipping services
+  I want additional services on a letter
   So that I can add additional services like registered mail to letters
 
   Background:
@@ -24,14 +24,14 @@ Feature: Services
     Given I have service "einschreiben"
     When I get the service features
     Then I should get an array of features
-    And the features should include "tracking_number"
+    And the features should include "tracking"
     And the features should include "proof_of_mailing"
 
   Scenario: Get service features for mailbox delivery
     Given I have service "einschreiben_einwurf"
     When I get the service features
     Then I should get an array of features
-    And the features should include "tracking_number"
+    And the features should include "tracking"
 
   Scenario: Add registered mail service to letter
     Given I have a letter order
@@ -49,10 +49,10 @@ Feature: Services
     And the order should have recipient signature requirement
     And the order should have return receipt capability
 
-  Scenario: Calculate price with registered mail service
+  Scenario: Get total price with registered mail service
     Given I have a letter with base price
     And service porto_id is "registered"
-    When I calculate the total price
+    When I get the total price
     Then the total price should include base price
     And the total price should include registered mail fee
     And the total price should be higher than base price

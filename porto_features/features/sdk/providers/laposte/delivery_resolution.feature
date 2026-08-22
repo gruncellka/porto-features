@@ -15,12 +15,12 @@ Feature: La Poste delivery resolution
     And the letter weight is 20 grams
     And the letter porto_id is "small"
     And delivery preference is "fastest"
-    When I resolve the shipping configuration
+    When I resolve the letter
     Then I should get product with id "lettre_services_plus"
 
   Scenario: Ambiguous without delivery hint
     Given I want to send a letter to country "FR"
     And the letter weight is 20 grams
     And the letter porto_id is "small"
-    When I resolve the shipping configuration
+    When I resolve the letter
     Then resolution should be product ambiguous
