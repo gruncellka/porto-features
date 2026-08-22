@@ -28,9 +28,9 @@
     {"code": "PORTO_DATA_SCHEMA_UNSUPPORTED", "domain": "data", "description": "porto-data package version missing or older than this SDK supports (package version is the catalog schema version)."},
     {"code": "PORTO_DATA_SCHEMA_TOO_NEW", "domain": "data", "description": "porto-data package version newer than this SDK supports; upgrade the SDK (package version is the catalog schema version)."},
     {"code": "PORTO_FEATURE_UNSUPPORTED", "domain": "feature", "description": "Capability not supported for provider or wire."},
-    {"code": "PORTO_REGISTERED_MAIL_NOT_AVAILABLE", "domain": "registered", "description": "Registered mail not available for product."},
-    {"code": "PORTO_REGISTERED_MAIL_INVALID_TYPE", "domain": "registered", "description": "Invalid registered mail type."},
-    {"code": "PORTO_REGISTERED_MAIL_TRACKING_FAILED", "domain": "registered", "description": "Registered mail tracking failed."},
+    {"code": "PORTO_REGISTERED_NOT_AVAILABLE", "domain": "registered", "description": "Registered mail not available for product."},
+    {"code": "PORTO_REGISTERED_INVALID_TYPE", "domain": "registered", "description": "Invalid registered mail type."},
+    {"code": "PORTO_REGISTERED_TRACKING_FAILED", "domain": "registered", "description": "Registered mail tracking failed."},
     {"code": "PORTO_TRACKING_UNSUPPORTED", "domain": "tracking", "description": "Provider wire or adapter cannot track this letter or mark."},
     {"code": "PORTO_TRACKING_NOT_FOUND", "domain": "tracking", "description": "Tracking number unknown to the carrier."},
     {"code": "PORTO_PROVIDER_NOT_CONFIGURED", "domain": "provider", "description": "Provider id is not configured in PortoConfig.providers."},
@@ -43,11 +43,20 @@
     },
     "PORTO_WALLET_INSUFFICIENT": {
       "required": ["required_cents"],
-      "optional": ["portokasse_id"]
+      "optional": ["wallet_account_id"]
     },
     "PORTO_DESTINATION_UNSUPPORTED": {
       "required": ["country_code"],
-      "optional": ["reason"]
+      "optional": [
+        "region_code",
+        "reason",
+        "status",
+        "description",
+        "framework",
+        "effective_from",
+        "effective_to",
+        "restrictions"
+      ]
     },
     "PORTO_DESTINATION_INVALID": {
       "required": ["country_code"],

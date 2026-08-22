@@ -2,21 +2,25 @@
 
 ## [Unreleased]
 
-### Removed
-
-- **BREAKING**: Dropped `sdk/providers/deutschepost/mark_simulate.feature` (formerly `stamp_generation.feature`). It was a misnomer for resolve + `prepare_mark_order` and never created a PortoMark; coverage remains in `resolution.feature`.
-- Dropped CLI scenarios `Simulate stamp generation` and `When I call CLI stamp simulate command...` (no CLI simulate command; steps faked `simulation: true`).
-- **BREAKING**: Dropped CLI `When I call CLI restrictions command` scenarios (no public `restrict` CLI). Eligibility is `When I resolve the letter`.
-- Dropped `When I check restrictions` / `When I check sanctions` as public steps.
-
 ### Changed
 
+- **BREAKING**: Error codes `PORTO_REGISTERED_MAIL_*` → `PORTO_REGISTERED_*` (`NOT_AVAILABLE`, `INVALID_TYPE`, `TRACKING_FAILED`).
+- **BREAKING**: `details_schemas.PORTO_WALLET_INSUFFICIENT` optional field `portokasse_id` → `wallet_account_id`.
+- **BREAKING**: Pricing matrix uses façade `When I get the price` / `Then I should get a price in cents` (dropped `When I pre-calculate the price` and pre-calculated Then synonyms from published Gherkin).
+- **`PORTO_DESTINATION_UNSUPPORTED` details:** optional `region_code`, `status`, `description`, `framework`, `effective_from`, `effective_to`, `restrictions` (resolve-path eligibility; `country_code` still required).
 - **BREAKING**: Paid adapter matrix tag `@full` → `@heavy` (no alias). Historical: `@release` → `@full` → `@heavy`.
 - `sdk/providers/deutschepost/api_comprehensive_testing.feature` → `pricing_matrix.feature`.
 - **BREAKING**: Gherkin letter vocabulary — `When I resolve the letter`, `When I get the price`, `When I inspect … data`; no shipping/shipment; canary title `Purchase mark with pricing`.
 - **BREAKING**: `restrictions.feature` goes through resolve (`PORTO_DESTINATION_UNSUPPORTED` for prohibited destinations/regions). Catalog inspect uses `When I inspect restrictions data`.
 - Overweight and invalid-address errors use `When I resolve the letter` / `When I attempt to create a mark` (no envelope-type or prepare-mark-order harness).
 - **BREAKING**: Service feature Then tokens use catalog feature `porto_id` — `tracking` (was `tracking_number`). Customer phrase “tracking number capability” stays.
+
+### Removed
+
+- **BREAKING**: Dropped `sdk/providers/deutschepost/mark_simulate.feature` (formerly `stamp_generation.feature`). It was a misnomer for resolve + `prepare_mark_order` and never created a PortoMark; coverage remains in `resolution.feature`.
+- Dropped CLI scenarios `Simulate stamp generation` and `When I call CLI stamp simulate command...` (no CLI simulate command; steps faked `simulation: true`).
+- **BREAKING**: Dropped CLI `When I call CLI restrictions command` scenarios (no public `restrict` CLI). Eligibility is `When I resolve the letter`.
+- Dropped `When I check restrictions` / `When I check sanctions` as public steps.
 
 ## [0.4.0] - 2026-08-20
 

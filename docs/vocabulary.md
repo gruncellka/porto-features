@@ -73,8 +73,9 @@ Do **not** use legacy tokens (`letter_standard`, `STANDARD`, `registered_mail`) 
 - `Given I have a letter with porto_id "<porto_id>"`
 - `Given I have product "<native_id>"`
 - `Given zone id is "<zone_id>"` (adapter wire / product-zone setups)
-- `When I get the price`
+- `When I get the price` (façade `price()` — do not use `When I pre-calculate the price`)
 - `Then I should get a price in cents`
+- `Then the price should be greater than 0`
 
 ### Catalog inspection
 

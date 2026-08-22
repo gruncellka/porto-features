@@ -10,15 +10,15 @@ Feature: Pricing matrix
     And I have a Porto SDK client initialized
     And I have access to porto-data
 
-  Scenario Outline: Pre-calculate price for product-zone combinations
+  Scenario Outline: Get price for product-zone combinations
     Given I have a letter with porto_id "<porto_id>"
     And zone id is "<zone_id>"
     And I want to send a letter to country "<country_code>"
     And the letter weight is <weight> grams
-    When I pre-calculate the price
-    Then I should get a pre-calculated price in cents
+    When I get the price
+    Then I should get a price in cents
     And the currency should be "EUR"
-    And the pre-calculated price should be greater than 0
+    And the price should be greater than 0
     And the price should be consistent with product and zone
 
     Examples:
