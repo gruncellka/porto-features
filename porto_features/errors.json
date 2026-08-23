@@ -38,6 +38,18 @@
     {"code": "PORTO_SERVICES_INCOMPATIBLE", "domain": "service", "description": "Selected postal services cannot be combined."}
   ],
   "details_schemas": {
+    "PORTO_AUTH_FAILED": {
+      "required": [],
+      "optional": ["provider_error"]
+    },
+    "PORTO_AUTH_DENIED": {
+      "required": [],
+      "optional": ["provider_error"]
+    },
+    "PORTO_LINKAGE_PENDING": {
+      "required": [],
+      "optional": ["provider_error"]
+    },
     "PORTO_ADDRESS_INVALID": {
       "required": [],
       "optional": ["field", "reason", "jurisdiction", "country_code", "form_issues"]
