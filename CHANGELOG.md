@@ -10,7 +10,7 @@
 
 - **BREAKING — Gherkin letter contract:** resolve / get the price / inspect catalog; no shipping or shipment; restrictions via resolve; `@full` → `@heavy`; pricing matrix renamed; overweight and invalid-address paths use resolve or attempt-to-mark only.
 - **BREAKING — errors.json renames:** `PORTO_DESTINATION_UNSUPPORTED` → `PORTO_DESTINATION_RESTRICTED`; `PORTO_DATA_SCHEMA_UNSUPPORTED` → `PORTO_DATA_SCHEMA_TOO_OLD` (missing version → `PORTO_DATA_INVALID`); `PORTO_REGISTERED_MAIL_*` → `PORTO_REGISTERED_*`.
-- **BREAKING — errors.json descriptions:** auth triad (FAILED / DENIED / LINKAGE); letter invalid type; price not found; network timeout / rate-limited / unavailable; feature vs capability copy.
+- **BREAKING — errors.json descriptions:** auth triad (FAILED / DENIED / LINKAGE); letter invalid type; price not found; network timeout / rate-limited / unavailable; feature vs capability copy; mark wording uses PortoMark; services incompatible without `combinable_with`.
 - **BREAKING — service features:** Then tokens use feature `porto_id` (`tracking`, not `tracking_number`).
 - Wallet insufficient details: `portokasse_id` → `wallet_account_id`; destination restricted optional resolve-path fields.
 

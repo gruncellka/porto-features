@@ -15,9 +15,9 @@
     {"code": "PORTO_PRODUCT_NOT_FOUND", "domain": "product", "description": "No product for porto_id, zone, and weight tier."},
     {"code": "PORTO_PRODUCT_AMBIGUOUS", "domain": "product", "description": "Multiple product candidates; selection failed."},
     {"code": "PORTO_PRICE_NOT_FOUND", "domain": "price", "description": "No data for the selected product, zone, and weight tier."},
-    {"code": "PORTO_MARK_GENERATION_FAILED", "domain": "mark", "description": "Postmark purchase or generation failed."},
-    {"code": "PORTO_MARK_VALIDATION_FAILED", "domain": "mark", "description": "Postmark validation failed."},
-    {"code": "PORTO_MARK_EXPIRED", "domain": "mark", "description": "Postmark expired or no longer valid."},
+    {"code": "PORTO_MARK_GENERATION_FAILED", "domain": "mark", "description": "PortoMark purchase or generation failed."},
+    {"code": "PORTO_MARK_VALIDATION_FAILED", "domain": "mark", "description": "PortoMark validation failed."},
+    {"code": "PORTO_MARK_EXPIRED", "domain": "mark", "description": "PortoMark expired or is no longer valid."},
     {"code": "PORTO_ADDRESS_INVALID", "domain": "address", "description": "Address validation failed."},
     {"code": "PORTO_NETWORK_TIMEOUT", "domain": "network", "description": "Provider request timed out."},
     {"code": "PORTO_NETWORK_RATE_LIMITED", "domain": "network", "description": "Provider rate limit reached (HTTP 429)."},
@@ -35,7 +35,7 @@
     {"code": "PORTO_TRACKING_UNSUPPORTED", "domain": "tracking", "description": "Provider wire or adapter cannot track this letter or mark."},
     {"code": "PORTO_TRACKING_NOT_FOUND", "domain": "tracking", "description": "Tracking number unknown to the carrier."},
     {"code": "PORTO_PROVIDER_NOT_CONFIGURED", "domain": "provider", "description": "Provider id is not configured in PortoConfig.providers."},
-    {"code": "PORTO_SERVICES_INCOMPATIBLE", "domain": "service", "description": "Selected add-on services are not combinable per porto-data combinable_with."}
+    {"code": "PORTO_SERVICES_INCOMPATIBLE", "domain": "service", "description": "Selected postal services cannot be combined."}
   ],
   "details_schemas": {
     "PORTO_ADDRESS_INVALID": {
