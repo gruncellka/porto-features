@@ -8,6 +8,7 @@
 
 ### Changed
 
+- Auth `details_schemas` for `PORTO_AUTH_FAILED`, `PORTO_AUTH_DENIED`, and `PORTO_LINKAGE_PENDING` now expose only opaque `provider_error`.
 - **BREAKING — Gherkin letter contract:** resolve / get the price / inspect catalog; no shipping or shipment; restrictions via resolve; `@full` → `@heavy`; pricing matrix renamed; overweight and invalid-address paths use resolve or attempt-to-mark only.
 - **BREAKING — errors.json renames:** `PORTO_DESTINATION_UNSUPPORTED` → `PORTO_DESTINATION_RESTRICTED`; `PORTO_DATA_SCHEMA_UNSUPPORTED` → `PORTO_DATA_SCHEMA_TOO_OLD` (missing version → `PORTO_DATA_INVALID`); `PORTO_REGISTERED_MAIL_*` → `PORTO_REGISTERED_*`.
 - **BREAKING — errors.json descriptions:** auth triad (FAILED / DENIED / LINKAGE); letter invalid type; price not found; network timeout / rate-limited / unavailable; feature vs capability copy; mark wording uses PortoMark; services incompatible without `combinable_with`.
