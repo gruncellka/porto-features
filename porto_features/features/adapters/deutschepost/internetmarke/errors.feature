@@ -12,11 +12,11 @@ Feature: Internetmarke adapter errors
 
   @error
   @scenario:internetmarke.missing_credentials
-  Scenario: Missing credentials returns feature not supported
+  Scenario: Missing credentials returns capability unsupported
     Given Internetmarke credentials are not configured
     When I attempt to create a mark
     Then mark creation should fail
-    And I should get Porto error code "PORTO_FEATURE_UNSUPPORTED"
+    And I should get Porto error code "PORTO_CAPABILITY_UNSUPPORTED"
 
   @error
   @scenario:internetmarke.letter.overweight
@@ -54,7 +54,7 @@ Feature: Internetmarke adapter errors
     And Internetmarke DHL app credentials are invalid for testing
     When I probe Internetmarke authentication
     Then mark creation should fail
-    And I should get Porto error code "PORTO_AUTH_DENIED"
+    And I should get Porto error code "PORTO_AUTH_FAILED"
 
   @error
   @auth
@@ -64,7 +64,7 @@ Feature: Internetmarke adapter errors
     And Internetmarke Portokasse password is invalid for testing
     When I probe Internetmarke authentication
     Then mark creation should fail
-    And I should get Porto error code "PORTO_AUTH_DENIED"
+    And I should get Porto error code "PORTO_AUTH_FAILED"
 
   @error
   @mark

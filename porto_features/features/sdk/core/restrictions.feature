@@ -39,7 +39,7 @@ Feature: Restrictions policy
       And the letter porto_id is "small"
       When I resolve the letter
       Then the resolution should be invalid
-      And I should get Porto error code "PORTO_DESTINATION_UNSUPPORTED"
+      And I should get Porto error code "PORTO_DESTINATION_RESTRICTED"
 
     Scenario: Cannot resolve letter to restricted region in Ukraine (UA-14)
       Given I have destination address fixture "restricted_UA"
@@ -49,7 +49,7 @@ Feature: Restrictions policy
       And the letter porto_id is "small"
       When I resolve the letter
       Then the resolution should be invalid
-      And I should get Porto error code "PORTO_DESTINATION_UNSUPPORTED"
+      And I should get Porto error code "PORTO_DESTINATION_RESTRICTED"
       And I should get an error about restricted destination region
 
     Scenario: Cannot resolve letter returns framework information
@@ -58,7 +58,7 @@ Feature: Restrictions policy
       And the letter porto_id is "small"
       When I resolve the letter
       Then the resolution should be invalid
-      And I should get Porto error code "PORTO_DESTINATION_UNSUPPORTED"
+      And I should get Porto error code "PORTO_DESTINATION_RESTRICTED"
       And I should get framework information
       And the framework should indicate the legal basis
       And the framework should indicate effective dates
