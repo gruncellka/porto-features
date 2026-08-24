@@ -2,9 +2,12 @@
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-08-24
+
 ### Added
 
 - `PORTO_CAPABILITY_UNSUPPORTED` — execution/billing capability absent (`mark` / `wallet`); distinct from postal `PORTO_FEATURE_UNSUPPORTED`. Details require `capability`; feature unsupported requires `feature_id`.
+- **Jurisdiction address forms:** fixtures `invalid_postal_{DE,CH,FR,UA}`, `valid_postbox_{DE,UA}`; `valid_CH` uses 4-digit NPA; `sdk/core/validation.feature` outlines for DE/CH/FR/UA street + post-box success and postal-pattern failure; `details_schemas.PORTO_ADDRESS_INVALID` optional `field` / `reason` / `jurisdiction` / `form_issues` / `kind`.
 
 ### Changed
 
@@ -14,23 +17,6 @@
 - **BREAKING — errors.json descriptions:** auth triad (FAILED / DENIED / LINKAGE); letter invalid type; price not found; network timeout / rate-limited / unavailable; feature vs capability copy; mark wording uses PortoMark; services incompatible without `combinable_with`.
 - **BREAKING — service features:** Then tokens use feature `porto_id` (`tracking`, not `tracking_number`).
 - Wallet insufficient details: `portokasse_id` → `wallet_account_id`; destination restricted optional resolve-path fields.
-
-### Removed
-
-- **BREAKING:** `mark_simulate.feature`, CLI stamp simulate, CLI restrictions command, and public check-restrictions / sanctions steps.
-
-### Chore
-
-- Cursor agent rules consolidated (`features.mdc`, `contribution.mdc`); slim BUGBOT checklist.
-
-## [0.4.0] - 2026-08-20
-
-### Added
-
-- **Jurisdiction address forms:** fixtures `invalid_postal_{DE,CH,FR,UA}`, `valid_postbox_{DE,UA}`; `valid_CH` uses 4-digit NPA; `sdk/core/validation.feature` outlines for DE/CH/FR/UA street + post-box success and postal-pattern failure; `details_schemas.PORTO_ADDRESS_INVALID` optional `field` / `reason` / `jurisdiction` / `form_issues` / `kind`.
-
-### Changed
-
 - **BREAKING**: Dropped `contracts/` — catalog is `porto_features/errors.json` (sibling of `features/`).
 - **BREAKING**: Removed adapter `fixtures/adapters/**/errors.json` — Gherkin `@error` scenarios are enough.
 - **BREAKING**: `@error` `@scenario:` ids must be unique across features (`make check`). Renamed adapter `core.letter.overweight` → `internetmarke.letter.overweight`.
@@ -46,6 +32,14 @@
 - **BREAKING**: Adapter features live under `adapters/{operator}/{integration}/` with `marks.feature` (success) and `errors.feature` (failures). Matrix refs use `adapters/deutschepost/internetmarke/marks.feature:Outline:mark_order`.
 - Added `@error`, `@auth`, and `@mark` scenario tags for adapter error contracts.
 - **`@auth`**: auth/token/linkage failures on `errors.feature` (simulated OpenAPI 401 CI-safe; live DHL/Portokasse probes lab-only).
+
+### Removed
+
+- **BREAKING:** `mark_simulate.feature`, CLI stamp simulate, CLI restrictions command, and public check-restrictions / sanctions steps.
+
+### Chore
+
+- Cursor agent rules consolidated (`features.mdc`, `contribution.mdc`); slim BUGBOT checklist.
 
 ## [0.3.0] - 2026-07-11
 
