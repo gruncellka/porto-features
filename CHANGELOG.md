@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **BREAKING — Gherkin:** letter input is weight (+ optional envelope/product id), not letter `porto_id`; services/features use `kind` (not `porto_id` / native id); CLI price is country + weight.
+- **BREAKING — errors.json:** product details drop `porto_id`; remove `PORTO_LETTER_INVALID_TYPE` and `PORTO_ADDRESS_INVALID`.
+
+### Added
+
+- Role-explicit address codes from `Porto.requires`: `PORTO_ADDRESS_{SENDER,RECIPIENT}_{REQUIRED,INVALID}`.
+- `PORTO_MARKS_MISMATCH`, `PORTO_MARKS_MANY_UNSUPPORTED`; `sdk/core/mark_requires.feature`.
+
 ## [0.4.0] - 2026-08-24
 
 ### Added

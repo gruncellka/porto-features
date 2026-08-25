@@ -13,7 +13,6 @@ Feature: Deutsche Post delivery resolution
   Scenario: Domestic delivery hint
     Given I want to send a letter to country "DE"
     And the letter weight is 20 grams
-    And the letter porto_id is "small"
     When I resolve the letter
     Then I should get product with id "standardbrief"
     And delivery hint span should be "between"

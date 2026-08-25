@@ -24,18 +24,18 @@ Feature: Services
     Given I have service "einschreiben"
     When I get the service features
     Then I should get an array of features
-    And the features should include "tracking"
-    And the features should include "proof_of_mailing"
+    And the features should include kind "tracking"
+    And the features should include kind "acceptance_proof"
 
   Scenario: Get service features for mailbox delivery
     Given I have service "einschreiben_einwurf"
     When I get the service features
     Then I should get an array of features
-    And the features should include "tracking"
+    And the features should include kind "tracking"
 
   Scenario: Add registered mail service to letter
     Given I have a letter order
-    And service porto_id is "registered"
+    And service kind is "registered"
     When I add the service to the order
     Then the order should include service "einschreiben"
     And the order should have tracking number capability
@@ -43,7 +43,7 @@ Feature: Services
 
   Scenario: Add registered mail with return receipt
     Given I have a letter order
-    And service porto_id is "registered_return_receipt"
+    And service kind is "registered_return_receipt"
     When I add the service to the order
     Then the order should include service "einschreiben_rueckschein"
     And the order should have recipient signature requirement
@@ -51,7 +51,7 @@ Feature: Services
 
   Scenario: Get total price with registered mail service
     Given I have a letter with base price
-    And service porto_id is "registered"
+    And service kind is "registered"
     When I get the total price
     Then the total price should include base price
     And the total price should include registered mail fee
@@ -59,7 +59,7 @@ Feature: Services
 
   Scenario: Validate service compatibility with product
     Given I have product "standardbrief"
-    And service porto_id is "registered"
+    And service kind is "registered"
     When I check service compatibility
     Then the service should be compatible
     And I should get no compatibility errors

@@ -16,10 +16,8 @@ Feature: Data
     And the products array should contain product with id "kompaktbrief"
     And the products array should contain product with id "grossbrief"
     And each product should have field "id"
-    And each product should have field "porto_id"
     And each product should have field "name"
-    And each product should have field "envelope_ids"
-    And each product should have field "zones"
+    And each product should have field "label"
 
   Scenario: Inspect zones data
     When I inspect zones data
@@ -50,7 +48,7 @@ Feature: Data
     And the services array should contain service with id "einschreiben"
     And the services array should contain service with id "einschreiben_einwurf"
     And each service should have field "id"
-    And each service should have field "porto_id"
+    And each service should have field "kind"
     And each service should have field "name"
     And each service should have field "features"
 
@@ -90,7 +88,7 @@ Feature: Data
     And the features array should contain feature with id "sendungsnummer"
     And the features array should contain feature with id "einliefernachweis"
     And each feature should have field "id"
-    And each feature should have field "porto_id"
+    And each feature should have field "kind"
     And each feature should have field "name"
     And each feature should have field "label"
 

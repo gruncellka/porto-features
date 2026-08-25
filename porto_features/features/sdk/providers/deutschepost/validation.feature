@@ -11,8 +11,7 @@ Feature: Deutsche Post letter validation
     And I have access to porto-data
 
   Scenario: Validate valid small letter
-    Given I have a letter with porto_id "small"
-    And length 210 mm
+    Given length 210 mm
     And width 148 mm
     And height 5 mm
     And the letter weight is 20 grams
@@ -24,8 +23,7 @@ Feature: Deutsche Post letter validation
     And the resolved product id should be "standardbrief"
 
   Scenario: Validate valid medium letter
-    Given I have a letter with porto_id "medium"
-    And length 229 mm
+    Given length 229 mm
     And width 162 mm
     And height 5 mm
     And the letter weight is 30 grams
@@ -37,8 +35,7 @@ Feature: Deutsche Post letter validation
     And the resolved product id should be "kompaktbrief"
 
   Scenario: Validate valid large letter
-    Given I have a letter with porto_id "large"
-    And length 324 mm
+    Given length 324 mm
     And width 229 mm
     And height 5 mm
     And the letter weight is 100 grams
@@ -50,8 +47,7 @@ Feature: Deutsche Post letter validation
     And the resolved product id should be "grossbrief"
 
   Scenario: Validate valid extra large letter
-    Given I have a letter with porto_id "extra_large"
-    And length 353 mm
+    Given length 353 mm
     And width 250 mm
     And height 60 mm
     And the letter weight is 501 grams
@@ -63,8 +59,7 @@ Feature: Deutsche Post letter validation
     And the resolved product id should be "maxibrief"
 
   Scenario: Reject letter with invalid dimensions
-    Given I have a letter with porto_id "small"
-    And length 50 mm
+    Given length 50 mm
     And width 50 mm
     And height 5 mm
     And the letter weight is 10 grams
@@ -75,8 +70,7 @@ Feature: Deutsche Post letter validation
     And I should get an error about invalid dimensions
 
   Scenario: Reject letter that is too heavy
-    Given I have a letter with porto_id "small"
-    And length 210 mm
+    Given length 210 mm
     And width 148 mm
     And height 5 mm
     And the letter weight is 2500 grams
@@ -87,8 +81,7 @@ Feature: Deutsche Post letter validation
     And I should get an error about weight exceeding maximum
 
   Scenario: Reject letter with invalid address
-    Given I have a letter with porto_id "small"
-    And length 210 mm
+    Given length 210 mm
     And width 148 mm
     And height 5 mm
     And the letter weight is 20 grams
@@ -99,8 +92,7 @@ Feature: Deutsche Post letter validation
     And I should get an error about invalid address
 
   Scenario: Validation returns warnings for edge cases
-    Given I have a letter with porto_id "small"
-    And length 210 mm
+    Given length 210 mm
     And width 148 mm
     And height 5 mm
     And the letter weight is 20 grams

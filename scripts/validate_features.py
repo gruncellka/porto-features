@@ -69,6 +69,26 @@ LEGACY_LETTER_TYPE_ENUM = re.compile(
     re.IGNORECASE,
 )
 
+LETTER_PORTO_ID_STEP = re.compile(
+    r"the letter porto_id is|I have a letter with porto_id|CLI price command with porto_id",
+    re.IGNORECASE,
+)
+
+SERVICE_PORTO_ID_STEP = re.compile(
+    r"service porto_id is",
+    re.IGNORECASE,
+)
+
+LEGACY_FEATURE_ASSERTION = re.compile(
+    r'the features should include "(?!kind )',
+    re.IGNORECASE,
+)
+
+PRODUCT_PORTO_ID_FIELD = re.compile(
+    r'each product should have field "porto_id"',
+    re.IGNORECASE,
+)
+
 STALE_CATALOG_REFERENCES = (
     "data_links.json",
     "dimension_ids",
@@ -145,19 +165,39 @@ def _collect_vocabulary_errors(content: str, relative_path: Path) -> list[str]:
         if f'"{native_id}"' in content or f"'{native_id}'" in content:
             errors.append(
                 f"❌ {relative_path}: Legacy native product id '{native_id}' — "
-                "use porto_id buckets in Given steps and current native id in Then assertions"
+                "use weight (and optional envelope or product id) in Given; native id in Then"
             )
     for service_id in DEPRECATED_SERVICE_IDS:
         if f'"{service_id}"' in content:
             errors.append(
                 f"❌ {relative_path}: Legacy service id '{service_id}' — "
-                "use service porto_id in Given and native id (e.g. einschreiben) in Then"
+                'use `service kind is "<kind>"` in Given and native id (e.g. einschreiben) in Then'
             )
     for match in LEGACY_LETTER_TYPE_ENUM.finditer(content):
         token = next(g for g in match.groups() if g)
         errors.append(
             f"❌ {relative_path}: Legacy letter type enum '{token}' — "
-            'use `the letter porto_id is "<bucket>"` (small, medium, large, extra_large)'
+            "use `the letter weight is <weight> grams` (optional envelope or product id)"
+        )
+    if LETTER_PORTO_ID_STEP.search(content):
+        errors.append(
+            f"❌ {relative_path}: Letter porto_id bucket steps are removed — "
+            "use weight (and optional envelope or product id); see docs/vocabulary.md"
+        )
+    if SERVICE_PORTO_ID_STEP.search(content):
+        errors.append(
+            f"❌ {relative_path}: `service porto_id is` is removed — "
+            'use `service kind is "<kind>"` (docs/vocabulary.md)'
+        )
+    if LEGACY_FEATURE_ASSERTION.search(content):
+        errors.append(
+            f"❌ {relative_path}: Feature assertions must use kind — "
+            'use `the features should include kind "<kind>"` (e.g. tracking)'
+        )
+    if PRODUCT_PORTO_ID_FIELD.search(content):
+        errors.append(
+            f"❌ {relative_path}: Products have no porto_id — "
+            'use `each product should have field "label"` (id, name, label only)'
         )
     for stale in STALE_CATALOG_REFERENCES:
         if stale in content:
