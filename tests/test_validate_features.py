@@ -121,6 +121,42 @@ def test_collect_vocabulary_errors_flags_data_links_reference():
     assert any("data_links.json" in e for e in errors)
 
 
+def test_collect_vocabulary_errors_flags_letter_porto_id_step():
+    module = load_module()
+    errors = module._collect_vocabulary_errors(
+        'Given the letter porto_id is "standard"',
+        Path("x.feature"),
+    )
+    assert any("Letter porto_id bucket steps are removed" in e for e in errors)
+
+
+def test_collect_vocabulary_errors_flags_service_porto_id_step():
+    module = load_module()
+    errors = module._collect_vocabulary_errors(
+        'And the service porto_id is "registered"',
+        Path("x.feature"),
+    )
+    assert any("service porto_id is" in e for e in errors)
+
+
+def test_collect_vocabulary_errors_flags_legacy_feature_assertion():
+    module = load_module()
+    errors = module._collect_vocabulary_errors(
+        'Then the features should include "tracking"',
+        Path("x.feature"),
+    )
+    assert any("Feature assertions must use kind" in e for e in errors)
+
+
+def test_collect_vocabulary_errors_flags_product_porto_id_field():
+    module = load_module()
+    errors = module._collect_vocabulary_errors(
+        'Then each product should have field "porto_id"',
+        Path("x.feature"),
+    )
+    assert any("Products have no porto_id" in e for e in errors)
+
+
 def test_collect_tag_casing_errors_ignores_non_at_tags():
     module = load_module()
     feature = {
