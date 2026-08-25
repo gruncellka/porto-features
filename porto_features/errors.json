@@ -39,6 +39,7 @@
     {"code": "PORTO_TRACKING_UNSUPPORTED", "domain": "tracking", "description": "Provider wire or adapter cannot track this letter or mark."},
     {"code": "PORTO_TRACKING_NOT_FOUND", "domain": "tracking", "description": "Tracking number unknown to the carrier."},
     {"code": "PORTO_PROVIDER_NOT_CONFIGURED", "domain": "provider", "description": "Provider id is not configured in PortoConfig.providers."},
+    {"code": "PORTO_SERVICE_AMBIGUOUS", "domain": "service", "description": "Multiple service options match the requested kind; selection failed."},
     {"code": "PORTO_SERVICES_INCOMPATIBLE", "domain": "service", "description": "Selected postal services cannot be combined."}
   ],
   "details_schemas": {
@@ -162,6 +163,10 @@
     "PORTO_PROVIDER_NOT_CONFIGURED": {
       "required": ["provider_id"],
       "optional": ["configured_providers"]
+    },
+    "PORTO_SERVICE_AMBIGUOUS": {
+      "required": ["kind"],
+      "optional": ["candidates", "service_ids"]
     },
     "PORTO_SERVICES_INCOMPATIBLE": {
       "required": ["service_ids"],

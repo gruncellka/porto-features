@@ -11,6 +11,7 @@
 
 - Role-explicit address codes from `Porto.requires`: `PORTO_ADDRESS_{SENDER,RECIPIENT}_{REQUIRED,INVALID}`.
 - `PORTO_MARKS_MISMATCH`, `PORTO_MARKS_MANY_UNSUPPORTED`; `sdk/core/mark_requires.feature`.
+- `PORTO_SERVICE_AMBIGUOUS` — multiple services match the requested `kind` (details require `kind`).
 
 ## [0.4.0] - 2026-08-24
 
