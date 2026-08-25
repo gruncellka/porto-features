@@ -5,6 +5,7 @@
 ### Changed
 
 - **BREAKING — Gherkin:** letter input is weight (+ optional envelope/product id), not letter `porto_id`; services/features use `kind` (not `porto_id` / native id); CLI price is country + weight.
+- **Vocabulary:** Then asserts catalog `id` (not “native id”); phrase templates use `"<id>"`.
 - **BREAKING — errors.json:** product details drop `porto_id`; remove `PORTO_LETTER_INVALID_TYPE` and `PORTO_ADDRESS_INVALID`.
 
 ### Added

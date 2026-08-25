@@ -164,14 +164,14 @@ def _collect_vocabulary_errors(content: str, relative_path: Path) -> list[str]:
     for native_id in DEPRECATED_NATIVE_PRODUCT_IDS:
         if f'"{native_id}"' in content or f"'{native_id}'" in content:
             errors.append(
-                f"❌ {relative_path}: Legacy native product id '{native_id}' — "
-                "use weight (and optional envelope or product id) in Given; native id in Then"
+                f"❌ {relative_path}: Legacy product id '{native_id}' — "
+                "use weight (and optional envelope or product id) in Given; catalog id in Then"
             )
     for service_id in DEPRECATED_SERVICE_IDS:
         if f'"{service_id}"' in content:
             errors.append(
                 f"❌ {relative_path}: Legacy service id '{service_id}' — "
-                'use `service kind is "<kind>"` in Given and native id (e.g. einschreiben) in Then'
+                'use `service kind is "<kind>"` in Given and catalog id (e.g. einschreiben) in Then'
             )
     for match in LEGACY_LETTER_TYPE_ENUM.finditer(content):
         token = next(g for g in match.groups() if g)
