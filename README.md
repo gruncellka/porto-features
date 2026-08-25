@@ -39,7 +39,7 @@ make test-cov
 
 ## Documentation
 
-- **[docs/vocabulary.md](docs/vocabulary.md)** — canonical Gherkin steps (`porto_id` input)
+- **[docs/vocabulary.md](docs/vocabulary.md)** — canonical Gherkin steps (weight + service kind input)
 - **[docs/scenario-policy.md](docs/scenario-policy.md)** — tag policy, paid adapter rules, fixtures
 - **[docs/matrix.md](docs/matrix.md)** — pointer to Lab coverage index (`labs/matrix/`)
 

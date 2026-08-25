@@ -14,7 +14,6 @@ Feature: Restrictions policy
     Scenario: Resolve letter to home country
       Given I want to send a letter to country "DE"
       And the letter weight is 20 grams
-      And the letter porto_id is "small"
       When I resolve the letter
       Then I should get product with id "standardbrief"
       And I should get zone with id "domestic"
@@ -22,7 +21,6 @@ Feature: Restrictions policy
     Scenario: Resolve letter to EU country
       Given I want to send a letter to country "FR"
       And the letter weight is 20 grams
-      And the letter porto_id is "small"
       When I resolve the letter
       Then I should get product with id "standardbrief"
       And I should get zone with id "zone_1_eu"
@@ -36,7 +34,6 @@ Feature: Restrictions policy
     Scenario: Cannot resolve letter to prohibited country
       Given I want to send a letter to country "YE"
       And the letter weight is 20 grams
-      And the letter porto_id is "small"
       When I resolve the letter
       Then the resolution should be invalid
       And I should get Porto error code "PORTO_DESTINATION_RESTRICTED"
@@ -46,7 +43,6 @@ Feature: Restrictions policy
       And I want to send a letter to country "UA"
       And destination region code is "UA-14"
       And the letter weight is 20 grams
-      And the letter porto_id is "small"
       When I resolve the letter
       Then the resolution should be invalid
       And I should get Porto error code "PORTO_DESTINATION_RESTRICTED"
@@ -55,7 +51,6 @@ Feature: Restrictions policy
     Scenario: Cannot resolve letter returns framework information
       Given I want to send a letter to country "YE"
       And the letter weight is 20 grams
-      And the letter porto_id is "small"
       When I resolve the letter
       Then the resolution should be invalid
       And I should get Porto error code "PORTO_DESTINATION_RESTRICTED"

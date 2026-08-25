@@ -8,7 +8,7 @@ Scope: **this repository only**. Agent rules: [features.mdc](rules/features.mdc)
 2. **Step definitions in this repo** — no `tests/bdd/steps/**` or runner glue.
 3. **Assets outside published paths** — only `porto_features/features/**`, `fixtures/**`, `errors.json`.
 4. **Feature missing `@sdk` or `@adapters`**.
-5. **Legacy product input** (`letter_standard`, `STANDARD`, …) — use `porto_id` size buckets.
+5. **Legacy product input** (`letter_standard`, `STANDARD`, letter `porto_id` buckets, …) — use weight (+ optional envelope or product id).
 6. **`@full` / `@release`** — use `@canary` / `@heavy`.
 7. **Fake mark simulation** (`mark_simulate`, stamp simulate, hardcoded `simulation: true`).
 8. **`@error` without unique `@scenario:` or catalog `PORTO_*`** in `errors.json`.

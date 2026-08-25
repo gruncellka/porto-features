@@ -13,8 +13,7 @@ Feature: Internetmarke adapter mark purchases
 
   @canary
   Scenario: Purchase mark with pricing
-    Given I have a letter with porto_id "small"
-    And I want to send a letter to country "DE"
+    Given I want to send a letter to country "DE"
     And the letter weight is 20 grams
     And valid destination address
     And valid origin address
@@ -29,8 +28,7 @@ Feature: Internetmarke adapter mark purchases
 
   @heavy
   Scenario: Compare pre-calculated and API prices
-    Given I have a letter with porto_id "small"
-    And I want to send a letter to country "DE"
+    Given I want to send a letter to country "DE"
     And the letter weight is 20 grams
     And Internetmarke credentials are configured
     When I create a mark

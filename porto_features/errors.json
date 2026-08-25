@@ -8,17 +8,21 @@
     {"code": "PORTO_LETTER_TOO_HEAVY", "domain": "letter", "description": "Letter weight exceeds allowed tier or product limit."},
     {"code": "PORTO_LETTER_TOO_LARGE", "domain": "letter", "description": "Letter dimensions exceed allowed limits."},
     {"code": "PORTO_LETTER_INVALID_DIMENSIONS", "domain": "letter", "description": "Letter dimensions invalid for selected product."},
-    {"code": "PORTO_LETTER_INVALID_TYPE", "domain": "letter", "description": "Letter type is invalid or unknown."},
     {"code": "PORTO_LETTER_INVALID_WEIGHT_TIER", "domain": "letter", "description": "Weight tier ID missing or invalid in catalog."},
     {"code": "PORTO_DESTINATION_RESTRICTED", "domain": "destination", "description": "Destination blocked by policy or sanctions."},
     {"code": "PORTO_DESTINATION_INVALID", "domain": "destination", "description": "Unknown country or zone lookup failed."},
-    {"code": "PORTO_PRODUCT_NOT_FOUND", "domain": "product", "description": "No product for porto_id, zone, and weight tier."},
+    {"code": "PORTO_PRODUCT_NOT_FOUND", "domain": "product", "description": "No product for zone and weight tier."},
     {"code": "PORTO_PRODUCT_AMBIGUOUS", "domain": "product", "description": "Multiple product candidates; selection failed."},
     {"code": "PORTO_PRICE_NOT_FOUND", "domain": "price", "description": "No data for the selected product, zone, and weight tier."},
     {"code": "PORTO_MARK_GENERATION_FAILED", "domain": "mark", "description": "PortoMark purchase or generation failed."},
     {"code": "PORTO_MARK_VALIDATION_FAILED", "domain": "mark", "description": "PortoMark validation failed."},
     {"code": "PORTO_MARK_EXPIRED", "domain": "mark", "description": "PortoMark expired or is no longer valid."},
-    {"code": "PORTO_ADDRESS_INVALID", "domain": "address", "description": "Address validation failed."},
+    {"code": "PORTO_ADDRESS_SENDER_REQUIRED", "domain": "address", "description": "Sender address is required for this resolved Porto."},
+    {"code": "PORTO_ADDRESS_SENDER_INVALID", "domain": "address", "description": "Sender address failed formats/addresses.json validation."},
+    {"code": "PORTO_ADDRESS_RECIPIENT_REQUIRED", "domain": "address", "description": "Recipient address is required for this resolved Porto."},
+    {"code": "PORTO_ADDRESS_RECIPIENT_INVALID", "domain": "address", "description": "Recipient address failed formats/addresses.json validation."},
+    {"code": "PORTO_MARKS_MISMATCH", "domain": "mark", "description": "mark(many) received inequivalent Portos."},
+    {"code": "PORTO_MARKS_MANY_UNSUPPORTED", "domain": "mark", "description": "Multiple mark execution is unsupported when resolved marks require sender or recipient addresses."},
     {"code": "PORTO_NETWORK_TIMEOUT", "domain": "network", "description": "Provider request timed out."},
     {"code": "PORTO_NETWORK_RATE_LIMITED", "domain": "network", "description": "Provider rate limit reached (HTTP 429)."},
     {"code": "PORTO_NETWORK_UNAVAILABLE", "domain": "network", "description": "Provider endpoint unavailable or unreachable."},
@@ -35,6 +39,7 @@
     {"code": "PORTO_TRACKING_UNSUPPORTED", "domain": "tracking", "description": "Provider wire or adapter cannot track this letter or mark."},
     {"code": "PORTO_TRACKING_NOT_FOUND", "domain": "tracking", "description": "Tracking number unknown to the carrier."},
     {"code": "PORTO_PROVIDER_NOT_CONFIGURED", "domain": "provider", "description": "Provider id is not configured in PortoConfig.providers."},
+    {"code": "PORTO_SERVICE_AMBIGUOUS", "domain": "service", "description": "Multiple service options match the requested kind; selection failed."},
     {"code": "PORTO_SERVICES_INCOMPATIBLE", "domain": "service", "description": "Selected postal services cannot be combined."}
   ],
   "details_schemas": {
@@ -50,9 +55,29 @@
       "required": [],
       "optional": ["provider_error"]
     },
-    "PORTO_ADDRESS_INVALID": {
+    "PORTO_ADDRESS_SENDER_REQUIRED": {
+      "required": [],
+      "optional": ["role"]
+    },
+    "PORTO_ADDRESS_SENDER_INVALID": {
       "required": [],
       "optional": ["field", "reason", "jurisdiction", "country_code", "form_issues"]
+    },
+    "PORTO_ADDRESS_RECIPIENT_REQUIRED": {
+      "required": [],
+      "optional": ["role"]
+    },
+    "PORTO_ADDRESS_RECIPIENT_INVALID": {
+      "required": [],
+      "optional": ["field", "reason", "jurisdiction", "country_code", "form_issues"]
+    },
+    "PORTO_MARKS_MISMATCH": {
+      "required": [],
+      "optional": ["reason"]
+    },
+    "PORTO_MARKS_MANY_UNSUPPORTED": {
+      "required": [],
+      "optional": ["requires"]
     },
     "PORTO_WALLET_INSUFFICIENT": {
       "required": ["required_cents"],
@@ -76,11 +101,11 @@
       "optional": ["reason"]
     },
     "PORTO_PRODUCT_NOT_FOUND": {
-      "required": ["porto_id", "zone_id", "weight_tier_id"],
+      "required": ["zone_id", "weight_tier_id"],
       "optional": ["product_id", "candidates"]
     },
     "PORTO_PRODUCT_AMBIGUOUS": {
-      "required": ["porto_id", "zone_id", "weight_tier_id"],
+      "required": ["zone_id", "weight_tier_id"],
       "optional": ["product_id", "candidates"]
     },
     "PORTO_PRICE_NOT_FOUND": {
@@ -138,6 +163,10 @@
     "PORTO_PROVIDER_NOT_CONFIGURED": {
       "required": ["provider_id"],
       "optional": ["configured_providers"]
+    },
+    "PORTO_SERVICE_AMBIGUOUS": {
+      "required": ["kind"],
+      "optional": ["candidates", "service_ids"]
     },
     "PORTO_SERVICES_INCOMPATIBLE": {
       "required": ["service_ids"],

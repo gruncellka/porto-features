@@ -11,8 +11,7 @@ Feature: Pricing
     And I have access to porto-data
 
   Scenario: Get price for domestic small letter
-    Given I have a letter with porto_id "small"
-    And I want to send a letter to country "DE"
+    Given I want to send a letter to country "DE"
     And the letter weight is 20 grams
     When I get the price
     Then I should get a price in cents
@@ -20,8 +19,7 @@ Feature: Pricing
     And the price should be greater than 0
 
   Scenario: Get price for EU zone small letter
-    Given I have a letter with porto_id "small"
-    And I want to send a letter to country "FR"
+    Given I want to send a letter to country "FR"
     And the letter weight is 20 grams
     When I get the price
     Then I should get a price in cents
@@ -29,8 +27,7 @@ Feature: Pricing
     And the price should be higher than domestic price
 
   Scenario: Get price for world zone small letter
-    Given I have a letter with porto_id "small"
-    And I want to send a letter to country "US"
+    Given I want to send a letter to country "US"
     And the letter weight is 20 grams
     When I get the price
     Then I should get a price in cents
@@ -38,8 +35,7 @@ Feature: Pricing
     And the price should be higher than domestic price
 
   Scenario: Get price for medium letter
-    Given I have a letter with porto_id "medium"
-    And I want to send a letter to country "DE"
+    Given I want to send a letter to country "DE"
     And the letter weight is 30 grams
     When I get the price
     Then I should get a price in cents
@@ -47,8 +43,7 @@ Feature: Pricing
     And the price should be higher than small letter price
 
   Scenario: Get price for large letter
-    Given I have a letter with porto_id "large"
-    And I want to send a letter to country "DE"
+    Given I want to send a letter to country "DE"
     And the letter weight is 100 grams
     When I get the price
     Then I should get a price in cents
@@ -56,8 +51,7 @@ Feature: Pricing
     And the price should be higher than medium letter price
 
   Scenario: Get price for extra large letter
-    Given I have a letter with porto_id "extra_large"
-    And I want to send a letter to country "DE"
+    Given I want to send a letter to country "DE"
     And the letter weight is 501 grams
     When I get the price
     Then I should get a price in cents
@@ -77,8 +71,7 @@ Feature: Pricing
     And the result should have field "currency" with value "EUR"
 
   Scenario: Price is consistent
-    Given I have a letter with porto_id "small"
-    And I want to send a letter to country "DE"
+    Given I want to send a letter to country "DE"
     And the letter weight is 20 grams
     When I get the price
     Then I should store the result

@@ -27,14 +27,15 @@ catalog load        When I inspect … data
 
 | Layer | In Gherkin | Example |
 |-------|------------|---------|
-| SDK input | **Given** `porto_id` | `the letter porto_id is "small"` |
-| Catalog fact | **Then** native `id` | `product with id "standardbrief"` |
-| Service input | **Given** service `porto_id` | `service porto_id is "registered"` |
-| Service fact | **Then** native `id` | `service with id "einschreiben"` |
+| Letter input | **Given** weight (+ optional envelope / product id) | `the letter weight is 20 grams` |
+| Catalog fact | **Then** catalog `id` | `product with id "standardbrief"` |
+| Service input | **Given** service `kind` | `service kind is "registered"` |
+| Service fact | **Then** catalog `id` | `service with id "einschreiben"` |
+| Feature fact | **Then** feature `kind` | `the features should include kind "tracking"` |
 
-`porto_id` is a size or service **bucket** at the SDK edge; native `id` is the operator catalog SKU in **Then** assertions. Catalog mapping and disambiguation rules live in **porto-data** — not duplicated here.
+Letter resolution uses **weight** (and optional **envelope id** or **product id**) at the SDK edge; catalog `id` is the operator SKU in **Then** assertions. Catalog mapping and disambiguation rules live in **porto-data** — not duplicated here.
 
-Do **not** use legacy tokens (`letter_standard`, `STANDARD`, `registered_mail`) as SDK input in new scenarios.
+Do **not** use legacy tokens (`letter_standard`, `STANDARD`, `registered_mail`, letter `porto_id` buckets) as SDK input in new scenarios.
 
 ## Shipping / shipment (forbidden in features)
 
@@ -53,13 +54,14 @@ Do **not** use legacy tokens (`letter_standard`, `STANDARD`, `registered_mail`) 
 - `Given provider is "<provider>"`
 - `Given I want to send a letter to country "<country_code>"`
 - `Given the letter weight is <weight> grams`
-- `Given the letter porto_id is "<porto_id>"`
+- `Given envelope id is "<envelope_id>"` (optional)
+- `Given product id is "<id>"` (optional disambiguation)
 - `Given delivery preference is "<preference>"`
 - `When I resolve the letter`
 
 ### Resolution assertions
 
-- `Then I should get product with id "<native_id>"`
+- `Then I should get product with id "<id>"`
 - `Then I should get zone with id "<zone_id>"`
 - `Then I should get weight tier "<tier_id>"`
 - `Then delivery hint span should be "<span>"`
@@ -70,8 +72,9 @@ Do **not** use legacy tokens (`letter_standard`, `STANDARD`, `registered_mail`) 
 
 ### Pricing
 
-- `Given I have a letter with porto_id "<porto_id>"`
-- `Given I have product "<native_id>"`
+- `Given I want to send a letter to country "<country_code>"`
+- `Given the letter weight is <weight> grams`
+- `Given I have product "<id>"`
 - `Given zone id is "<zone_id>"` (adapter wire / product-zone setups)
 - `When I get the price` (façade `price()` — do not use `When I pre-calculate the price`)
 - `Then I should get a price in cents`
@@ -83,12 +86,14 @@ Do **not** use legacy tokens (`letter_standard`, `STANDARD`, `registered_mail`) 
 - `When I inspect the provider registry`
 - `When I inspect the execution manifest`
 - `When I inspect denied party screening`
+- Products: assert `id`, `name`, `label` only
+- Services and features: assert `kind` (not `porto_id`)
 
 ### Services
 
-- `Given service porto_id is "<porto_id>"`
-- `Then the services array should contain service with id "<native_id>"`
-- `Then the features should include "<feature_porto_id>"` (catalog feature `porto_id`, e.g. `tracking` — not native `sendungsnummer`, not `tracking_number`)
+- `Given service kind is "<kind>"`
+- `Then the services array should contain service with id "<id>"`
+- `Then the features should include kind "<feature_kind>"` (e.g. `tracking` — not catalog id `sendungsnummer`)
 - Customer capability phrases may stay (`tracking number capability`, `proof of mailing capability`)
 
 ### Mark execution
@@ -104,8 +109,10 @@ Paid adapter purchase only (`marks.feature`). Offline resolve is `When I resolve
 
 ## Review checklist
 
-- Does the scenario use `porto_id` for SDK input?
-- Are native `id` values only in Then assertions?
+- Does the scenario use weight (not letter `porto_id`) for letter input?
+- Are catalog `id` values only in Then assertions (or an optional product-id pin in Given)?
+- Do service Given steps use `service kind is`?
+- Do feature Then steps use `kind` tokens?
 - Is the Feature tagged `@sdk` or `@adapters`?
 - Paid adapters: `@canary` or `@heavy` (not `@full` / `@release`)?
 - Does `@adapters` match generated wire rows in Lab `labs/matrix/orders.generated.yaml`?

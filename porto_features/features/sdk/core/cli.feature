@@ -74,7 +74,7 @@ Feature: CLI Commands
       And the result should have field "currency" with value "EUR"
 
     Scenario: [deutschepost] Get price for domestic small letter
-      When I call CLI price command with porto_id "small" country "DE" weight 20
+      When I call CLI price command with country "DE" weight 20
       Then the result should have field "product" with nested "id" "standardbrief"
       And the result should have field "zone" with nested "id" "domestic"
       And the result should have field "base_price" as number
@@ -82,7 +82,7 @@ Feature: CLI Commands
       And the result should have field "is_valid" with value true
 
     Scenario: [deutschepost] Get price for international letter
-      When I call CLI price command with porto_id "small" country "US" weight 20
+      When I call CLI price command with country "US" weight 20
       Then the result should have field "product"
       And the result should have field "zone" with nested "id" "world"
       And the result should have field "base_price" as number
@@ -90,9 +90,9 @@ Feature: CLI Commands
 
 
     Scenario: [deutschepost] CLI commands produce identical results for price
-      When I call CLI price command with porto_id "small" country "DE" weight 20
+      When I call CLI price command with country "DE" weight 20
       Then the result should be stored for comparison
-      When I call CLI price command with porto_id "small" country "DE" weight 20
+      When I call CLI price command with country "DE" weight 20
       Then the results should be identical
 
     Scenario: [deutschepost] CLI commands produce identical results for data price
@@ -146,7 +146,7 @@ Feature: CLI Commands
       And the result should have field "currency" with value "UAH"
 
     Scenario: [ukrposhta] Get price for domestic small letter
-      When I call CLI price command with porto_id "small" country "UA" weight 20
+      When I call CLI price command with country "UA" weight 20
       Then the result should have field "product" with nested "id" "lyst_standartnyi"
       And the result should have field "zone" with nested "id" "domestic"
       And the result should have field "base_price" as number
@@ -154,7 +154,7 @@ Feature: CLI Commands
       And the result should have field "is_valid" with value true
 
     Scenario: [ukrposhta] Get price for international letter
-      When I call CLI price command with porto_id "small" country "US" weight 20
+      When I call CLI price command with country "US" weight 20
       Then the result should have field "product"
       And the result should have field "zone" with nested "id" "world"
       And the result should have field "base_price" as number
@@ -162,9 +162,9 @@ Feature: CLI Commands
 
 
     Scenario: [ukrposhta] CLI commands produce identical results for price
-      When I call CLI price command with porto_id "small" country "UA" weight 20
+      When I call CLI price command with country "UA" weight 20
       Then the result should be stored for comparison
-      When I call CLI price command with porto_id "small" country "UA" weight 20
+      When I call CLI price command with country "UA" weight 20
       Then the results should be identical
 
     Scenario: [ukrposhta] CLI commands produce identical results for data price
@@ -220,7 +220,7 @@ Feature: CLI Commands
       And the result should have field "currency" with value "EUR"
 
     Scenario: [laposte] Get price for domestic small letter
-      When I call CLI price command with porto_id "small" country "FR" weight 20
+      When I call CLI price command with country "FR" weight 20
       Then the result should have field "product" with nested "id" "lettre_verte"
       And the result should have field "zone" with nested "id" "domestic"
       And the result should have field "base_price" as number
@@ -228,7 +228,7 @@ Feature: CLI Commands
       And the result should have field "is_valid" with value true
 
     Scenario: [laposte] Get price for international letter
-      When I call CLI price command with porto_id "small" country "US" weight 20
+      When I call CLI price command with country "US" weight 20
       Then the result should have field "product"
       And the result should have field "zone" with nested "id" "world"
       And the result should have field "base_price" as number
@@ -236,9 +236,9 @@ Feature: CLI Commands
 
 
     Scenario: [laposte] CLI commands produce identical results for price
-      When I call CLI price command with porto_id "small" country "FR" weight 20
+      When I call CLI price command with country "FR" weight 20
       Then the result should be stored for comparison
-      When I call CLI price command with porto_id "small" country "FR" weight 20
+      When I call CLI price command with country "FR" weight 20
       Then the results should be identical
 
     Scenario: [laposte] CLI commands produce identical results for data price
@@ -294,7 +294,7 @@ Feature: CLI Commands
 
     Scenario: [swisspost] Get price for domestic small letter
       Given product id is "a_post_standardbrief"
-      When I call CLI price command with porto_id "small" country "CH" weight 20
+      When I call CLI price command with country "CH" weight 20
       Then the result should have field "product" with nested "id" "a_post_standardbrief"
       And the result should have field "zone" with nested "id" "domestic"
       And the result should have field "base_price" as number
@@ -302,7 +302,7 @@ Feature: CLI Commands
       And the result should have field "is_valid" with value true
 
     Scenario: [swisspost] Get price for international letter
-      When I call CLI price command with porto_id "small" country "US" weight 20
+      When I call CLI price command with country "US" weight 20
       Then the result should have field "product"
       And the result should have field "zone" with nested "id" "world"
       And the result should have field "base_price" as number
@@ -311,9 +311,9 @@ Feature: CLI Commands
 
     Scenario: [swisspost] CLI commands produce identical results for price
       Given product id is "a_post_standardbrief"
-      When I call CLI price command with porto_id "small" country "CH" weight 20
+      When I call CLI price command with country "CH" weight 20
       Then the result should be stored for comparison
-      When I call CLI price command with porto_id "small" country "CH" weight 20
+      When I call CLI price command with country "CH" weight 20
       Then the results should be identical
 
     Scenario: [swisspost] CLI commands produce identical results for data price
