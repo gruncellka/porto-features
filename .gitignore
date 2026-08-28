@@ -62,3 +62,6 @@ Thumbs.db
 # Environment
 .env
 .env.local
+
+# Lab-generated coverage indexes (SoT in Porto SDK Lab; do not ship)
+porto_features/matrix/

@@ -1,6 +1,3 @@
-# Publish to npm and PyPI. Tag push v* or manual dispatch.
-# Validates via reusable validation.yml; pack smoke is publish-only (Option B).
-
 name: publish
 
 on:
@@ -33,8 +30,8 @@ jobs:
         name: validate
         uses: ./.github/workflows/validation.yml
 
-    pack:
-        name: pack
+    artifact:
+        name: artifact
         needs: [validate]
         runs-on: ubuntu-latest
         steps:
@@ -59,7 +56,7 @@ jobs:
     npm:
         name: npm
         runs-on: ubuntu-latest
-        needs: [pack]
+        needs: [artifact]
         if: github.event_name != 'workflow_dispatch' || github.event.inputs.publish_target != 'pypi'
         steps:
             - uses: actions/checkout@v4
@@ -90,7 +87,7 @@ jobs:
     pypi:
         name: pypi
         runs-on: ubuntu-latest
-        needs: [pack]
+        needs: [artifact]
         if: github.event_name != 'workflow_dispatch' || github.event.inputs.publish_target != 'npm'
         steps:
             - uses: actions/checkout@v4
