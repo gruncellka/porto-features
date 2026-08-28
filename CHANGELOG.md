@@ -2,9 +2,12 @@
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-08-28
+
 ### Removed
 
 - **BREAKING — errors.json:** drop `PORTO_DESTINATION_RESTRICTED` (unreachable; `resolve()` attaches restrictions as data and does not fail closed).
+- **`sdk/core/mark_requires.feature`:** address-require coverage folded into `sdk/core/mark.feature`.
 
 ### Changed
 
@@ -33,10 +36,6 @@
 - Role-explicit address codes from `Porto.requires`: `PORTO_ADDRESS_{SENDER,RECIPIENT}_{REQUIRED,INVALID}` (covered in `sdk/core/mark.feature`).
 - `PORTO_SERVICE_AMBIGUOUS` — multiple services match the requested `kind` (details require `kind`).
 - `PORTO_SERVICE_UNSUPPORTED` — explicit `ServiceKind` with zero catalog rows and no product-included capability match (details require `kind`).
-
-### Removed
-
-- **`sdk/core/mark_requires.feature`:** address-require coverage folded into `sdk/core/mark.feature`.
 
 ## [0.4.0] - 2026-08-24
 
