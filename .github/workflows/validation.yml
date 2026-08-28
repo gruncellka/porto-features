@@ -1,29 +1,154 @@
+# Contract validation graph. Leaf jobs map 1:1 to Make targets.
+# Aggregator job `validate` is the branch-protection required check.
+
 name: validation
 
 on:
-  push:
+    push:
+    pull_request:
+
+concurrency:
+    group: validation-${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+    cancel-in-progress: true
+
+permissions:
+    contents: read
 
 env:
     PYTHON_VERSION: '3.13'
 
 jobs:
-    validation:
-        name: Porto Features Validation
-        runs-on: ubuntu-22.04
+    features:
+        name: features
+        runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
             - uses: actions/setup-python@v5
               with:
                   python-version: ${{ env.PYTHON_VERSION }}
-                  cache: 'pip'
-            - name: Install dependencies
-              run: make venv
-            - name: Run quality checks
-              run: make quality
-            - name: Run tests with coverage gate
-              run: make test-cov
-            - name: Upload coverage reports to Codecov
+                  cache: pip
+                  cache-dependency-path: pyproject.toml
+            - name: features
+              run: |
+                  make venv
+                  make features
+
+    fixtures:
+        name: fixtures
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-python@v5
+              with:
+                  python-version: ${{ env.PYTHON_VERSION }}
+                  cache: pip
+                  cache-dependency-path: pyproject.toml
+            - name: fixtures
+              run: |
+                  make venv
+                  make fixtures
+
+    errors:
+        name: errors
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-python@v5
+              with:
+                  python-version: ${{ env.PYTHON_VERSION }}
+                  cache: pip
+                  cache-dependency-path: pyproject.toml
+            - name: errors
+              run: |
+                  make venv
+                  make errors
+
+    format:
+        name: format
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-python@v5
+              with:
+                  python-version: ${{ env.PYTHON_VERSION }}
+                  cache: pip
+                  cache-dependency-path: pyproject.toml
+            - name: format
+              run: |
+                  make venv
+                  make format CHECK=1
+
+    lint:
+        name: lint
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-python@v5
+              with:
+                  python-version: ${{ env.PYTHON_VERSION }}
+                  cache: pip
+                  cache-dependency-path: pyproject.toml
+            - name: lint
+              run: |
+                  make venv
+                  make lint
+
+    types:
+        name: types
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-python@v5
+              with:
+                  python-version: ${{ env.PYTHON_VERSION }}
+                  cache: pip
+                  cache-dependency-path: pyproject.toml
+            - name: types
+              run: |
+                  make venv
+                  make types
+
+    test:
+        name: test
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-python@v5
+              with:
+                  python-version: ${{ env.PYTHON_VERSION }}
+                  cache: pip
+                  cache-dependency-path: pyproject.toml
+            - name: test
+              run: |
+                  make venv
+                  make test
+            - name: coverage
               uses: codecov/codecov-action@v5
               continue-on-error: true
               with:
                   token: ${{ secrets.CODECOV_TOKEN }}
+                  files: ./coverage.xml
+
+    validate:
+        name: validate
+        if: always()
+        needs: [features, fixtures, errors, format, lint, types, test]
+        runs-on: ubuntu-latest
+        steps:
+            - name: validate
+              run: |
+                  set -eu
+                  for result in \
+                    ${{ needs.features.result }} \
+                    ${{ needs.fixtures.result }} \
+                    ${{ needs.errors.result }} \
+                    ${{ needs.format.result }} \
+                    ${{ needs.lint.result }} \
+                    ${{ needs.types.result }} \
+                    ${{ needs.test.result }}; do
+                    case "$result" in
+                      success) ;;
+                      *) echo "required job result=$result"; exit 1 ;;
+                    esac
+                  done
+                  echo "validate OK"

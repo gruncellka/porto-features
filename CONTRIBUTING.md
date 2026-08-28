@@ -61,12 +61,11 @@ Do not hand-edit generated Example tables on adapter Features.
 ## Workflow
 
 1. Edit features / fixtures / `errors.json`.
-2. `make check`.
-3. `make quality` and `make test-cov`.
-4. Note behavior changes under `CHANGELOG.md` → `[Unreleased]`.
-5. Commit (pre-commit runs automatically).
+2. Run validation leaves locally (`make features`, `make fixtures`, `make errors`, `make format`, `make lint`, `make types`, `make test`) or rely on pre-commit + CI.
+3. Note behavior changes under `CHANGELOG.md` → `[Unreleased]`.
+4. Commit (pre-commit runs automatically).
 
-CI runs `make quality` and `make test-cov` only.
+CI runs parallel leaf jobs (`features`, `fixtures`, `errors`, `format`, `lint`, `types`, `test`) and aggregates in `validate` — require **`validate`** for branch protection.
 
 ## Commands
 
@@ -74,13 +73,15 @@ CI runs `make quality` and `make test-cov` only.
 | ------- | ----------- |
 | `make` | venv + hooks |
 | `make help` | Show all commands |
-| `make check` | Features + fixtures + `@error` vs `errors.json` (`make validate` is the same target) |
-| `make check-error-contracts` | `@error` contracts only |
-| `make quality` | validate + lint + format + type-check |
-| `make test-cov` | Script tests with coverage gate (≥90%) |
+| `make validate` | features + fixtures + errors (contract umbrella) |
+| `make features` | Gherkin tags, vocabulary, layout (`scripts/validate_features.py`) |
+| `make fixtures` | Address JSON fixtures |
+| `make errors` | `@error` scenarios vs `errors.json` |
+| `make format` | Python + JSON (`CHECK=1` read-only) |
+| `make lint` | Gherkin + Python |
+| `make types` | Static types |
+| `make test` | Script tests with coverage gate (100%) |
 | `make test-publish` | npm + PyPI smoke test |
-
-`make check` runs `scripts/validate_features.py` (tags, vocabulary guards, gherlint) and `scripts/validate_error_contracts.py` (unique `@scenario:` ids; declared `PORTO_*` codes).
 
 ## Releases
 
@@ -88,6 +89,6 @@ CI runs `make quality` and `make test-cov` only.
 
 1. Integrate on `main`; accumulate `[Unreleased]` in `CHANGELOG.md`.
 2. Cut `release/X.Y.Z` from stable `main`.
-3. On the release branch: dated changelog section; `bump2version` (`tag = False`); `make quality` and `make test-cov`.
+3. On the release branch: dated changelog section; `bump2version` (`tag = False`); run validation leaves through `make test`.
 4. Tag `vX.Y.Z` manually; push branch and tag. Tag push triggers `.github/workflows/publish.yml`.
 5. Merge the release branch back to `main`.

@@ -264,8 +264,7 @@ def _validate_layer_tags(feature_tags: set[str], relative_path: Path) -> list[st
     layer = {t.lower() for t in feature_tags if t.lower() in LAYER_TAGS}
     if len(layer) == 0:
         errors.append(
-            f"❌ {relative_path}: Feature must declare @sdk or @adapters "
-            "(see docs/scenarios.md)"
+            f"❌ {relative_path}: Feature must declare @sdk or @adapters (see docs/scenarios.md)"
         )
     elif len(layer) > 1:
         errors.append(f"❌ {relative_path}: Feature must declare exactly one of @sdk or @adapters")

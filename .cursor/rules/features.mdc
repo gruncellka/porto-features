@@ -23,4 +23,4 @@ porto-data (facts) → porto-features (BDD contracts)
 8. Address fixtures use `locality` (not `city`).
 9. Do not hand-edit generated Example tables on adapter Features.
 
-Before merge: `make quality` · `make test-cov` · update vocabulary/CHANGELOG when contracts change.
+Before merge: run validation leaves (`make features` … `make test`) or rely on CI `validate`; update vocabulary/CHANGELOG when contracts change.

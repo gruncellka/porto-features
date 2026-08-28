@@ -55,7 +55,6 @@ porto_features = [
 line-length = 100
 target-version = "py313"
 
-# Enable formatting (replaces Black)
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
@@ -107,4 +106,4 @@ python_files = ["test_*.py"]
 source = ["scripts"]
 
 [tool.coverage.report]
-fail_under = 90
+fail_under = 100
