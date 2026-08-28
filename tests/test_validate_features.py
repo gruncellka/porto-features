@@ -83,6 +83,25 @@ def test_collect_vocabulary_errors_flags_data_links_reference():
     assert any("data_links.json" in e for e in errors)
 
 
+@pytest.mark.parametrize(
+    ("snippet", "needle"),
+    [
+        ('Given product "letter_standard"', "letter_standard"),
+        ('Given service "registered_mail"', "registered_mail"),
+        ('Given the letter type is "STANDARD"', "STANDARD"),
+        ('Given the letter porto_id is "standard"', "Letter porto_id"),
+        ('And the service porto_id is "registered"', "service porto_id is"),
+        ('Then the features should include "tracking"', "Feature assertions must use kind"),
+        ('Then each product should have field "porto_id"', "Products have no porto_id"),
+        ("Then I get a small letter", "Size-bucket"),
+    ],
+)
+def test_collect_vocabulary_errors_flags_forbidden_phrases(snippet, needle):
+    module = load_module()
+    errors = module._collect_vocabulary_errors(snippet, Path("x.feature"))
+    assert any(needle in e for e in errors)
+
+
 def test_collect_tag_casing_errors_ignores_non_at_tags():
     module = load_module()
     feature = {
