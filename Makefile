@@ -1,6 +1,6 @@
 .PHONY: . help venv install-hooks
 .PHONY: features fixtures errors
-.PHONY: validate format lint types test test-publish
+.PHONY: validate format lint types test artifact
 
 # Prefer Python 3.13+ (project requires >=3.13). Override in CI: PYTHON3=python
 PYTHON3 ?= $(shell command -v python3.13 2>/dev/null || command -v python3 2>/dev/null || echo python3)
@@ -35,7 +35,7 @@ help:
 	@echo "  make validate      - features + fixtures + errors (contract umbrella)"
 	@echo ""
 	@echo "Publish:"
-	@echo "  make test-publish  - npm + PyPI install smoke test"
+	@echo "  make artifact      - build npm+PyPI once, verify, smoke (keeps tarball + dist/)"
 	@echo ""
 
 # CI / scripts: setup only — no hooks
@@ -127,5 +127,5 @@ test: venv
 # ==========================================
 # Publish
 # ==========================================
-test-publish: venv
-	@./tests/test_publish.sh
+artifact: venv
+	@./scripts/release/verify_artifact.sh

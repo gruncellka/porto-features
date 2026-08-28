@@ -81,7 +81,7 @@ CI runs parallel leaf jobs (`features`, `fixtures`, `errors`, `format`, `lint`, 
 | `make lint` | Gherkin + Python |
 | `make types` | Static types |
 | `make test` | Script tests with coverage gate (100%) |
-| `make test-publish` | npm + PyPI smoke test |
+| `make artifact` | build npm+PyPI once, verify, smoke (keeps tarball + `dist/`) |
 
 ## Releases
 
