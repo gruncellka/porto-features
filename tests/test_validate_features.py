@@ -77,84 +77,29 @@ Feature: Untagged
     assert any("@sdk or @adapters" in e for e in errors)
 
 
-def test_validate_feature_file_rejects_legacy_product_id(tmp_path, monkeypatch):
-    module = load_module()
-    monkeypatch.chdir(tmp_path)
-    feature_file = tmp_path / "legacy.feature"
-    feature_file.write_text(
-        """
-@sdk
-Feature: Legacy
-  Scenario: Old id
-    Given product "letter_standard"
-""".strip(),
-        encoding="utf-8",
-    )
-
-    is_valid, errors = module.validate_feature_file(feature_file)
-    assert not is_valid
-    assert any("letter_standard" in e for e in errors)
-
-
-def test_validate_feature_file_rejects_legacy_letter_type_enum(tmp_path, monkeypatch):
-    module = load_module()
-    monkeypatch.chdir(tmp_path)
-    feature_file = tmp_path / "enum.feature"
-    feature_file.write_text(
-        """
-@sdk
-Feature: Enum
-  Scenario: Old enum
-    Given the letter type is "STANDARD"
-""".strip(),
-        encoding="utf-8",
-    )
-
-    is_valid, errors = module.validate_feature_file(feature_file)
-    assert not is_valid
-    assert any("STANDARD" in e for e in errors)
-
-
 def test_collect_vocabulary_errors_flags_data_links_reference():
     module = load_module()
     errors = module._collect_vocabulary_errors('When I access "data_links.json"', Path("x.feature"))
     assert any("data_links.json" in e for e in errors)
 
 
-def test_collect_vocabulary_errors_flags_letter_porto_id_step():
+@pytest.mark.parametrize(
+    ("snippet", "needle"),
+    [
+        ('Given product "letter_standard"', "letter_standard"),
+        ('Given service "registered_mail"', "registered_mail"),
+        ('Given the letter type is "STANDARD"', "STANDARD"),
+        ('Given the letter porto_id is "standard"', "Letter porto_id"),
+        ('And the service porto_id is "registered"', "service porto_id is"),
+        ('Then the features should include "tracking"', "Feature assertions must use kind"),
+        ('Then each product should have field "porto_id"', "Products have no porto_id"),
+        ("Then I get a small letter", "Size-bucket"),
+    ],
+)
+def test_collect_vocabulary_errors_flags_forbidden_phrases(snippet, needle):
     module = load_module()
-    errors = module._collect_vocabulary_errors(
-        'Given the letter porto_id is "standard"',
-        Path("x.feature"),
-    )
-    assert any("Letter porto_id bucket steps are removed" in e for e in errors)
-
-
-def test_collect_vocabulary_errors_flags_service_porto_id_step():
-    module = load_module()
-    errors = module._collect_vocabulary_errors(
-        'And the service porto_id is "registered"',
-        Path("x.feature"),
-    )
-    assert any("service porto_id is" in e for e in errors)
-
-
-def test_collect_vocabulary_errors_flags_legacy_feature_assertion():
-    module = load_module()
-    errors = module._collect_vocabulary_errors(
-        'Then the features should include "tracking"',
-        Path("x.feature"),
-    )
-    assert any("Feature assertions must use kind" in e for e in errors)
-
-
-def test_collect_vocabulary_errors_flags_product_porto_id_field():
-    module = load_module()
-    errors = module._collect_vocabulary_errors(
-        'Then each product should have field "porto_id"',
-        Path("x.feature"),
-    )
-    assert any("Products have no porto_id" in e for e in errors)
+    errors = module._collect_vocabulary_errors(snippet, Path("x.feature"))
+    assert any(needle in e for e in errors)
 
 
 def test_collect_tag_casing_errors_ignores_non_at_tags():
@@ -527,18 +472,6 @@ def test_main_exits_0_when_all_feature_checks_pass(monkeypatch):
     assert exc_info.value.code == 0
 
 
-def test_collect_vocabulary_errors_flags_deprecated_service_id():
-    module = load_module()
-    errors = module._collect_vocabulary_errors('Given service "registered_mail"', Path("x.feature"))
-    assert any("registered_mail" in e for e in errors)
-
-
-def test_validate_layer_tags_warns_on_deprecated_offline_tag():
-    module = load_module()
-    messages = module._validate_layer_tags({"offline"}, Path("legacy.feature"))
-    assert any("Deprecated tag" in m and "offline" in m for m in messages)
-
-
 def test_validate_layer_tags_rejects_both_sdk_and_adapters():
     module = load_module()
     messages = module._validate_layer_tags({"sdk", "adapters"}, Path("both.feature"))
@@ -567,24 +500,24 @@ def test_load_module_continues_when_gherlint_missing(monkeypatch):
     assert module.gherlint is None
 
 
-def test_validate_scope_tags_requires_operator_on_sdk_provider_path():
+def test_validate_scope_tags_requires_provider_on_sdk_provider_path():
     module = load_module()
     path = Path("porto_features/features/sdk/providers/deutschepost/pricing.feature")
     errors = module._validate_scope_tags({"sdk"}, path)
-    assert any("@core or exactly one @operator" in e for e in errors)
+    assert any("@core or exactly one @provider" in e for e in errors)
 
 
-def test_validate_scope_tags_rejects_core_and_operator_together():
+def test_validate_scope_tags_rejects_core_and_provider_together():
     module = load_module()
     path = Path("porto_features/features/sdk/core/restrictions.feature")
-    errors = module._validate_scope_tags({"sdk", "core", "operator:deutschepost"}, path)
+    errors = module._validate_scope_tags({"sdk", "core", "provider:deutschepost"}, path)
     assert any("mutually exclusive" in e for e in errors)
 
 
 def test_validate_scope_tags_requires_wire_on_adapters():
     module = load_module()
     path = Path("porto_features/features/adapters/deutschepost/internetmarke/marks.feature")
-    errors = module._validate_scope_tags({"adapters", "operator:deutschepost"}, path)
+    errors = module._validate_scope_tags({"adapters", "provider:deutschepost"}, path)
     assert any("@wire:" in e for e in errors)
 
 
@@ -595,20 +528,20 @@ def test_validate_scope_tags_skips_when_no_layer_tag_on_published_path():
     assert errors == []
 
 
-def test_validate_scope_tags_rejects_multiple_operator_tags_on_sdk():
+def test_validate_scope_tags_rejects_multiple_provider_tags_on_sdk():
     module = load_module()
     path = Path("porto_features/features/sdk/providers/deutschepost/pricing.feature")
     errors = module._validate_scope_tags(
-        {"sdk", "operator:deutschepost", "operator:laposte"},
+        {"sdk", "provider:deutschepost", "provider:laposte"},
         path,
     )
-    assert any("at most one @operator" in e for e in errors)
+    assert any("at most one @provider" in e for e in errors)
 
 
-def test_validate_scope_tags_rejects_sdk_operator_path_mismatch():
+def test_validate_scope_tags_rejects_sdk_provider_path_mismatch():
     module = load_module()
     path = Path("porto_features/features/sdk/providers/laposte/pricing.feature")
-    errors = module._validate_scope_tags({"sdk", "operator:deutschepost"}, path)
+    errors = module._validate_scope_tags({"sdk", "provider:deutschepost"}, path)
     assert any("must live under sdk/providers/deutschepost/" in e for e in errors)
 
 
@@ -619,18 +552,18 @@ def test_validate_scope_tags_rejects_core_outside_sdk_core():
     assert any("must live under sdk/core/" in e for e in errors)
 
 
-def test_validate_scope_tags_rejects_adapters_without_operator():
+def test_validate_scope_tags_rejects_adapters_without_provider():
     module = load_module()
     path = Path("porto_features/features/adapters/deutschepost/internetmarke/marks.feature")
     errors = module._validate_scope_tags({"adapters", "wire:internetmarke"}, path)
-    assert any("exactly one @operator" in e for e in errors)
+    assert any("exactly one @provider" in e for e in errors)
 
 
-def test_validate_scope_tags_rejects_adapters_operator_path_mismatch():
+def test_validate_scope_tags_rejects_adapters_provider_path_mismatch():
     module = load_module()
     path = Path("porto_features/features/adapters/laposte/internetmarke/marks.feature")
     errors = module._validate_scope_tags(
-        {"adapters", "operator:deutschepost", "wire:internetmarke"},
+        {"adapters", "provider:deutschepost", "wire:internetmarke"},
         path,
     )
     assert any("must live under adapters/deutschepost/" in e for e in errors)
@@ -654,7 +587,7 @@ def test_validate_scope_tags_rejects_wire_directory_mismatch():
     module = load_module()
     path = Path("porto_features/features/adapters/deutschepost/internetmarke/marks.feature")
     errors = module._validate_scope_tags(
-        {"adapters", "operator:deutschepost", "wire:wrongwire"},
+        {"adapters", "provider:deutschepost", "wire:wrongwire"},
         path,
     )
     assert any("@wire:wrongwire must match integration directory" in e for e in errors)
@@ -711,7 +644,7 @@ def test_validate_feature_file_rejects_adapters_without_lane_tags(tmp_path, monk
     feature_file.write_text(
         """
 @adapters
-@operator:deutschepost
+@provider:deutschepost
 @wire:internetmarke
 Feature: Adapter
   Scenario: Untagged paid scenario

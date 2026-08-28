@@ -1,6 +1,6 @@
 @sdk
-@operator:laposte
-Feature: La Poste product options
+@provider:laposte
+Feature: La Poste products
   As a developer
   I want ambiguous product resolution to return product options
   So that apps can disambiguate when multiple native products match at the same weight

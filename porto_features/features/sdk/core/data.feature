@@ -2,64 +2,12 @@
 @core
 Feature: Data
   As a developer
-  I want to inspect porto-data entities
-  So that I can retrieve products, zones, prices, services, restrictions, envelopes, and metadata
+  I want public catalog surfaces
+  So that I can list envelopes, providers, and product options without private loaders
 
   Background:
     Given I have porto-data available
     And I have a Porto SDK client initialized
-
-  Scenario: Inspect products data
-    When I inspect products data
-    Then I should get an array of products
-    And the products array should contain product with id "standardbrief"
-    And the products array should contain product with id "kompaktbrief"
-    And the products array should contain product with id "grossbrief"
-    And each product should have field "id"
-    And each product should have field "name"
-    And each product should have field "label"
-
-  Scenario: Inspect zones data
-    When I inspect zones data
-    Then I should get an array of zones
-    And the zones array should contain zone with id "domestic"
-    And the zones array should contain zone with id "zone_1_eu"
-    And the zones array should contain zone with id "world"
-    And each zone should have field "id"
-    And each zone should have field "name"
-    And each zone should have field "country_codes"
-
-  Scenario: Inspect prices data
-    When I inspect prices data
-    Then I should get product prices
-    And prices should have structure for product "standardbrief"
-    And prices should have structure for product "kompaktbrief"
-    And each price entry should have field "product_id"
-    And each price entry should have field "zone"
-    And each price entry should have field "weight_tier"
-    And each price entry should have field "price" as array
-    And each price in array should have field "price" as number
-    And each price in array should have field "effective_from"
-    And each price in array should have field "effective_to"
-
-  Scenario: Inspect services data
-    When I inspect services data
-    Then I should get an array of services
-    And the services array should contain service with id "einschreiben"
-    And the services array should contain service with id "einschreiben_einwurf"
-    And each service should have field "id"
-    And each service should have field "kind"
-    And each service should have field "name"
-    And each service should have field "features"
-
-  Scenario: Inspect restrictions data
-    When I inspect restrictions data
-    Then I should get restrictions information
-    And restrictions should have field "sanctions_information"
-    And restrictions should have field "denied_party_screening"
-    And restrictions should have array "restrictions"
-    And each restriction should have field "country_code"
-    And each restriction should have field "framework_id"
 
   Scenario: Inspect envelopes data
     When I inspect envelopes data
@@ -72,26 +20,6 @@ Feature: Data
     And each envelope should have field "width"
     And each envelope should have field "height"
 
-  Scenario: Inspect weight tiers data
-    When I inspect weight tiers data
-    Then I should get weight tiers
-    And weight tiers should contain tier "W0020"
-    And weight tiers should contain tier "W0050"
-    And weight tiers should contain tier "W0500"
-    And each weight tier should have field "min"
-    And each weight tier should have field "max"
-    And each weight tier should have field "label"
-
-  Scenario: Inspect features data
-    When I inspect features data
-    Then I should get an array of features
-    And the features array should contain feature with id "sendungsnummer"
-    And the features array should contain feature with id "einliefernachweis"
-    And each feature should have field "id"
-    And each feature should have field "kind"
-    And each feature should have field "name"
-    And each feature should have field "label"
-
   Scenario: Inspect provider registry
     When I inspect the provider registry
     Then I should get providers information
@@ -100,8 +28,18 @@ Feature: Data
     And providers should include provider "laposte"
     And providers should include provider "swisspost"
 
-  Scenario: Inspect execution manifest
-    When I inspect the execution manifest
-    Then I should get execution information
-    And execution manifest should describe billing and execution methods
-    And execution manifest should list wire ids for online purchase
+  Scenario: Product options are listable
+    Given I want to send a letter to country "DE"
+    And the letter weight is 20 grams
+    When I list product options
+    Then I should get a non-empty list of product options
+
+  Scenario Outline: Country alpha-3 via jurisdictions
+    When I look up country code 3 for "<country_code>"
+    Then the country code 3 should be "<country_code_3>"
+
+    Examples:
+      | country_code | country_code_3 |
+      | IE           | IRL            |
+      | BG           | BGR            |
+      | US           | USA            |

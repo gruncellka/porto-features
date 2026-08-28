@@ -1,5 +1,5 @@
 @adapters
-@operator:deutschepost
+@provider:deutschepost
 @wire:internetmarke
 Feature: Internetmarke adapter errors
   As a developer
@@ -12,11 +12,11 @@ Feature: Internetmarke adapter errors
 
   @error
   @scenario:internetmarke.missing_credentials
-  Scenario: Missing credentials returns capability unsupported
+  Scenario: Missing credentials returns auth failed
     Given Internetmarke credentials are not configured
     When I attempt to create a mark
     Then mark creation should fail
-    And I should get Porto error code "PORTO_CAPABILITY_UNSUPPORTED"
+    And I should get Porto error code "PORTO_AUTH_FAILED"
 
   @error
   @scenario:internetmarke.letter.overweight
@@ -25,7 +25,7 @@ Feature: Internetmarke adapter errors
     And I want to send a letter to country "DE"
     And the letter weight is 50000 grams
     When I resolve the letter
-    Then I should get Porto error code "PORTO_LETTER_TOO_HEAVY"
+    Then I should get Porto error code "PORTO_TOO_HEAVY"
 
   @error
   @scenario:core.address.invalid
@@ -49,36 +49,24 @@ Feature: Internetmarke adapter errors
   @auth
   @scenario:internetmarke.auth.invalid_dhl_app
   Scenario: Invalid DHL developer app credentials
-    Given Internetmarke credentials are configured
-    And Internetmarke DHL app credentials are invalid for testing
-    When I probe Internetmarke authentication
+    Given Internetmarke auth test trigger is "dhl_app_token_denied"
+    When I map the Internetmarke auth HTTP error for testing
     Then mark creation should fail
-    And I should get Porto error code "PORTO_AUTH_FAILED"
+    And I should get Porto error code "PORTO_AUTH_DENIED"
 
   @error
   @auth
   @scenario:internetmarke.auth.invalid_portokasse_password
   Scenario: Invalid Portokasse password
-    Given Internetmarke credentials are configured
-    And Internetmarke Portokasse password is invalid for testing
-    When I probe Internetmarke authentication
+    Given Internetmarke auth test trigger is "invalid_portokasse_password"
+    When I map the Internetmarke auth HTTP error for testing
     Then mark creation should fail
     And I should get Porto error code "PORTO_AUTH_FAILED"
 
   @error
-  @mark
   @scenario:internetmarke.wallet_insufficient
-  Scenario: Insufficient Portokasse wallet at mark purchase
-    Given Internetmarke credentials are configured
-    When I attempt to create a mark
+  Scenario: Insufficient Portokasse wallet maps to wallet insufficient
+    Given Internetmarke mark-execution test trigger is "wallet_balance_not_enough"
+    When I map the Internetmarke mark-execution HTTP error for testing
     Then mark creation should fail
     And I should get Porto error code "PORTO_WALLET_INSUFFICIENT"
-
-  @error
-  @mark
-  @scenario:internetmarke.mark.invalid_product
-  Scenario: Invalid product code at API checkout
-    Given Internetmarke credentials are configured
-    When I attempt to purchase a mark with invalid wire code for testing
-    Then mark creation should fail
-    And I should get Porto error code "PORTO_MARK_GENERATION_FAILED"

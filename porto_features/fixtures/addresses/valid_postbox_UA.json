@@ -3,7 +3,7 @@
     "name": "PortoClient",
     "post_box": "123",
     "postal_code": "01001",
-    "city": "Velykyi Lickon",
+    "locality": "Velykyi Lickon",
     "region_code": "UA-30",
     "country_code": "UA"
 }

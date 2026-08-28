@@ -6,10 +6,8 @@ Validates that all .feature files in porto_features/features/:
 - Are valid Gherkin syntax
 - Have at least one scenario
 - Declare @sdk or @adapters on the Feature (not legacy @offline/@online)
-- Avoid legacy porto-data / SDK vocabulary
+- Avoid legacy porto-data / implementor vocabulary
 - Pass gherlint linting rules
-
-Lab matrix indexes live under labs/matrix/ (validated in Porto SDK Lab).
 """
 
 from __future__ import annotations
@@ -36,7 +34,7 @@ except ImportError:
 
 LAYER_TAGS = frozenset({"sdk", "adapters"})
 SCOPE_CORE_TAG = "core"
-SCOPE_OPERATOR_PREFIX = "operator:"
+SCOPE_PROVIDER_PREFIX = "provider:"
 SCOPE_WIRE_PREFIX = "wire:"
 DEPRECATED_LAYER_TAGS = frozenset({"offline", "online", "capabilities", "api"})
 ADAPTER_SUB_TAGS = frozenset({"canary", "heavy"})
@@ -114,6 +112,13 @@ NON_CANONICAL_WEIGHT_STEP = re.compile(
     re.IGNORECASE,
 )
 
+SIZE_BUCKET_TAXONOMY = re.compile(
+    r"\b(?:small|medium|large|extra[ -]?large) letter\b|"
+    r"higher than (?:small|medium|large) letter price|"
+    r'the letter type is\s+"(?:small|medium|large|extra_large)"',
+    re.IGNORECASE,
+)
+
 
 def _feature_tags(feature: dict) -> set[str]:
     tags: set[str] = set()
@@ -144,7 +149,7 @@ def _collect_tag_casing_errors(feature: dict, relative_path: Path) -> list[str]:
         if body != body.lower():
             errors.append(
                 f"❌ {relative_path}: {context_label} tag '{raw}' must be lowercase — "
-                f"use '@{body.lower()}' (see docs/scenario-policy.md)"
+                f"use '@{body.lower()}' (see docs/scenarios.md)"
             )
 
     for tag in feature.get("tags", []):
@@ -215,6 +220,12 @@ def _collect_vocabulary_errors(content: str, relative_path: Path) -> list[str]:
             f"❌ {relative_path}: Non-canonical weight phrasing — "
             "use `the letter weight is <weight> grams` (docs/vocabulary.md)"
         )
+    if SIZE_BUCKET_TAXONOMY.search(content):
+        errors.append(
+            f"❌ {relative_path}: Size-bucket taxonomy is removed — "
+            "do not use small/medium/large letter as tariff classes; "
+            "assert a concrete catalog product id (docs/vocabulary.md)"
+        )
     return errors
 
 
@@ -247,14 +258,13 @@ def _validate_layer_tags(feature_tags: set[str], relative_path: Path) -> list[st
     if deprecated:
         warnings.append(
             f"⚠️  {relative_path}: Deprecated tag(s) {sorted(t.lower() for t in deprecated)} — "
-            "use @sdk or @adapters (see docs/matrix.md)"
+            "use @sdk or @adapters (see docs/scenarios.md)"
         )
 
     layer = {t.lower() for t in feature_tags if t.lower() in LAYER_TAGS}
     if len(layer) == 0:
         errors.append(
-            f"❌ {relative_path}: Feature must declare @sdk or @adapters "
-            "(see docs/scenario-policy.md)"
+            f"❌ {relative_path}: Feature must declare @sdk or @adapters (see docs/scenarios.md)"
         )
     elif len(layer) > 1:
         errors.append(f"❌ {relative_path}: Feature must declare exactly one of @sdk or @adapters")
@@ -304,26 +314,26 @@ def _validate_adapter_scenario_tags(
     if not has_lane_tag:
         return [
             f"❌ {relative_path}: @adapters {behavior or 'feature'} must tag at least one "
-            f"scenario {label} (see docs/scenario-policy.md)"
+            f"scenario {label} (see docs/scenarios.md)"
         ]
     return []
 
 
 def _scope_tags(feature_tags: set[str]) -> tuple[str | None, str | None]:
-    """Return (core|operator_id|None, wire_id|None) from scope tags."""
-    operator_id: str | None = None
+    """Return (core|provider_id|None, wire_id|None) from scope tags."""
+    provider_id: str | None = None
     wire_id: str | None = None
     tags_lower = {t.lower() for t in feature_tags}
     has_core = SCOPE_CORE_TAG in tags_lower
     for tag in feature_tags:
         lower = tag.lower()
-        if lower.startswith(SCOPE_OPERATOR_PREFIX):
-            operator_id = lower[len(SCOPE_OPERATOR_PREFIX) :]
+        if lower.startswith(SCOPE_PROVIDER_PREFIX):
+            provider_id = lower[len(SCOPE_PROVIDER_PREFIX) :]
         elif lower.startswith(SCOPE_WIRE_PREFIX):
             wire_id = lower[len(SCOPE_WIRE_PREFIX) :]
     if has_core:
         return SCOPE_CORE_TAG, wire_id
-    return operator_id, wire_id
+    return provider_id, wire_id
 
 
 def _enforce_scope_path_layout(relative_path: Path) -> bool:
@@ -333,7 +343,7 @@ def _enforce_scope_path_layout(relative_path: Path) -> bool:
 
 
 def _validate_scope_tags(feature_tags: set[str], relative_path: Path) -> list[str]:
-    """Validate @core / @operator:* / @wire:* alignment with folder layout."""
+    """Validate @core / @provider:* / @wire:* alignment with folder layout."""
     errors: list[str] = []
     if not _enforce_scope_path_layout(relative_path):
         return errors
@@ -344,33 +354,33 @@ def _validate_scope_tags(feature_tags: set[str], relative_path: Path) -> list[st
         return errors
 
     scope, wire_id = _scope_tags(feature_tags)
-    operator_tags = [t for t in feature_tags if t.lower().startswith(SCOPE_OPERATOR_PREFIX)]
+    provider_tags = [t for t in feature_tags if t.lower().startswith(SCOPE_PROVIDER_PREFIX)]
 
     if "sdk" in layer:
-        if scope == SCOPE_CORE_TAG and operator_tags:
+        if scope == SCOPE_CORE_TAG and provider_tags:
             errors.append(
-                f"❌ {relative_path}: @core and @operator:* are mutually exclusive on @sdk features"
+                f"❌ {relative_path}: @core and @provider:* are mutually exclusive on @sdk features"
             )
         elif scope != SCOPE_CORE_TAG:
-            if len(operator_tags) == 0:
+            if len(provider_tags) == 0:
                 errors.append(
-                    f"❌ {relative_path}: @sdk feature must declare @core or exactly one @operator:{{id}}"
+                    f"❌ {relative_path}: @sdk feature must declare @core or exactly one @provider:{{id}}"
                 )
-            elif len(operator_tags) > 1:
+            elif len(provider_tags) > 1:
                 errors.append(
-                    f"❌ {relative_path}: @sdk feature must declare at most one @operator:{{id}}"
+                    f"❌ {relative_path}: @sdk feature must declare at most one @provider:{{id}}"
                 )
             elif scope and f"/providers/{scope}/" not in path_posix:
                 errors.append(
-                    f"❌ {relative_path}: @operator:{scope} must live under sdk/providers/{scope}/"
+                    f"❌ {relative_path}: @provider:{scope} must live under sdk/providers/{scope}/"
                 )
         elif "/sdk/core/" not in path_posix:
             errors.append(f"❌ {relative_path}: @core features must live under sdk/core/")
 
     if "adapters" in layer:
-        if len(operator_tags) != 1:
+        if len(provider_tags) != 1:
             errors.append(
-                f"❌ {relative_path}: @adapters feature must declare exactly one @operator:{{id}}"
+                f"❌ {relative_path}: @adapters feature must declare exactly one @provider:{{id}}"
             )
         wire_tags = [t for t in feature_tags if t.lower().startswith(SCOPE_WIRE_PREFIX)]
         if len(wire_tags) != 1:
@@ -379,7 +389,7 @@ def _validate_scope_tags(feature_tags: set[str], relative_path: Path) -> list[st
             )
         if scope and scope != SCOPE_CORE_TAG and f"/adapters/{scope}/" not in path_posix:
             errors.append(
-                f"❌ {relative_path}: @operator:{scope} must live under adapters/{scope}/"
+                f"❌ {relative_path}: @provider:{scope} must live under adapters/{scope}/"
             )
         if wire_id and _adapter_behavior_file(relative_path):
             parts = path_posix.split("/features/adapters/", 1)[-1].split("/")

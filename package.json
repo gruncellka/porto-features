@@ -15,7 +15,6 @@
     "keywords": [
         "postal",
         "post",
-        "shipping",
         "logistics",
         "deutsche post",
         "ukrposhta",
@@ -58,8 +57,5 @@
     },
     "engines": {
         "node": ">=20"
-    },
-    "devDependencies": {
-        "typescript": "~5.9.3"
     }
 }

@@ -32,4 +32,4 @@ Feature: Normalized Porto error codes (provider-agnostic)
     Given I want to send a letter to country "DE"
     And the letter weight is 50000 grams
     When I resolve the letter
-    Then I should get Porto error code "PORTO_LETTER_TOO_HEAVY"
+    Then I should get Porto error code "PORTO_TOO_HEAVY"

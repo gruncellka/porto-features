@@ -43,7 +43,7 @@ def test_validate_address_fixture_reports_missing_required_field(tmp_path, monke
             "street": "Main",
             "house_number": "1",
             "postal_code": "12345",
-            "city": "City",
+            "locality": "City",
         },
     )
     assert any("country_code" in e for e in errors)
@@ -64,7 +64,7 @@ def test_validate_address_fixture_rejects_empty_region_code(tmp_path, monkeypatc
             "street": "Main",
             "house_number": "1",
             "postal_code": "12345",
-            "city": "City",
+            "locality": "City",
             "country_code": "DE",
             "region_code": " ",
         },
@@ -93,7 +93,7 @@ def test_validate_address_fixture_rejects_empty_required_string(tmp_path, monkey
             "street": "Main",
             "house_number": "1",
             "postal_code": "12345",
-            "city": "City",
+            "locality": "City",
             "country_code": "DE",
         },
     )
@@ -135,7 +135,7 @@ def test_validate_fixture_file_accepts_valid_address(tmp_path, monkeypatch):
   "street": "Friedrichstrasse",
   "house_number": "123",
   "postal_code": "10117",
-  "city": "Berlin",
+  "locality": "Berlin",
   "region_code": "DE-BE",
   "country_code": "DE"
 }
@@ -162,7 +162,7 @@ def test_validate_address_fixture_accepts_post_box_form(tmp_path, monkeypatch):
             "name": "Name",
             "post_box": "123",
             "postal_code": "12345",
-            "city": "City",
+            "locality": "City",
             "country_code": "DE",
         },
     )
@@ -185,7 +185,7 @@ def test_validate_address_fixture_rejects_post_box_with_street(tmp_path, monkeyp
             "street": "Main",
             "house_number": "1",
             "postal_code": "12345",
-            "city": "City",
+            "locality": "City",
             "country_code": "DE",
         },
     )
