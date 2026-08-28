@@ -18,3 +18,17 @@ Feature: Swiss Post resolution
     And I should get zone with id "domestic"
     And I should get weight tier "W0020"
     And the resolution should be valid
+
+  Scenario: Fastest preference selects A-Post
+    Given I want to send a letter to country "CH"
+    And the letter weight is 20 grams
+    And delivery preference is "fastest"
+    When I resolve the letter
+    Then I should get product with id "a_post_standardbrief"
+
+  Scenario: Economy preference selects B-Post
+    Given I want to send a letter to country "CH"
+    And the letter weight is 20 grams
+    And delivery preference is "economy"
+    When I resolve the letter
+    Then I should get product with id "b_post_standardbrief"

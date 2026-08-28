@@ -88,6 +88,7 @@ Shared/core BDD lists public surfaces only:
 - `When I inspect envelopes data`
 - `When I inspect the provider registry`
 - `When I list product options`
+- `When I look up country code 3 for "<country_code>"` → `Then the country code 3 should be "<country_code_3>"`
 
 Provider-native product ids belong in `providers/<id>/` features, not in shared catalog dumps.
 

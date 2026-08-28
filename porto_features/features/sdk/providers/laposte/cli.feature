@@ -2,6 +2,7 @@
 @provider:laposte
 Feature: La Poste CLI catalog
   Provider-native CLI inventory and public price output for La Poste.
+  Data-price scenarios pin a catalog product and map zone → example country through public price().
 
   Background:
     Given provider is "laposte"
@@ -33,7 +34,7 @@ Feature: La Poste CLI catalog
     And the services array should contain service with id "option_suivi"
     And the services array should contain service with id "avis_de_reception_national"
 
-  Scenario: [laposte] Catalog data price row for product-zone-weight
+  Scenario: [laposte] Public price for product via zone example country
     When I call CLI data price command with product "lettre_verte" zone "domestic" weight 20
     Then the result should have field "product" with value "lettre_verte"
     And the result should have field "zone" with value "domestic"

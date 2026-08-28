@@ -2,7 +2,7 @@
 @provider:deutschepost
 Feature: Deutsche Post CLI catalog
   Provider-native CLI inventory and public price output for Deutsche Post.
-  Catalog data price rows use field "price" (product + zone + weight). Public quote CLI uses "amount".
+  Data-price scenarios pin a catalog product and map zone → example country through public price().
 
   Background:
     Given provider is "deutschepost"
@@ -33,7 +33,7 @@ Feature: Deutsche Post CLI catalog
     And the services array should contain service with id "einschreiben"
     And the services array should contain service with id "einschreiben_einwurf"
 
-  Scenario: [deutschepost] Catalog data price row for product-zone-weight
+  Scenario: [deutschepost] Public price for product via zone example country
     When I call CLI data price command with product "standardbrief" zone "zone_1_eu" weight 20
     Then the result should have field "product" with value "standardbrief"
     And the result should have field "zone" with value "zone_1_eu"

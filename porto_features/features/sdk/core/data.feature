@@ -17,8 +17,8 @@ Feature: Data
     And the envelopes array should contain envelope with id "C5"
     And the envelopes array should contain envelope with id "C4"
     And each envelope should have field "id"
-    And each envelope should have field "width_mm"
-    And each envelope should have field "height_mm"
+    And each envelope should have field "width"
+    And each envelope should have field "height"
 
   Scenario: Inspect provider registry
     When I inspect the provider registry
@@ -33,3 +33,13 @@ Feature: Data
     And the letter weight is 20 grams
     When I list product options
     Then I should get a non-empty list of product options
+
+  Scenario Outline: Country alpha-3 via jurisdictions
+    When I look up country code 3 for "<country_code>"
+    Then the country code 3 should be "<country_code_3>"
+
+    Examples:
+      | country_code | country_code_3 |
+      | IE           | IRL            |
+      | BG           | BGR            |
+      | US           | USA            |

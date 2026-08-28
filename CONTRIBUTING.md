@@ -17,7 +17,7 @@ First run creates `venv`, installs dev dependencies, and installs pre-commit hoo
 | `porto_features/features/sdk/core/` | Cross-provider `@sdk` `@core` |
 | `porto_features/features/sdk/providers/{id}/` | Provider catalog `@sdk` `@provider:{id}` |
 | `porto_features/features/adapters/{id}/{wire}/` | `marks.feature` + `errors.feature` |
-| `porto_features/errors.json` | Authored `PORTO_*` taxonomy |
+| `porto_features/errors.json` | Authored `PORTO_*` taxonomy (SoT for public code strings; SDK enums are generated from `codes[]`) |
 | `porto_features/fixtures/addresses/` | Shared address JSON |
 
 ## Writing scenarios

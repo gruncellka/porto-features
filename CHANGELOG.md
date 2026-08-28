@@ -2,11 +2,14 @@
 
 ## [Unreleased]
 
+### Removed
+
+- **BREAKING — errors.json:** drop `PORTO_DESTINATION_RESTRICTED` (unreachable; `resolve()` attaches restrictions as data and does not fail closed).
+
 ### Changed
 
 - **BREAKING — errors.json:** drop `PORTO_MARKS_MISMATCH` and `PORTO_MARKS_MANY_UNSUPPORTED` (not provider facts; Internetmarke executes any list; provider reject → `PORTO_MARK_FAILED`). Remove `internetmarke.mark.many_*` Gherkin that asserted those codes.
 - **restrictions.feature:** `resolve()` attaches country-level `Restrictions` (`impact` + `items[]`). Region precision is `restrictions.check(country, region)` only. Country aggregate is `warn` when any regional facts exist (never promote child `block`). Kherson `UA-65` is the primary partial example. Exact full legal → `block`; unaffected region → `impact: null`. Legal applicability is provider-jurisdiction driven (`legal jurisdictions` steps); routing is destination-only. `resolve` does not fail closed.
-- **errors.json:** `PORTO_DESTINATION_RESTRICTED` description is `Destination is restricted.`; details optional `restriction` + `jurisdictions` (drop `status` / singular `framework` / `frameworks`).
 - **mark together:** Internetmarke executes heterogeneous lists; core keeps empty-list + capture-loop success. Paid 3-packs assert one shared external id. Batch grouping is a consumer concern.
 - **Address fixtures / validation Gherkin:** `city` → `locality` (UPU postal vocabulary; matches porto-data address forms).
 - **Internetmarke `errors.feature`:** wallet insufficient and invalid DHL/Portokasse auth scenarios use deterministic mark-execution HTTP mapping triggers (no live purchase / no empty-wallet dependency). Invalid DHL app maps to `PORTO_AUTH_DENIED`. Shared BDD uses mark/execution vocabulary, not checkout.
@@ -23,6 +26,8 @@
 
 ### Added
 
+- **sdk coverage:** La Poste `cheapest` + Swiss Post `fastest`/`economy` delivery-preference disambiguation; jurisdictions alpha-3 outline for IE/BG/US in `core/data.feature`.
+- **cli.feature:** data-price scenarios use public `price()` via zone→country map (no catalog `(product, zone, weight)` path).
 - **mark together:** unpaid 3-mark success (`core.mark.many_success`) in `sdk/core/mark.feature`; three `@heavy` Internetmarke 3-mark purchases by coverage type (domestic base / other-zone + service / feature-bearing), not a frozen catalog tuple. Gherkin uses `together`, not `many call`.
 - Role-explicit address codes from `Porto.requires`: `PORTO_ADDRESS_{SENDER,RECIPIENT}_{REQUIRED,INVALID}` (covered in `sdk/core/mark.feature`).
 - `PORTO_SERVICE_AMBIGUOUS` — multiple services match the requested `kind` (details require `kind`).

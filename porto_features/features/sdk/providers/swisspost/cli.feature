@@ -2,6 +2,7 @@
 @provider:swisspost
 Feature: Swiss Post CLI catalog
   Provider-native CLI inventory and public price output for Swiss Post.
+  Data-price scenarios pin a catalog product and map zone → example country through public price().
 
   Background:
     Given provider is "swisspost"
@@ -32,7 +33,7 @@ Feature: Swiss Post CLI catalog
     And the services array should contain service with id "a_mail_plus"
     And the services array should contain service with id "zuschlag_dicke"
 
-  Scenario: [swisspost] Catalog data price row for product-zone-weight
+  Scenario: [swisspost] Public price for product via zone example country
     When I call CLI data price command with product "a_post_standardbrief" zone "domestic" weight 20
     Then the result should have field "product" with value "a_post_standardbrief"
     And the result should have field "zone" with value "domestic"

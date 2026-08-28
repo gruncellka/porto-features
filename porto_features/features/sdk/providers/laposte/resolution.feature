@@ -25,6 +25,13 @@ Feature: La Poste resolution
     When I resolve the letter
     Then I should get product with id "lettre_services_plus"
 
+  Scenario: Cheapest preference
+    Given I want to send a letter to country "FR"
+    And the letter weight is 20 grams
+    And delivery preference is "cheapest"
+    When I resolve the letter
+    Then I should get product with id "lettre_verte"
+
   Scenario: Ambiguous without delivery hint
     Given I want to send a letter to country "FR"
     And the letter weight is 20 grams

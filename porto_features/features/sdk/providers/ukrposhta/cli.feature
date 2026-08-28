@@ -2,6 +2,7 @@
 @provider:ukrposhta
 Feature: Ukrposhta CLI catalog
   Provider-native CLI inventory and public price output for Ukrposhta.
+  Data-price scenarios pin a catalog product and map zone → example country through public price().
 
   Background:
     Given provider is "ukrposhta"
@@ -31,7 +32,7 @@ Feature: Ukrposhta CLI catalog
     And the services array should contain service with id "mizhnarodne_zareiestrovane"
     And the services array should contain service with id "paperove_povidomlennia_vruchennia"
 
-  Scenario: [ukrposhta] Catalog data price row for product-zone-weight
+  Scenario: [ukrposhta] Public price for product via zone example country
     When I call CLI data price command with product "lyst_standartnyi" zone "domestic" weight 20
     Then the result should have field "product" with value "lyst_standartnyi"
     And the result should have field "zone" with value "domestic"
