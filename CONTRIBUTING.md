@@ -77,7 +77,7 @@ CI runs parallel leaf jobs (`features`, `fixtures`, `errors`, `format`, `lint`, 
 | `make features` | Gherkin tags, vocabulary, layout (`scripts/validate_features.py`) |
 | `make fixtures` | Address JSON fixtures |
 | `make errors` | `@error` scenarios vs `errors.json` |
-| `make format` | Python + JSON (`CHECK=1` read-only) |
+| `make format` | Check Python + JSON formatting (rewrite via pre-commit) |
 | `make lint` | Gherkin + Python |
 | `make types` | Static types |
 | `make test` | Script tests with coverage gate (100%) |

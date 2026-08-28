@@ -76,7 +76,7 @@ jobs:
             - name: format
               run: |
                   make venv
-                  make format CHECK=1
+                  make format
 
     lint:
         name: lint

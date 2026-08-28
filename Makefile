@@ -28,7 +28,7 @@ help:
 	@echo "  make features      - Gherkin tags, vocabulary, layout"
 	@echo "  make fixtures      - Address JSON fixtures"
 	@echo "  make errors        - @error scenarios vs errors.json"
-	@echo "  make format        - Python + JSON (CHECK=1 for read-only)"
+	@echo "  make format        - Check Python + JSON formatting (rewrite via pre-commit)"
 	@echo "  make lint          - Gherkin + Python"
 	@echo "  make types         - Static types"
 	@echo "  make test          - Script tests with coverage gate"
@@ -66,22 +66,15 @@ install-hooks: venv
 validate: venv features fixtures errors
 
 format: venv
-	@if [ -n "$(CHECK)" ]; then echo "Checking formatting..."; else echo "Formatting Python and JSON..."; fi
-	@if [ -n "$(CHECK)" ]; then \
-		. $(VENV)/bin/activate && ruff format --check scripts/ tests/ || (echo "✗ Python is not properly formatted." && exit 1); \
-	else \
-		. $(VENV)/bin/activate && ruff format scripts/ tests/ && ruff check --fix scripts/ tests/ || exit 1; \
-	fi
+	@echo "Checking formatting..."
+	@. $(VENV)/bin/activate && ruff format --check scripts/ tests/ || (echo "✗ Python is not properly formatted." && exit 1)
 	@for file in porto_features/fixtures/addresses/*.json; do \
 		if [ -f "$$file" ]; then \
 			if $(PYTHON3) -m json.tool "$$file" "$$file.tmp" > /dev/null 2>&1; then \
 				if ! cmp -s "$$file" "$$file.tmp"; then \
-					if [ -n "$(CHECK)" ]; then \
-						echo "✗ $$file is not properly formatted"; \
-						rm -f "$$file.tmp"; \
-						exit 1; \
-					fi; \
-					mv "$$file.tmp" "$$file" || exit 1; \
+					echo "✗ $$file is not properly formatted"; \
+					rm -f "$$file.tmp"; \
+					exit 1; \
 				else \
 					rm -f "$$file.tmp"; \
 				fi; \
@@ -92,7 +85,7 @@ format: venv
 			fi; \
 		fi; \
 	done
-	@if [ -n "$(CHECK)" ]; then echo "✓ format"; else echo "✓ format"; fi
+	@echo "✓ format"
 
 lint: venv
 	@echo "Linting Gherkin and Python..."
