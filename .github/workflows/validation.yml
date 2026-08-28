@@ -1,6 +1,3 @@
-# Contract validation graph. Leaf jobs map 1:1 to Make targets.
-# Aggregator job `validate` is the branch-protection required check.
-
 name: validation
 
 on:
