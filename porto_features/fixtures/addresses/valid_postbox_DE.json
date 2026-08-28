@@ -3,7 +3,7 @@
     "name": "PortoClient",
     "post_box": "123",
     "postal_code": "01001",
-    "city": "Lickofurt am Internet",
+    "locality": "Lickofurt am Internet",
     "region_code": "DE-BE",
     "country_code": "DE"
 }

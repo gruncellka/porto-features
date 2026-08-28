@@ -14,7 +14,7 @@ Feature: Address validation
     And street "Main Street"
     And house number "123"
     And postal code "10115"
-    And city "Berlin"
+    And locality "Berlin"
     And country code "DE"
     When I validate the address
     Then the validation should pass
@@ -34,7 +34,7 @@ Feature: Address validation
     And street "Main Street"
     And house number "123"
     And postal code "10115"
-    And city "Berlin"
+    And locality "Berlin"
     And country code "XX"
     When I validate the address
     Then the validation should fail

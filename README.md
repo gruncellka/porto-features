@@ -3,66 +3,84 @@
 [![validation](https://github.com/gruncellka/porto-features/actions/workflows/validation.yml/badge.svg)](https://github.com/gruncellka/porto-features/actions/workflows/validation.yml)
 [![codecov](https://codecov.io/gh/gruncellka/porto-features/branch/main/graph/badge.svg)](https://codecov.io/gh/gruncellka/porto-features)
 
-**Structured BDD contracts for Porto SDK** — shared Gherkin scenarios, address fixtures, and `errors.json` catalog.
+**Shared behavioral contracts for Porto SDK implementations** — Gherkin scenarios, address fixtures, and `errors.json`. This package ships the contract only.
+
+Catalog facts stay in **[porto-data](https://github.com/gruncellka/porto-data)**. This package says *what behavior must hold*, not *what the tariff tables contain*.
 
 ---
 
 ## Install
 
-**TypeScript / JavaScript (npm)**
-
 ```bash
 npm install -D @gruncellka/porto-features
-```
-
-**Python (PyPI)**
-
-```bash
+# or
 pip install "gruncellka-porto-features[dev]"
 ```
 
-Shipped paths: `porto_features/errors.json` · `porto_features/features/**/*.feature` · `porto_features/fixtures/**/*.json`
-
+Shipped: `porto_features/errors.json` · `porto_features/features/**/*.feature` · `porto_features/fixtures/**/*.json`
 
 ---
 
-## Validate locally
+## Example
 
-```bash
-make
-make check
-make quality
-make test-cov
+**Core** — shared resolve contract (cross-provider invariants):
+
+```gherkin
+@sdk
+@core
+Feature: Public resolution contract
+
+  Scenario: Destination and weight resolve a Porto without product pin
+    Given provider is "deutschepost"
+    And I want to send a letter to country "DE"
+    And the letter weight is 20 grams
+    When I resolve the letter
+    Then the resolution should be valid
+    And the resolved amount should be a positive number
 ```
 
+**Provider** — real provider catalog behavior:
+
+```gherkin
+@sdk
+@provider:deutschepost
+Feature: Deutsche Post resolution
+
+  Scenario: Resolve 20 g domestic to standardbrief
+    Given provider is "deutschepost"
+    And I want to send a letter to country "DE"
+    And the letter weight is 20 grams
+    When I resolve the letter
+    Then I should get product with id "standardbrief"
+```
+
+```text
+core       → cross-provider contract
+providers  → provider catalog contract
+adapters   → wire / execution contract
+```
+
+Canonical Gherkin phrases: [docs/vocabulary.md](docs/vocabulary.md).
+
 ---
 
-## Documentation
-
-- **[docs/vocabulary.md](docs/vocabulary.md)** — canonical Gherkin steps (weight + service kind input)
-- **[docs/scenario-policy.md](docs/scenario-policy.md)** — tag policy, paid adapter rules, fixtures
-- **[docs/matrix.md](docs/matrix.md)** — pointer to Lab coverage index (`labs/matrix/`)
-
-Catalog facts and mapping tables live in **porto-data** — not duplicated here.
-
----
-
-## Feature layout
+## Layout
 
 ```text
 porto_features/
-├── errors.json                  # PORTO_* catalog (SDKs build language bindings)
+├── errors.json                         # PORTO_* catalog
 ├── features/
 │   ├── sdk/
-│   │   ├── core/                # @sdk @core — cross-operator policy, CLI, metadata
-│   │   └── providers/{operator}/
-│   └── adapters/{operator}/
-│       └── {integration}/
-│           ├── marks.feature
-│           └── errors.feature
+│   │   ├── core/                       # @sdk @core
+│   │   └── providers/{id}/             # @sdk @provider:{id}
+│   └── adapters/{id}/{wire}/           # @adapters @provider:{id} @wire:{id}
+│       ├── marks.feature
+│       └── errors.feature
 └── fixtures/addresses/
 ```
 
-See [docs/scenario-policy.md](docs/scenario-policy.md) for tag and path rules.
+Tags: [docs/scenarios.md](docs/scenarios.md).
+
+---
 
 🔳 gruncellka

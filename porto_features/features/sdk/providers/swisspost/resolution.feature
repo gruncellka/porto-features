@@ -1,5 +1,5 @@
 @sdk
-@operator:swisspost
+@provider:swisspost
 Feature: Swiss Post resolution
   As a developer
   I want to resolve product, zone, and weight tier from country code and weight
@@ -7,9 +7,10 @@ Feature: Swiss Post resolution
 
   Background:
     Given provider is "swisspost"
+    And I have a Porto SDK client initialized
     And I have access to porto-data
 
-  Scenario: Resolve domestic A-Post standard letter
+  Scenario: Resolve domestic A-Post standardbrief
     Given I want to send a letter to country "CH"
     And the letter weight is 20 grams
     When I resolve the letter

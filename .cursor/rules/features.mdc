@@ -5,22 +5,22 @@ alwaysApply: true
 
 # Features
 
-Mistake without this: put step defs here, fake mark simulate, ship non-published paths, or use `@full` / shipping vocabulary in Gherkin.
+Mistake without this: put step defs here, fake mark simulate, ship non-published paths, or use `@operator:` / `@full` / shipping vocabulary in Gherkin.
 
-**Docs:** `docs/vocabulary.md` · `docs/scenario-policy.md` · Bugbot: [BUGBOT.md](../BUGBOT.md)
+**Docs:** `docs/vocabulary.md` · `docs/scenarios.md` · Bugbot: [BUGBOT.md](../BUGBOT.md)
 
 ```text
-porto-data (facts) → porto-features (BDD contracts) → implementor step defs (outside)
+porto-data (facts) → porto-features (BDD contracts)
 ```
 
-Wire Examples / `orders.generated.yaml`: regenerate via Lab `matrix-orders-sync.py` — do not hand-edit.
-
-1. Gherkin is implementation-agnostic (no SDK class/module names).
+1. Gherkin is implementation-agnostic (no class/module names).
 2. Given/When letter input = weight (+ optional envelope or product id); service input = `kind`; Then may assert catalog `id` or feature `kind`.
-3. No `tests/bdd/steps/**` or runner glue in this repo.
+3. No step definitions or runner glue in this repo.
 4. Published only: `porto_features/errors.json`, `features/`, `fixtures/`. No `contracts/` or package `matrix/`.
-5. Feature tags: `@sdk` or `@adapters`; paid: `@canary` / `@heavy` (never `@full` / `@release`). All tags lowercase.
+5. Feature tags: `@sdk` or `@adapters`; scope `@core` or `@provider:{id}` (never `@operator:`); paid: `@canary` / `@heavy` (never `@full` / `@release`). All tags lowercase.
 6. Offline: `When I resolve the letter`. Paid: `When I create a mark`. No `mark_simulate` / stamp simulate.
 7. Letter / price / mailing — not shipping / shipment. No `When I check restrictions`.
+8. Address fixtures use `locality` (not `city`).
+9. Do not hand-edit generated Example tables on adapter Features.
 
 Before merge: `make quality` · `make test-cov` · update vocabulary/CHANGELOG when contracts change.

@@ -4,21 +4,39 @@
 
 ### Changed
 
+- **BREAKING — errors.json:** drop `PORTO_MARKS_MISMATCH` and `PORTO_MARKS_MANY_UNSUPPORTED` (not provider facts; Internetmarke executes any list; provider reject → `PORTO_MARK_FAILED`). Remove `internetmarke.mark.many_*` Gherkin that asserted those codes.
+- **restrictions.feature:** `resolve()` attaches country-level `Restrictions` (`impact` + `items[]`). Region precision is `restrictions.check(country, region)` only. Country aggregate is `warn` when any regional facts exist (never promote child `block`). Kherson `UA-65` is the primary partial example. Exact full legal → `block`; unaffected region → `impact: null`. Legal applicability is provider-jurisdiction driven (`legal jurisdictions` steps); routing is destination-only. `resolve` does not fail closed.
+- **errors.json:** `PORTO_DESTINATION_RESTRICTED` description is `Destination is restricted.`; details optional `restriction` + `jurisdictions` (drop `status` / singular `framework` / `frameworks`).
+- **mark together:** Internetmarke executes heterogeneous lists; core keeps empty-list + capture-loop success. Paid 3-packs assert one shared external id. Batch grouping is a consumer concern.
+- **Address fixtures / validation Gherkin:** `city` → `locality` (UPU postal vocabulary; matches porto-data address forms).
+- **Internetmarke `errors.feature`:** wallet insufficient and invalid DHL/Portokasse auth scenarios use deterministic mark-execution HTTP mapping triggers (no live purchase / no empty-wallet dependency). Invalid DHL app maps to `PORTO_AUTH_DENIED`. Shared BDD uses mark/execution vocabulary, not checkout.
+- **Internetmarke `marks.feature`:** Then steps match public `PortoMark` vocabulary (`created successfully` / `have an id`); Examples use catalog-valid weights and `none` for empty `service_ids`.
+- **Docs:** package docs cover contracts only — dropped consumer-integration / Lab matrix pointer material from README and `docs/`.
+- **BREAKING — Gherkin tags:** `@operator:{id}` → `@provider:{id}` (same id as `providers/` / `adapters/` directory names).
+- **BREAKING — Internetmarke:** missing credentials on mark → `PORTO_AUTH_FAILED` (not `PORTO_CAPABILITY_UNSUPPORTED`).
 - **BREAKING — Gherkin:** letter input is weight (+ optional envelope/product id), not letter `porto_id`; services/features use `kind` (not `porto_id` / native id); CLI price is country + weight.
 - **Vocabulary:** Then asserts catalog `id` (not “native id”); phrase templates use `"<id>"`.
 - **BREAKING — errors.json:** product details drop `porto_id`; remove `PORTO_LETTER_INVALID_TYPE` and `PORTO_ADDRESS_INVALID`.
+- **BREAKING — errors.json renames:** `PORTO_MARK_GENERATION_FAILED` → `PORTO_MARK_FAILED`; `PORTO_MARK_VALIDATION_FAILED` → `PORTO_MARK_INVALID`.
+- **BREAKING — errors.json:** `PORTO_LETTER_TOO_HEAVY` → `PORTO_TOO_HEAVY`; `PORTO_LETTER_TOO_LARGE` → `PORTO_TOO_LARGE`; `PORTO_LETTER_INVALID_DIMENSIONS` → `PORTO_INVALID_DIMENSIONS`; drop `PORTO_LETTER_INVALID_WEIGHT_TIER` (catalog miss → `PORTO_DATA_NOT_FOUND`; overweight → `PORTO_TOO_HEAVY`). `PORTO_DATA_SCHEMA_TOO_OLD` → `PORTO_DATA_TOO_OLD`; `PORTO_DATA_SCHEMA_TOO_NEW` → `PORTO_DATA_TOO_NEW`. No aliases.
+- **BREAKING — errors.json:** drop `PORTO_FEATURE_UNSUPPORTED` (zero emitters; `can(FeatureKind)` is boolean), `PORTO_MARK_EXPIRED` (catalog-only), `PORTO_TOO_LARGE` and `PORTO_INVALID_DIMENSIONS` (no independent dimension check before product matching). Add `PORTO_SERVICE_UNSUPPORTED` for an explicit `ServiceKind` satisfied by neither a catalog service nor a product-included capability. No aliases.
 
 ### Added
 
-- Role-explicit address codes from `Porto.requires`: `PORTO_ADDRESS_{SENDER,RECIPIENT}_{REQUIRED,INVALID}`.
-- `PORTO_MARKS_MISMATCH`, `PORTO_MARKS_MANY_UNSUPPORTED`; `sdk/core/mark_requires.feature`.
+- **mark together:** unpaid 3-mark success (`core.mark.many_success`) in `sdk/core/mark.feature`; three `@heavy` Internetmarke 3-mark purchases by coverage type (domestic base / other-zone + service / feature-bearing), not a frozen catalog tuple. Gherkin uses `together`, not `many call`.
+- Role-explicit address codes from `Porto.requires`: `PORTO_ADDRESS_{SENDER,RECIPIENT}_{REQUIRED,INVALID}` (covered in `sdk/core/mark.feature`).
 - `PORTO_SERVICE_AMBIGUOUS` — multiple services match the requested `kind` (details require `kind`).
+- `PORTO_SERVICE_UNSUPPORTED` — explicit `ServiceKind` with zero catalog rows and no product-included capability match (details require `kind`).
+
+### Removed
+
+- **`sdk/core/mark_requires.feature`:** address-require coverage folded into `sdk/core/mark.feature`.
 
 ## [0.4.0] - 2026-08-24
 
 ### Added
 
-- `PORTO_CAPABILITY_UNSUPPORTED` — execution/billing capability absent (`mark` / `wallet`); distinct from postal `PORTO_FEATURE_UNSUPPORTED`. Details require `capability`; feature unsupported requires `feature_id`.
+- `PORTO_CAPABILITY_UNSUPPORTED` — execution/billing capability absent (`mark` / `wallet`). Details require `capability`.
 - **Jurisdiction address forms:** fixtures `invalid_postal_{DE,CH,FR,UA}`, `valid_postbox_{DE,UA}`; `valid_CH` uses 4-digit NPA; `sdk/core/validation.feature` outlines for DE/CH/FR/UA street + post-box success and postal-pattern failure; `details_schemas.PORTO_ADDRESS_INVALID` optional `field` / `reason` / `jurisdiction` / `form_issues` / `kind`.
 
 ### Changed
@@ -79,7 +97,7 @@ Internetmarke-first launch: SDK catalog depth for Deutsche Post, paid wire matri
 ### Added
 
 - Matrix coverage index: `slices.yaml`, `sdk.yaml`, `canary.yaml`, `orders.generated.yaml` (Deutsche Post Internetmarke wire cells; synced from Lab), `cases.generated.json` (Lab-generated SDK case list for TS runners).
-- Docs: `matrix.md`, `scenario-policy.md`, `vocabulary.md` (tag casing, deprecated tag renames, canonical steps).
+- Docs: `matrix.md`, `scenarios.md`, `vocabulary.md` (tag casing, deprecated tag renames, canonical steps).
 - Doc naming rule: `.cursor/rules/doc-naming.mdc` (lowercase, no redirect stubs).
 - Validator: matrix ref scenario/outline names, `sdk.yaml` slice taxonomy, scope-tag ↔ folder alignment, `@adapters` requires scenario `@canary` or `@full`.
 - `gherlint.toml` tag patterns: `@sdk`, `@adapters`, `@core`, `@operator:*`, `@wire:*`, `@canary`, `@full`.

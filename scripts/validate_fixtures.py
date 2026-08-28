@@ -17,7 +17,7 @@ ADDRESS_COMMON_FIELDS = [
     "id",
     "name",
     "postal_code",
-    "city",
+    "locality",
     "country_code",
 ]
 ADDRESS_STREET_FIELDS = ["street", "house_number"]

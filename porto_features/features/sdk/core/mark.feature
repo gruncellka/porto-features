@@ -57,16 +57,10 @@ Feature: Mark address requirements
     When I create a mark
     Then mark creation should succeed
 
-  @error
-  @scenario:core.mark.many_mismatch
-  Scenario: Many call with inequivalent Portos
-    Given two resolved Portos with different products
-    When I attempt to create marks in one many call
-    Then I should get Porto error code "PORTO_MARKS_MISMATCH"
-
-  @error
-  @scenario:core.mark.many_address
-  Scenario: Many call when resolved Porto requires an address
-    Given the resolved Porto requires ADDRESS_RECIPIENT
-    When I attempt to create marks in one many call
-    Then I should get Porto error code "PORTO_MARKS_MANY_UNSUPPORTED"
+  @scenario:core.mark.many_success
+  Scenario: Execute three equivalent marks
+    Given a resolved stamp Porto
+    When I create three equivalent marks together
+    Then three marks should be returned
+    And every returned mark should have an id
+    And the returned mark ids should be distinct

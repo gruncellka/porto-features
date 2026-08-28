@@ -1,9 +1,8 @@
 @sdk
-@operator:deutschepost
+@provider:deutschepost
 Feature: Deutsche Post resolution
   As a developer
-  I want to resolve product, zone, and weight tier from country code and weight
-  So that I can determine the correct product and zone for a letter
+  I want Deutsche Post catalog facts to map onto the public resolve contract
 
   Rule: Happy-path resolution by zone and weight
     Background:
@@ -11,7 +10,7 @@ Feature: Deutsche Post resolution
       And I have a Porto SDK client initialized
       And I have access to porto-data
 
-  Scenario: Resolve domestic letter
+  Scenario: Resolve 20 g domestic to standardbrief
     Given I want to send a letter to country "DE"
     And the letter weight is 20 grams
     When I resolve the letter
@@ -20,7 +19,7 @@ Feature: Deutsche Post resolution
     And I should get weight tier "W0020"
     And the resolution should be valid
 
-  Scenario: Resolve EU zone letter
+  Scenario: Resolve 20 g to France as zone_1_eu
     Given I want to send a letter to country "FR"
     And the letter weight is 20 grams
     When I resolve the letter
@@ -29,7 +28,7 @@ Feature: Deutsche Post resolution
     And I should get weight tier "W0020"
     And the resolution should be valid
 
-  Scenario: Resolve world zone letter
+  Scenario: Resolve 20 g to the United States as world
     Given I want to send a letter to country "US"
     And the letter weight is 20 grams
     When I resolve the letter
@@ -38,7 +37,7 @@ Feature: Deutsche Post resolution
     And I should get weight tier "W0020"
     And the resolution should be valid
 
-  Scenario: Resolve zone 2 europe letter
+  Scenario: Resolve 20 g to Ukraine as zone_2_europe
     Given I want to send a letter to country "UA"
     And the letter weight is 20 grams
     When I resolve the letter
@@ -47,7 +46,7 @@ Feature: Deutsche Post resolution
     And I should get weight tier "W0020"
     And the resolution should be valid
 
-  Scenario: Resolve medium letter for mid weight
+  Scenario: Resolve 30 g domestic to kompaktbrief
     Given I want to send a letter to country "DE"
     And the letter weight is 30 grams
     When I resolve the letter
@@ -56,7 +55,7 @@ Feature: Deutsche Post resolution
     And I should get weight tier "W0050"
     And the resolution should be valid
 
-  Scenario: Resolve large letter for upper domestic weight
+  Scenario: Resolve 100 g domestic to grossbrief
     Given I want to send a letter to country "DE"
     And the letter weight is 100 grams
     When I resolve the letter
@@ -65,7 +64,7 @@ Feature: Deutsche Post resolution
     And I should get weight tier "W0500"
     And the resolution should be valid
 
-  Scenario: Resolve extra large letter
+  Scenario: Resolve 501 g domestic to maxibrief
     Given I want to send a letter to country "DE"
     And the letter weight is 501 grams
     When I resolve the letter
@@ -74,7 +73,7 @@ Feature: Deutsche Post resolution
     And I should get weight tier "W1000"
     And the resolution should be valid
 
-  Scenario: Resolve extra large international letter
+  Scenario: Resolve 1700 g to France as maxibrief_ausland
     Given I want to send a letter to country "FR"
     And the letter weight is 1700 grams
     When I resolve the letter
@@ -94,25 +93,33 @@ Feature: Deutsche Post resolution
     And the letter weight is 20 grams
     When I resolve the letter
     Then the resolution should be invalid
-    And I should get an error about invalid country code
+    And I should get Porto error code "PORTO_DESTINATION_INVALID"
 
   Scenario: Resolve with weight exceeding maximum
     Given I want to send a letter to country "DE"
     And the letter weight is 2500 grams
     When I resolve the letter
     Then the resolution should be invalid
-    And I should get an error about weight exceeding maximum
+    And I should get Porto error code "PORTO_TOO_HEAVY"
 
-  Rule: Resolution pricing metadata
+  Rule: Resolution quote
     Background:
       Given provider is "deutschepost"
       And I have a Porto SDK client initialized
       And I have access to porto-data
 
-  Scenario: Resolve returns base price
+  Scenario: Resolve returns amount
     Given I want to send a letter to country "DE"
     And the letter weight is 20 grams
     When I resolve the letter
-    Then the resolution should include base price
-    And the base price should be a positive number
+    Then the resolved amount should be a positive number
     And the resolution should include currency "EUR"
+
+  Scenario: Domestic delivery hint
+    Given I want to send a letter to country "DE"
+    And the letter weight is 20 grams
+    When I resolve the letter
+    Then I should get product with id "standardbrief"
+    And delivery hint span should be "between"
+    And delivery hint days max should be 2
+    And delivery hint weekdays should be "mon_sat"

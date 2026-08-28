@@ -5,7 +5,7 @@ description = "Structured BDD contracts for Porto SDK — shared Gherkin scenari
 readme = "README.md"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
-keywords = ["postal", "post", "shipping", "logistics", "deutsche post", "ukrposhta", "la poste", "swiss post", "pricing", "postage", "tariffs", "zones", "restrictions", "validation", "bdd", "gherkin", "cucumber", "features", "fixtures", "contract tests", "sdk", "porto-features", "porto-sdk"]
+keywords = ["postal", "post", "logistics", "deutsche post", "ukrposhta", "la poste", "swiss post", "pricing", "postage", "tariffs", "zones", "restrictions", "validation", "bdd", "gherkin", "cucumber", "features", "fixtures", "contract tests", "sdk", "porto-features", "porto-sdk"]
 classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",

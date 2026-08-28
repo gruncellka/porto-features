@@ -1,17 +1,17 @@
 # Step vocabulary
 
-Canonical phrasing for shared BDD language across `porto-features`, Python SDK tests, and TypeScript SDK tests.
+Canonical phrasing for shared BDD language in this package.
 
-Gherkin is a **behavior contract**, not a copy of SDK method names. Domain nouns: **letter**, **Porto**, **mark** — not shipment or package.
+Gherkin is a **behavior contract**, not a copy of implementor method names. Domain nouns: **letter**, **Porto**, **mark** — not shipment or package.
 
 ```text
-SDK façade          Gherkin
+Intent              Gherkin
 ─────────────       ─────────────────────────────
-resolve()           When I resolve the letter
-price()             When I get the price
-mark()              When I create a mark
-prepare()           no Gherkin (not a customer step)
-options()           When I list product options
+resolve             When I resolve the letter
+price               When I get the price
+mark                When I create a mark
+prepare             no Gherkin (not a customer step)
+options             When I list product options
 restrict            dropped (eligibility lives in resolve)
 catalog load        When I inspect … data
 ```
@@ -19,9 +19,8 @@ catalog load        When I inspect … data
 ## Rules
 
 - Use canonical phrases in new feature files.
-- SDK step definitions must support canonical phrases first.
 - Do not duplicate semantics with slightly different wording.
-- Do not add SDK-only aliases for dropped phrases (`STANDARD`, stamp generate, `When I check restrictions`).
+- Do not add aliases for dropped phrases (`STANDARD`, stamp generate, `When I check restrictions`).
 
 ## Identifier layers
 
@@ -33,9 +32,11 @@ catalog load        When I inspect … data
 | Service fact | **Then** catalog `id` | `service with id "einschreiben"` |
 | Feature fact | **Then** feature `kind` | `the features should include kind "tracking"` |
 
-Letter resolution uses **weight** (and optional **envelope id** or **product id**) at the SDK edge; catalog `id` is the operator SKU in **Then** assertions. Catalog mapping and disambiguation rules live in **porto-data** — not duplicated here.
+Letter resolution uses **weight** (and optional **envelope id** or **product id**); catalog `id` is the provider SKU in **Then** assertions. Catalog mapping and disambiguation rules live in **porto-data** — not duplicated here.
 
-Do **not** use legacy tokens (`letter_standard`, `STANDARD`, `registered_mail`, letter `porto_id` buckets) as SDK input in new scenarios.
+Do **not** use legacy tokens (`letter_standard`, `STANDARD`, `registered_mail`, letter `porto_id` buckets) as letter input in new scenarios.
+
+Do **not** use `small letter` / `medium letter` / `large letter` as tariff classes. `letter` is narrative; catalog `id` is the assertion.
 
 ## Shipping / shipment (forbidden in features)
 
@@ -76,18 +77,19 @@ Do **not** use legacy tokens (`letter_standard`, `STANDARD`, `registered_mail`, 
 - `Given the letter weight is <weight> grams`
 - `Given I have product "<id>"`
 - `Given zone id is "<zone_id>"` (adapter wire / product-zone setups)
-- `When I get the price` (façade `price()` — do not use `When I pre-calculate the price`)
+- `When I get the price` (do not use `When I pre-calculate the price`)
 - `Then I should get a price in cents`
 - `Then the price should be greater than 0`
 
 ### Catalog inspection
 
-- `When I inspect products data` (and zones, prices, services, restrictions, envelopes, weight tiers, features)
+Shared/core BDD lists public surfaces only:
+
+- `When I inspect envelopes data`
 - `When I inspect the provider registry`
-- `When I inspect the execution manifest`
-- `When I inspect denied party screening`
-- Products: assert `id`, `name`, `label` only
-- Services and features: assert `kind` (not `porto_id`)
+- `When I list product options`
+
+Provider-native product ids belong in `providers/<id>/` features, not in shared catalog dumps.
 
 ### Services
 
@@ -102,10 +104,17 @@ Paid adapter purchase only (`marks.feature`). Offline resolve is `When I resolve
 
 - `When I create a mark`
 - `When I attempt to create a mark`
+- `When I create three equivalent marks together`
+- `When I attempt to create the marks together`
 - `Then the mark should be created successfully`
 - `Then the mark should have an id`
+- `Then three marks should be returned`
+- `Then every returned mark should have an id`
+- `Then the returned mark ids should be distinct`
+- `Then the returned marks should share one external id`
 - `Then mark creation should fail`
 - `Then I should get Porto error code "<code>"`
+- `Given a resolved stamp Porto covering "<coverage>"` (coverage types: domestic base / other-zone + service / feature-bearing; catalog combo is not frozen)
 
 ## Review checklist
 
@@ -115,6 +124,5 @@ Paid adapter purchase only (`marks.feature`). Offline resolve is `When I resolve
 - Do feature Then steps use `kind` tokens?
 - Is the Feature tagged `@sdk` or `@adapters`?
 - Paid adapters: `@canary` or `@heavy` (not `@full` / `@release`)?
-- Does `@adapters` match generated wire rows in Lab `labs/matrix/orders.generated.yaml`?
 - Error scenarios: unique `@scenario:` and `PORTO_*` in `errors.json`?
 - No `shipping` / `shipment`, `When I check restrictions`, `When I access`, or `When I prepare a mark order`?

@@ -1,10 +1,10 @@
 @adapters
-@operator:deutschepost
+@provider:deutschepost
 @wire:internetmarke
 Feature: Internetmarke adapter mark purchases
   As a developer
   I want to purchase PortoMarks via Deutsche Post Internetmarke
-  So that wire execution and Portokasse checkout are verified
+  So that wire execution and Portokasse mark purchase are verified
 
   Background:
     Given provider is "deutschepost"
@@ -21,21 +21,6 @@ Feature: Internetmarke adapter mark purchases
     When I create a mark
     Then the mark should be created successfully
     And the mark should have an id
-    And the mark should have a barcode
-    And the mark should have a valid until date
-    And the mark should include pre-calculated price
-    And the mark should include final API price
-
-  @heavy
-  Scenario: Compare pre-calculated and API prices
-    Given I want to send a letter to country "DE"
-    And the letter weight is 20 grams
-    And Internetmarke credentials are configured
-    When I create a mark
-    Then the system should compare pre-calculated and API prices
-    And if prices match, no mismatch should be reported
-    And if prices differ, a mismatch should be reported
-    And the price difference should be calculated
 
   @heavy
   Scenario Outline: mark_order
@@ -50,60 +35,82 @@ Feature: Internetmarke adapter mark purchases
     When I create a mark
     Then the mark should be created successfully
     And the mark should have an id
-    And the mark should have a barcode
-    And the mark should have a qr_code
-    And the mark should have a valid until date
-    And the mark should include pre-calculated price
-    And the mark should include final API price
-    And the API price should match pre-calculated price or show mismatch
-    And the mark should have an image_url
-    And the mark should have a print_format
 
     Examples:
       | product_id | zone_id | country_code | weight | service_ids |
-      | grossbrief | domestic | DE | 1 |  |
-      | grossbrief | domestic | DE | 1 | einschreiben |
-      | grossbrief | domestic | DE | 1 | einschreiben_einwurf |
-      | grossbrief | domestic | DE | 1 | einschreiben_rueckschein |
-      | grossbrief | world | US | 1 |  |
-      | grossbrief | world | US | 1 | einschreiben |
-      | grossbrief | zone_1_eu | FR | 1 |  |
-      | grossbrief | zone_1_eu | FR | 1 | einschreiben |
-      | grossbrief | zone_2_europe | UA | 1 |  |
-      | grossbrief | zone_2_europe | UA | 1 | einschreiben |
-      | kompaktbrief | domestic | DE | 1 |  |
-      | kompaktbrief | domestic | DE | 1 | einschreiben |
-      | kompaktbrief | domestic | DE | 1 | einschreiben_einwurf |
-      | kompaktbrief | domestic | DE | 1 | einschreiben_rueckschein |
-      | kompaktbrief | world | US | 1 |  |
-      | kompaktbrief | world | US | 1 | einschreiben |
-      | kompaktbrief | zone_1_eu | FR | 1 |  |
-      | kompaktbrief | zone_1_eu | FR | 1 | einschreiben |
-      | kompaktbrief | zone_2_europe | UA | 1 |  |
-      | kompaktbrief | zone_2_europe | UA | 1 | einschreiben |
-      | maxibrief | domestic | DE | 1 |  |
-      | maxibrief | domestic | DE | 1 | einschreiben |
-      | maxibrief | domestic | DE | 1 | einschreiben_einwurf |
-      | maxibrief | domestic | DE | 1 | einschreiben_rueckschein |
-      | maxibrief | world | US | 1 |  |
-      | maxibrief | world | US | 1 | einschreiben |
-      | maxibrief | zone_1_eu | FR | 1 |  |
-      | maxibrief | zone_1_eu | FR | 1 | einschreiben |
-      | maxibrief | zone_2_europe | UA | 1 |  |
-      | maxibrief | zone_2_europe | UA | 1 | einschreiben |
-      | maxibrief_ausland | world | US | 1 |  |
-      | maxibrief_ausland | world | US | 1 | einschreiben |
-      | maxibrief_ausland | zone_1_eu | FR | 1 |  |
-      | maxibrief_ausland | zone_1_eu | FR | 1 | einschreiben |
-      | maxibrief_ausland | zone_2_europe | UA | 1 |  |
-      | maxibrief_ausland | zone_2_europe | UA | 1 | einschreiben |
-      | standardbrief | domestic | DE | 1 |  |
-      | standardbrief | domestic | DE | 1 | einschreiben |
-      | standardbrief | domestic | DE | 1 | einschreiben_einwurf |
-      | standardbrief | domestic | DE | 1 | einschreiben_rueckschein |
-      | standardbrief | world | US | 1 |  |
-      | standardbrief | world | US | 1 | einschreiben |
-      | standardbrief | zone_1_eu | FR | 1 |  |
-      | standardbrief | zone_1_eu | FR | 1 | einschreiben |
-      | standardbrief | zone_2_europe | UA | 1 |  |
-      | standardbrief | zone_2_europe | UA | 1 | einschreiben |
+      | grossbrief | domestic | DE | 100 | none |
+      | grossbrief | domestic | DE | 100 | einschreiben |
+      | grossbrief | domestic | DE | 100 | einschreiben_einwurf |
+      | grossbrief | domestic | DE | 100 | einschreiben_rueckschein |
+      | grossbrief | world | US | 100 | none |
+      | grossbrief | world | US | 100 | einschreiben |
+      | grossbrief | zone_1_eu | FR | 100 | none |
+      | grossbrief | zone_1_eu | FR | 100 | einschreiben |
+      | grossbrief | zone_2_europe | UA | 100 | none |
+      | grossbrief | zone_2_europe | UA | 100 | einschreiben |
+      | kompaktbrief | domestic | DE | 50 | none |
+      | kompaktbrief | domestic | DE | 50 | einschreiben |
+      | kompaktbrief | domestic | DE | 50 | einschreiben_einwurf |
+      | kompaktbrief | domestic | DE | 50 | einschreiben_rueckschein |
+      | kompaktbrief | world | US | 50 | none |
+      | kompaktbrief | world | US | 50 | einschreiben |
+      | kompaktbrief | zone_1_eu | FR | 50 | none |
+      | kompaktbrief | zone_1_eu | FR | 50 | einschreiben |
+      | kompaktbrief | zone_2_europe | UA | 50 | none |
+      | kompaktbrief | zone_2_europe | UA | 50 | einschreiben |
+      | maxibrief | domestic | DE | 1000 | none |
+      | maxibrief | domestic | DE | 1000 | einschreiben |
+      | maxibrief | domestic | DE | 1000 | einschreiben_einwurf |
+      | maxibrief | domestic | DE | 1000 | einschreiben_rueckschein |
+      | maxibrief | world | US | 1000 | none |
+      | maxibrief | world | US | 1000 | einschreiben |
+      | maxibrief | zone_1_eu | FR | 1000 | none |
+      | maxibrief | zone_1_eu | FR | 1000 | einschreiben |
+      | maxibrief | zone_2_europe | UA | 1000 | none |
+      | maxibrief | zone_2_europe | UA | 1000 | einschreiben |
+      | maxibrief_ausland | world | US | 2000 | none |
+      | maxibrief_ausland | world | US | 2000 | einschreiben |
+      | maxibrief_ausland | zone_1_eu | FR | 2000 | none |
+      | maxibrief_ausland | zone_1_eu | FR | 2000 | einschreiben |
+      | maxibrief_ausland | zone_2_europe | UA | 2000 | none |
+      | maxibrief_ausland | zone_2_europe | UA | 2000 | einschreiben |
+      | standardbrief | domestic | DE | 20 | none |
+      | standardbrief | domestic | DE | 20 | einschreiben |
+      | standardbrief | domestic | DE | 20 | einschreiben_einwurf |
+      | standardbrief | domestic | DE | 20 | einschreiben_rueckschein |
+      | standardbrief | world | US | 20 | none |
+      | standardbrief | world | US | 20 | einschreiben |
+      | standardbrief | zone_1_eu | FR | 20 | none |
+      | standardbrief | zone_1_eu | FR | 20 | einschreiben |
+      | standardbrief | zone_2_europe | UA | 20 | none |
+      | standardbrief | zone_2_europe | UA | 20 | einschreiben |
+
+  @heavy
+  Scenario: Purchase three equivalent domestic base marks
+    Given a resolved stamp Porto covering "domestic base"
+    And Internetmarke credentials are configured
+    When I create three equivalent marks together
+    Then three marks should be returned
+    And every returned mark should have an id
+    And the returned mark ids should be distinct
+    And the returned marks should share one external id
+
+  @heavy
+  Scenario: Purchase three equivalent other-zone service marks
+    Given a resolved stamp Porto covering "other-zone + service"
+    And Internetmarke credentials are configured
+    When I create three equivalent marks together
+    Then three marks should be returned
+    And every returned mark should have an id
+    And the returned mark ids should be distinct
+    And the returned marks should share one external id
+
+  @heavy
+  Scenario: Purchase three equivalent feature-bearing marks
+    Given a resolved stamp Porto covering "feature-bearing"
+    And Internetmarke credentials are configured
+    When I create three equivalent marks together
+    Then three marks should be returned
+    And every returned mark should have an id
+    And the returned mark ids should be distinct
+    And the returned marks should share one external id

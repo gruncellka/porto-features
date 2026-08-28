@@ -1,65 +1,78 @@
 @sdk
-@operator:deutschepost
+@provider:deutschepost
 Feature: Services
   As a developer
-  I want additional services on a letter
-  So that I can add additional services like registered mail to letters
+  I want Deutsche Post services bound through public resolve
+  So that kinds and catalog ids stay distinct
 
   Background:
     Given provider is "deutschepost"
     And I have a Porto SDK client initialized
     And I have access to porto-data
 
-  Scenario: List available services
-    When I list available services
-    Then I should get an array of services
-    And the services array should contain service with id "einschreiben"
-    And the services array should contain service with id "einschreiben_einwurf"
-    And the services array should contain service with id "einschreiben_rueckschein"
-    And each service should have field "id"
-    And each service should have field "name"
-    And each service should have field "features"
+  Scenario: Available services after resolve include registered variants
+    Given I want to send a letter to country "DE"
+    And the letter weight is 20 grams
+    When I resolve the letter
+    Then available services should include "einschreiben"
+    And available services should include "einschreiben_einwurf"
+    And available services should include "einschreiben_rueckschein"
+    And each available service should have field "id"
+    And each available service should have field "kind"
 
-  Scenario: Get service features
-    Given I have service "einschreiben"
-    When I get the service features
-    Then I should get an array of features
-    And the features should include kind "tracking"
-    And the features should include kind "acceptance_proof"
-
-  Scenario: Get service features for mailbox delivery
-    Given I have service "einschreiben_einwurf"
-    When I get the service features
-    Then I should get an array of features
-    And the features should include kind "tracking"
-
-  Scenario: Add registered mail service to letter
-    Given I have a letter order
-    And service kind is "registered"
-    When I add the service to the order
-    Then the order should include service "einschreiben"
-    And the order should have tracking number capability
-    And the order should have proof of mailing capability
-
-  Scenario: Add registered mail with return receipt
-    Given I have a letter order
+  Scenario: Unique return-receipt kind binds Einschreiben Rückschein
+    Given I want to send a letter to country "DE"
+    And the letter weight is 20 grams
     And service kind is "registered_return_receipt"
-    When I add the service to the order
-    Then the order should include service "einschreiben_rueckschein"
-    And the order should have recipient signature requirement
-    And the order should have return receipt capability
+    When I resolve the letter
+    Then the resolved Porto should include service id "einschreiben_rueckschein"
+    And the resolved Porto should include service kind "registered_return_receipt"
 
-  Scenario: Get total price with registered mail service
-    Given I have a letter with base price
+  Scenario: Ambiguous registered kind fails closed
+    Given I want to send a letter to country "DE"
+    And the letter weight is 20 grams
     And service kind is "registered"
-    When I get the total price
-    Then the total price should include base price
-    And the total price should include registered mail fee
-    And the total price should be higher than base price
+    When I resolve the letter
+    Then the resolution should be invalid
+    And I should get Porto error code "PORTO_SERVICE_AMBIGUOUS"
 
-  Scenario: Validate service compatibility with product
-    Given I have product "standardbrief"
+  Scenario: Pinned registered binds einschreiben
+    Given I want to send a letter to country "DE"
+    And the letter weight is 20 grams
     And service kind is "registered"
-    When I check service compatibility
-    Then the service should be compatible
-    And I should get no compatibility errors
+    And service ids are "einschreiben"
+    When I resolve the letter
+    Then the resolution should be valid
+    And the resolved Porto should include service id "einschreiben"
+    And the resolved amount should be greater than the product component amount
+
+  Scenario: Discover service option then pin registered
+    Given I want to send a letter to country "DE"
+    And the letter weight is 20 grams
+    When I list product options
+    Then product options should include "standardbrief"
+    And product option "standardbrief" should include service "einschreiben"
+    When I resolve using product "standardbrief" and discovered service "einschreiben"
+    Then the resolution should be valid
+    And the resolved Porto should include service id "einschreiben"
+    And the resolved Porto should include service kind "registered"
+
+  Scenario: Registered is compatible with standardbrief
+    Given I want to send a letter to country "DE"
+    And the letter weight is 20 grams
+    And product id is "standardbrief"
+    And service kind is "registered"
+    And service ids are "einschreiben"
+    When I resolve the letter
+    Then the resolution should be valid
+    And I should get product with id "standardbrief"
+    And the resolved Porto should include service id "einschreiben"
+
+  Scenario: Incompatible registered variants fail closed
+    Given I want to send a letter to country "DE"
+    And the letter weight is 20 grams
+    And service kind is "registered"
+    And service ids are "einschreiben,einschreiben_einwurf"
+    When I resolve the letter
+    Then the resolution should be invalid
+    And I should get Porto error code "PORTO_SERVICES_INCOMPATIBLE"
