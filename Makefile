@@ -52,7 +52,7 @@ install-hooks: venv
 	@if git rev-parse --is-inside-work-tree > /dev/null 2>&1; then \
 		echo "Installing pre-commit hooks..."; \
 		if [ -f $(VENV)/bin/pre-commit ]; then \
-			$(VENV)/bin/pre-commit install --hook-type pre-commit --hook-type pre-push; \
+			$(VENV)/bin/pre-commit install --hook-type pre-commit --hook-type commit-msg --hook-type pre-push; \
 		else \
 			echo "Error: pre-commit not found."; \
 			exit 1; \

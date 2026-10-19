@@ -63,7 +63,7 @@ Do not hand-edit generated Example tables on adapter Features.
 1. Edit features / fixtures / `errors.json`.
 2. Run validation leaves locally (`make features`, `make fixtures`, `make errors`, `make format`, `make lint`, `make types`, `make test`) or rely on pre-commit + CI.
 3. Note behavior changes under `CHANGELOG.md` → `[Unreleased]`.
-4. Commit (pre-commit runs automatically).
+4. Commit (pre-commit runs automatically). Subject prefer ≤50 characters, hard max 72. Optional body after a blank line, wrap at 72. `.githooks/commit-msg` rejects a subject or body line over 72, a body that does not follow a blank line, and a trailing period. Re-run `make install-hooks` once so an existing clone picks up that hook.
 
 CI runs parallel leaf jobs (`features`, `fixtures`, `errors`, `format`, `lint`, `types`, `test`) and aggregates in `validate` — require **`validate`** for branch protection.
 
