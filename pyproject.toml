@@ -1,7 +1,7 @@
 [project]
 name = "gruncellka-porto-features"
 version = "0.5.0"
-description = "Structured BDD contracts for Porto SDK — shared Gherkin scenarios, fixtures, and errors.json"
+description = "Structured BDD contracts for Porto SDK — shared Gherkin scenarios, fixtures, errors.json, and statuses.json"
 readme = "README.md"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
@@ -47,6 +47,7 @@ package-dir = {"" = "."}
 [tool.setuptools.package-data]
 porto_features = [
     "errors.json",
+    "statuses.json",
     "features/**/*.feature",
     "fixtures/**/*.json",
 ]

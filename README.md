@@ -3,7 +3,7 @@
 [![validation](https://github.com/gruncellka/porto-features/actions/workflows/validation.yml/badge.svg)](https://github.com/gruncellka/porto-features/actions/workflows/validation.yml)
 [![codecov](https://codecov.io/gh/gruncellka/porto-features/branch/main/graph/badge.svg)](https://codecov.io/gh/gruncellka/porto-features)
 
-**Shared behavioral contracts for Porto SDK implementations** — Gherkin scenarios, address fixtures, and `errors.json`. This package ships the contract only.
+**Shared behavioral contracts for Porto SDK implementations** — Gherkin scenarios, address fixtures, `errors.json`, and `statuses.json`. This package ships the contract only.
 
 Catalog facts stay in **[porto-data](https://github.com/gruncellka/porto-data)**. This package says *what behavior must hold*, not *what the tariff tables contain*.
 
@@ -17,7 +17,7 @@ npm install -D @gruncellka/porto-features
 pip install "gruncellka-porto-features[dev]"
 ```
 
-Shipped: `porto_features/errors.json` · `porto_features/features/**/*.feature` · `porto_features/fixtures/**/*.json`
+Shipped: `porto_features/errors.json` · `porto_features/statuses.json` · `porto_features/features/**/*.feature` · `porto_features/fixtures/**/*.json`
 
 ---
 
@@ -69,6 +69,7 @@ Canonical Gherkin phrases: [docs/vocabulary.md](docs/vocabulary.md).
 ```text
 porto_features/
 ├── errors.json                         # PORTO_* catalog
+├── statuses.json                       # PortoStatus catalog
 ├── features/
 │   ├── sdk/
 │   │   ├── core/                       # @sdk @core

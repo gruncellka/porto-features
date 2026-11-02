@@ -36,6 +36,7 @@ Adapter layout: **`adapters/{id}/{integration}/marks.feature`** (successful mark
 | `@canary` | Small paid smoke subset (`marks.feature` scenarios) |
 | `@heavy` | Expensive wire matrix (`marks.feature` scenarios) |
 | `@error` | Adapter failure contract (`errors.feature` scenarios); default — no purchase |
+| `@status` | PortoStatus catalog membership (`status.feature`); no provider native codes |
 | `@auth` | Auth/token/linkage failure (`errors.feature`); may call auth APIs, no purchase |
 | `@mark` | Error proven at mark / purchase boundary (optional on `@error`; may spend) |
 
@@ -45,7 +46,7 @@ Do **not** use `@offline`, `@online`, or `@api` — deprecated.
 
 All Gherkin tags must be **lowercase** (including scenario tags):
 
-- `@sdk`, `@adapters`, `@core`, `@canary`, `@heavy`, `@error`, `@auth`, `@mark`
+- `@sdk`, `@adapters`, `@core`, `@canary`, `@heavy`, `@error`, `@status`, `@auth`, `@mark`
 - `@provider:deutschepost`, `@wire:internetmarke`
 
 Do **not** use mixed-case legacy tags such as `@SDK`, `@Release`, or `@Heavy`. Renames from older conventions:
