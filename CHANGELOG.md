@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-11-04
+
 ### Added
 
 - **`sdk/providers/deutschepost/services.feature`:** purchased feature kinds for Einschreiben, Einwurf, and Rückschein.
