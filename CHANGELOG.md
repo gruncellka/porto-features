@@ -4,6 +4,7 @@
 
 ### Added
 
+- **`sdk/providers/deutschepost/services.feature`:** purchased feature kinds for Einschreiben, Einwurf, and Rückschein.
 - **statuses.json:** public `PortoStatus` catalog (`created`, `transit`, `delivery`, `delivered`, `returned`, `undeliverable`). Contract and docs only — SDKs do not read it at runtime.
 
 ### Changed
