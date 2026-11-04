@@ -1,5 +1,5 @@
 .PHONY: . help venv install-hooks
-.PHONY: features fixtures errors
+.PHONY: features fixtures errors statuses
 .PHONY: validate format lint types test artifact
 
 # Prefer Python 3.13+ (project requires >=3.13). Override in CI: PYTHON3=python
@@ -28,11 +28,12 @@ help:
 	@echo "  make features      - Gherkin tags, vocabulary, layout"
 	@echo "  make fixtures      - Address JSON fixtures"
 	@echo "  make errors        - @error scenarios vs errors.json"
+	@echo "  make statuses      - @status scenarios vs statuses.json"
 	@echo "  make format        - Check Python + JSON formatting (rewrite via pre-commit)"
 	@echo "  make lint          - Gherkin + Python"
 	@echo "  make types         - Static types"
 	@echo "  make test          - Script tests with coverage gate"
-	@echo "  make validate      - features + fixtures + errors (contract umbrella)"
+	@echo "  make validate      - features + fixtures + errors + statuses"
 	@echo ""
 	@echo "Publish:"
 	@echo "  make artifact      - build npm+PyPI once, verify, smoke (keeps tarball + dist/)"
@@ -63,7 +64,7 @@ install-hooks: venv
 # ==========================================
 # Umbrella commands
 # ==========================================
-validate: venv features fixtures errors
+validate: venv features fixtures errors statuses
 
 format: venv
 	@echo "Checking formatting..."
@@ -115,6 +116,11 @@ errors: venv
 	@echo "Checking @error scenarios against errors.json..."
 	@. $(VENV)/bin/activate && python scripts/validate_error_contracts.py || exit 1
 	@echo "✓ errors"
+
+statuses: venv
+	@echo "Checking @status scenarios against statuses.json..."
+	@. $(VENV)/bin/activate && python scripts/validate_status_contracts.py || exit 1
+	@echo "✓ statuses"
 
 # ==========================================
 # Testing

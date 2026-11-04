@@ -1,0 +1,35 @@
+{
+  "description": "Public Porto SDK status codes (PortoStatus). Cross-provider.",
+  "codes": [
+    {
+      "code": "created",
+      "domain": "tracking",
+      "description": "Mark identity recorded; not yet in carrier transit."
+    },
+    {
+      "code": "transit",
+      "domain": "tracking",
+      "description": "In the carrier network."
+    },
+    {
+      "code": "delivery",
+      "domain": "tracking",
+      "description": "Out for delivery to the recipient."
+    },
+    {
+      "code": "delivered",
+      "domain": "tracking",
+      "description": "Delivered to the recipient."
+    },
+    {
+      "code": "returned",
+      "domain": "tracking",
+      "description": "Returning or returned to sender."
+    },
+    {
+      "code": "undeliverable",
+      "domain": "tracking",
+      "description": "Delivery failed; not deliverable."
+    }
+  ]
+}

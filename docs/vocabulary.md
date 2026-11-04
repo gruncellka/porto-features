@@ -117,6 +117,12 @@ Paid adapter purchase only (`marks.feature`). Offline resolve is `When I resolve
 - `Then I should get Porto error code "<code>"`
 - `Given a resolved stamp Porto covering "<coverage>"` (coverage types: domestic base / other-zone + service / feature-bearing; catalog combo is not frozen)
 
+### PortoStatus catalog
+
+Provider-agnostic. Native carrier codes are not part of this contract.
+
+- `Then "<code>" should be declared in the PortoStatus catalog`
+
 ## Review checklist
 
 - Does the scenario use weight (not letter `porto_id`) for letter input?

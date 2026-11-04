@@ -16,11 +16,12 @@ porto-data (facts) → porto-features (BDD contracts)
 1. Gherkin is implementation-agnostic (no class/module names).
 2. Given/When letter input = weight (+ optional envelope or product id); service input = `kind`; Then may assert catalog `id` or feature `kind`.
 3. No step definitions or runner glue in this repo.
-4. Published only: `porto_features/errors.json`, `features/`, `fixtures/`. No `contracts/` or package `matrix/`.
+4. Published only: `porto_features/errors.json`, `statuses.json`, `features/`, `fixtures/`. No `contracts/` or package `matrix/`.
 5. Feature tags: `@sdk` or `@adapters`; scope `@core` or `@provider:{id}` (never `@operator:`); paid: `@canary` / `@heavy` (never `@full` / `@release`). All tags lowercase.
 6. Offline: `When I resolve the letter`. Paid: `When I create a mark`. No `mark_simulate` / stamp simulate.
 7. Letter / price / mailing — not shipping / shipment. No `When I check restrictions`.
 8. Address fixtures use `locality` (not `city`).
 9. Do not hand-edit generated Example tables on adapter Features.
+10. `statuses.json` owns normalized `PortoStatus` values. `@status` scenarios use those values only; provider-native event codes stay in SDK adapters.
 
 Before merge: run validation leaves (`make features` … `make test`) or rely on CI `validate`; update vocabulary/CHANGELOG when contracts change.

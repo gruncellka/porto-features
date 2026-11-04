@@ -66,6 +66,7 @@ const hasPy = (dir) => {
 };
 if (hasPy(pdir)) { console.error('FAIL: .py file in npm package'); process.exit(1); }
 if (!fs.existsSync(path.join(pdir, 'errors.json'))) { console.error('FAIL: errors.json missing'); process.exit(1); }
+if (!fs.existsSync(path.join(pdir, 'statuses.json'))) { console.error('FAIL: statuses.json missing'); process.exit(1); }
 if (!fs.existsSync(sdkFeatures)) { console.error('FAIL: features/sdk/ missing'); process.exit(1); }
 console.log('require() OK, version:', pkg.version);
 "
@@ -113,9 +114,11 @@ root = Path(porto_features.__file__).parent
 features = root / 'features'
 fixtures = root / 'fixtures'
 errors = root / 'errors.json'
+statuses = root / 'statuses.json'
 assert features.exists(), 'features/ missing'
 assert fixtures.exists(), 'fixtures/ missing'
 assert errors.is_file(), 'errors.json missing'
+assert statuses.is_file(), 'statuses.json missing'
 assert list(features.rglob('*.feature')), 'no .feature files'
 assert list(fixtures.rglob('*.json')), 'no .json in fixtures/'
 print('porto_features import OK')
