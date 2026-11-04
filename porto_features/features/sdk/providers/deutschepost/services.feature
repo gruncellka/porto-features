@@ -76,3 +76,21 @@ Feature: Services
     When I resolve the letter
     Then the resolution should be invalid
     And I should get Porto error code "PORTO_SERVICES_INCOMPATIBLE"
+
+  Scenario: Purchased services expose their feature kinds
+    Given I want to send a letter to country "DE"
+    And the letter weight is 20 grams
+    And product id is "standardbrief"
+    When I list product options
+    Then product option "standardbrief" service "einschreiben" should have feature kinds "tracking, acceptance_proof"
+    And product option "standardbrief" service "einschreiben_einwurf" should have feature kinds "tracking"
+    And product option "standardbrief" service "einschreiben_rueckschein" should have feature kinds "tracking, recipient_signature, return_receipt, delivery_proof"
+    When I resolve using product "standardbrief" and discovered service "einschreiben"
+    Then the resolution should be valid
+    And the resolved Porto feature kinds should be "tracking, acceptance_proof"
+    When I resolve using product "standardbrief" and discovered service "einschreiben_einwurf"
+    Then the resolution should be valid
+    And the resolved Porto feature kinds should be "tracking"
+    When I resolve using product "standardbrief" and discovered service "einschreiben_rueckschein"
+    Then the resolution should be valid
+    And the resolved Porto feature kinds should be "tracking, recipient_signature, return_receipt, delivery_proof"
