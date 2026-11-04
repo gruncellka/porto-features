@@ -4,7 +4,7 @@
     {
       "code": "created",
       "domain": "tracking",
-      "description": "Shipment or mark identity recorded; not yet in carrier transit."
+      "description": "Mark identity recorded; not yet in carrier transit."
     },
     {
       "code": "transit",

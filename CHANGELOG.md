@@ -5,6 +5,10 @@
 ### Added
 
 - **statuses.json:** public `PortoStatus` catalog (`created`, `transit`, `delivery`, `delivered`, `returned`, `undeliverable`). Contract and docs only — SDKs do not read it at runtime.
+
+### Changed
+
+- **statuses.json:** `created` is mark identity recorded, not shipment or sending. Descriptions reject shipment, shipping, package, and sending.
 - **`sdk/core/status.feature`:** catalog declares `created`. Provider native codes stay out of this core feature.
 - **`make statuses`** and CI job `statuses`: unique codes, required fields, `@status` scenarios ⊆ catalog.
 

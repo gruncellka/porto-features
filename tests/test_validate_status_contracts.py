@@ -234,6 +234,24 @@ def test_extract_scenario_id_rejects_multiple_tags():
         module.extract_scenario_id(["@scenario:a", "@scenario:b"], "x.feature")
 
 
+def test_catalog_codes_rejects_shipment_word(tmp_path):
+    module = load_module()
+    path = tmp_path / "statuses.json"
+    with pytest.raises(SystemExit, match="forbidden word"):
+        module.catalog_codes(
+            {
+                "codes": [
+                    {
+                        "code": "created",
+                        "domain": "tracking",
+                        "description": "Shipment recorded",
+                    }
+                ]
+            },
+            path,
+        )
+
+
 def test_extract_status_code_requires_one_code():
     module = load_module()
     with pytest.raises(SystemExit, match="missing quoted"):

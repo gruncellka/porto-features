@@ -4,6 +4,7 @@
 statuses.json is the declared PortoStatus catalog (contract only).
 This check ensures:
 - catalog codes are unique and each row has code, domain, and description
+- descriptions avoid shipment, shipping, package, and sending
 - every @status scenario asserts one catalog code
 - every referenced code is declared
 - every @scenario: id among @status scenarios is unique
@@ -23,6 +24,8 @@ from gherkin.parser import Parser
 
 STATUS_CODE_REGEX = re.compile(r'"([a-z][a-z0-9_]*)"')
 SCENARIO_TAG_PREFIX = "@scenario:"
+# Features vocabulary: letter/mark, not shipment or package. PortoMark covers stamp and label.
+FORBIDDEN_STATUS_WORDS = re.compile(r"\b(shipment|shipping|package|sending)\b", re.IGNORECASE)
 
 
 def main() -> None:
@@ -87,6 +90,11 @@ def catalog_codes(doc: dict[str, Any], path: Path) -> set[str]:
             raise SystemExit(f"{path}: status row missing code, domain, or description")
         if code in declared:
             raise SystemExit(f"{path}: duplicate status code {code}")
+        forbidden = FORBIDDEN_STATUS_WORDS.search(description)
+        if forbidden:
+            raise SystemExit(
+                f"{path}: status {code} description uses forbidden word {forbidden.group(0)!r}"
+            )
         declared.add(code)
     return declared
 
